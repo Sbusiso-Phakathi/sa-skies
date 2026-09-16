@@ -1637,19 +1637,48 @@ async function handleSignIn() {
 }
 
 async function enterApp() {
-  userProfile = await loadProfile();
-  if (!userProfile) {
-    alert('Profile not found. Please sign up again.');
+  console.log('🏠 Entering app...');
+  
+  try {
+    userProfile = await loadProfile();
+  } catch (e) {
+    console.error('❌ loadProfile failed:', e);
+    alert('Could not load profile: ' + e.message);
     await signOut();
     return;
+  }
+  
+  if (!userProfile) {
+    console.warn('⚠️ No profile found, creating one...');
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      await supabase.from('profiles').insert({
+        id: user.id,
+        username: user.email.split('@')[0],
+        balance: 1000.00,
+        streak: 0,
+        peak_balance: 1000.00,
+        equipped_cosmetic: 'plane'
+      });
+      await supabase.from('user_cosmetics').insert({
+        user_id: user.id,
+        cosmetic_id: 'plane',
+        unlocked: true
+      });
+      userProfile = await loadProfile();
+    } catch (e) {
+      console.error('❌ Could not create profile:', e);
+      alert('Profile setup failed: ' + e.message);
+      return;
+    }
   }
   
   currentUser = userProfile.username;
   balance = Number(userProfile.balance);
   equippedCosmetic = userProfile.equipped_cosmetic || 'plane';
   
-  await loadUserCosmetics();
-  myBetsHistory = await loadBetsHistory();
+  try { await loadUserCosmetics(); } catch (e) { console.warn('Cosmetics load failed:', e); }
+  try { myBetsHistory = await loadBetsHistory(); } catch (e) { console.warn('Bets load failed:', e); }
   
   el('authScreen').style.display = 'none';
   el('appContent').style.display = 'block';
@@ -1661,13 +1690,16 @@ async function enterApp() {
   updateStatsDisplay();
   updateSignOutAvailability();
   renderStoredHistoryLog();
-  renderLeaderboard();
+  
+  try { await renderLeaderboard(); } catch (e) { console.warn('Leaderboard failed:', e); }
   
   if (!gameLoopStarted) {
     gameLoopStarted = true;
     startBettingCountdown();
     startChatSimulation();
   }
+  
+  console.log('✅ App entered successfully as', userProfile.username);
 }
 
 function updateSignOutAvailability() {
