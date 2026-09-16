@@ -1566,38 +1566,73 @@ function switchAuthTab(tab) {
 }
 
 async function handleSignUp() {
+  console.log('📝 Sign up clicked');
   const uname = el('suUsername').value.trim().toLowerCase();
   const pwd = el('suPassword').value;
   const errEl = el('signUpError');
   errEl.textContent = '';
-  if (!/^[a-z0-9_]{3,20}$/.test(uname)) { errEl.textContent = 'Username: 3–20 chars, letters/numbers/underscore only.'; return; }
-  if (pwd.length < 4) { errEl.textContent = 'Password needs at least 4 characters.'; return; }
-  el('signUpBtn').disabled = true;
+  
+  if (!/^[a-z0-9_]{3,20}$/.test(uname)) { 
+    errEl.textContent = 'Username: 3–20 chars, letters/numbers/underscore only.'; 
+    return; 
+  }
+  if (pwd.length < 4) { 
+    errEl.textContent = 'Password needs at least 4 characters.'; 
+    return; 
+  }
+  
+  const btn = el('signUpBtn');
+  btn.disabled = true;
+  btn.textContent = 'Creating...';
+  
   try {
+    console.log('→ Calling signUp...');
     await signUp(uname, pwd);
-    el('signUpBtn').disabled = false;
+    console.log('✅ signUp succeeded');
+    console.log('→ Calling enterApp...');
     await enterApp();
+    console.log('✅ enterApp succeeded');
   } catch (err) {
-    el('signUpBtn').disabled = false;
-    if (err.message.includes('already')) errEl.textContent = 'Username already taken.';
-    else errEl.textContent = err.message || 'Sign up failed.';
+    console.error('❌ Sign up failed:', err);
+    errEl.textContent = err.message || 'Sign up failed. Check console (F12).';
+    if (err.message && err.message.toLowerCase().includes('confirm')) {
+      errEl.textContent = 'Email confirmation required! Disable it in Supabase Auth settings.';
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Create account';
   }
 }
 
 async function handleSignIn() {
+  console.log('🔑 Sign in clicked');
   const uname = el('siUsername').value.trim().toLowerCase();
   const pwd = el('siPassword').value;
   const errEl = el('signInError');
   errEl.textContent = '';
-  if (!uname || !pwd) { errEl.textContent = 'Enter username and password.'; return; }
-  el('signInBtn').disabled = true;
+  
+  if (!uname || !pwd) { 
+    errEl.textContent = 'Enter username and password.'; 
+    return; 
+  }
+  
+  const btn = el('signInBtn');
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+  
   try {
+    console.log('→ Calling signIn...');
     await signIn(uname, pwd);
-    el('signInBtn').disabled = false;
+    console.log('✅ signIn succeeded');
+    console.log('→ Calling enterApp...');
     await enterApp();
+    console.log('✅ enterApp succeeded');
   } catch (err) {
-    el('signInBtn').disabled = false;
+    console.error('❌ Sign in failed:', err);
     errEl.textContent = 'Incorrect username or password.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
   }
 }
 
