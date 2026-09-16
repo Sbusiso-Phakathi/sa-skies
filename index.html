@@ -2009,3 +2009,89 @@ init();
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Supabase Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <h2>Supabase Connection Test</h2>
+  <pre id="output" style="background:#eee; padding:20px; font-family:monospace;">Starting...</pre>
+  
+  <script>
+    const log = (msg) => {
+      document.getElementById('output').textContent += '\n' + msg;
+      console.log(msg);
+    };
+    
+    // ⚠️ REPLACE THESE WITH YOUR REAL VALUES
+    //const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+    //const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+    const SUPABASE_URL = 'https://jpevxsxowfrpruetckaw.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwZXZ4c3hvd2ZycHJ1ZXRja2F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MDg5NTAsImV4cCI6MjEwNTA4NDk1MH0.6AIJsAoWuZQVAaE1Ez2nv70X3ac2QcHts-dCRPCUarA';
+    
+    (async () => {
+      try {
+        log('1. Checking if library loaded...');
+        if (!window.supabase) {
+          log('❌ FAIL: Supabase library not loaded. Check for ad blockers.');
+          return;
+        }
+        log('✅ Library loaded');
+        
+        log('2. Creating client...');
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        log('✅ Client created');
+        
+        log('3. Testing connection (get session)...');
+        const { data, error } = await client.auth.getSession();
+        if (error) {
+          log('❌ FAIL: ' + error.message);
+          return;
+        }
+        log('✅ Connection works!');
+        
+        log('4. Testing database (read profiles)...');
+        const { data: profiles, error: dbError } = await client.from('profiles').select('*').limit(1);
+        if (dbError) {
+          log('❌ FAIL: ' + dbError.message);
+          log('   → Did you run the SQL schema?');
+          return;
+        }
+        log('✅ Database works! Profiles found: ' + profiles.length);
+        
+        log('5. Testing sign-up...');
+        const testUser = 'test_' + Date.now();
+        const { data: signUpData, error: signUpError } = await client.auth.signUp({
+          email: testUser + '@test.local',
+          password: 'testpass123'
+        });
+        if (signUpError) {
+          log('❌ FAIL: ' + signUpError.message);
+          if (signUpError.message.includes('confirmed')) {
+            log('   → EMAIL CONFIRMATION IS STILL ENABLED! Go to Auth → Providers → Email → Turn off "Confirm email"');
+          }
+          return;
+        }
+        log('✅ Sign-up works! User created: ' + testUser);
+        
+        log('\n🎉 ALL TESTS PASSED! Your Supabase is fully working.');
+        log('Now update your main app with the same URL and key.');
+        
+      } catch (e) {
+        log('❌ UNEXPECTED ERROR: ' + e.message);
+        console.error(e);
+      }
+    })();
+  </script>
+</body>
+</html>
+
