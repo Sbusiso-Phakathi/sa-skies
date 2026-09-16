@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Play-Money Crash Game — SA Skies</title>
+<title>Jabu Skies Bets</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0b1220">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -246,9 +246,8 @@
 </head>
 <body>
 <div class="app">
-  <h1>🇿🇦 Play-Money Crash Game — SA Skies</h1>
-  <div class="subtitle">Practice chips only — no real money. Cloud-synced via Supabase.</div>
-  <div style="text-align:center;"><span class="db-status loading" id="dbStatus">⚪ Connecting to cloud...</span></div>
+  <h1>Jabu Skies Bets</h1>
+  <div style="text-align:center;"><span class="db-status loading" id="dbStatus">⚪ Connecting...</span></div>
 
   <!-- AGE GATE MODAL -->
   <div class="modal-overlay show" id="ageGateModal">
@@ -268,7 +267,7 @@
   <!-- ONBOARDING MODAL -->
   <div class="modal-overlay" id="onboardingModal">
     <div class="modal-box" style="text-align:left;">
-      <h2>👋 Welcome to SA Skies!</h2>
+      <h2>👋 Welcome to Jabu Skies Bets!</h2>
       <div id="onboardingStep1">
         <p>1️⃣ <b>Place your bet:</b> Choose an amount and set an auto cash-out target.</p>
       </div>
@@ -316,7 +315,6 @@
         <input type="password" id="suPassword" autocomplete="new-password" aria-label="Choose password">
         <button class="btn-action place" id="signUpBtn" type="button" aria-label="Create account button">Create account</button>
         <div class="auth-error" id="signUpError"></div>
-        <div class="auth-note">New accounts start with 1000.00 in practice chips. Data is cloud-synced.</div>
       </div>
     </div>
   </div>
@@ -469,8 +467,7 @@
     <div class="table-section">
       <div class="table-header"><h3>Practice Table</h3></div>
       <div class="sim-disclaimer">
-        <b>Simulated players.</b> Everyone below is a computer-generated practice bot for atmosphere only.
-      </div>
+        <b>Practice Table</b>   </div>
       <label class="big-wins-toggle">
         <input type="checkbox" id="bigWinsToggle" aria-label="Filter big wins only">
         <span>Show Big Wins Only (≥ 5.00x)</span>
@@ -500,7 +497,7 @@
           <button class="filter-btn" data-filter="week" data-target="my" aria-label="Filter weekly history">Week</button>
           <button class="filter-btn" data-filter="month" data-target="my" aria-label="Filter monthly history">Month</button>
         </div>
-        <button class="user-bar-btn" id="exportCsvBtn" aria-label="Download history as CSV" style="font-size:0.72rem;">📥 Download CSV</button>
+        <button class="user-bar-btn" id="exportCsvBtn" aria-label="Download history as CSV" style="font-size:0.72rem;">📥 Download your history bets</button>
       </div>
       <div id="logList"></div>
     </div>
