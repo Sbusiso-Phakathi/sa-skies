@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -494,8 +492,8 @@
 // ============================================
 // SUPABASE CONFIGURATION — REPLACE THESE
 // ============================================
-const SUPABASE_URL = 'https://jpevxsxowfrpruetckaw.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwZXZ4c3hvd2ZycHJ1ZXRja2F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MDg5NTAsImV4cCI6MjEwNTA4NDk1MH0.6AIJsAoWuZQVAaE1Ez2nv70X3ac2QcHts-dCRPCUarA';
+const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY-HERE';
 
 // ============================================
 // GLOBALS
@@ -566,97 +564,94 @@ function setDbStatus(connected, text) {
 }
 
 // ============================================
-// SUPABASE HELPERS
+// SUPABASE HELPERS (using 'sb' instead of 'supabase')
 // ============================================
 async function signUp(username, password) {
   const email = usernameToEmail(username);
-  const { data, error } = await supabase.auth.signUp({
+  const { data, error } = await sb.auth.signUp({
     email,
     password,
     options: { data: { username: username.toLowerCase() } }
   });
   if (error) throw error;
-  // Profile auto-created by database trigger
-  // Wait briefly for trigger to complete
   await new Promise(r => setTimeout(r, 300));
   return data.user;
 }
 
 async function signIn(username, password) {
   const email = usernameToEmail(username);
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
   if (error) throw error;
   return data.user;
 }
 
 async function signOut() {
-  await supabase.auth.signOut();
+  await sb.auth.signOut();
 }
 
 async function loadProfile() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await sb.auth.getUser();
   if (!user) return null;
-  const { data: profile, error } = await supabase
-    .from('profiles').select('*').eq('id', user.id).single();
+  const { data: profile, error } = await sb.from('profiles').select('*').eq('id', user.id).single();
   if (error) throw error;
   return profile;
 }
 
 async function updateProfile(updates) {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await sb.auth.getUser();
   if (!user) return;
-  const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
+  const { error } = await sb.from('profiles').update(updates).eq('id', user.id);
   if (error) console.error('Profile update error:', error);
 }
 
 async function loadUserCosmetics() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await sb.auth.getUser();
   if (!user) return;
-  const { data } = await supabase.from('user_cosmetics').select('cosmetic_id, unlocked').eq('user_id', user.id);
+  const { data } = await sb.from('user_cosmetics').select('cosmetic_id, unlocked').eq('user_id', user.id);
   if (data) unlockedCosmetics = new Set(data.filter(c => c.unlocked).map(c => c.cosmetic_id));
 }
 
 async function unlockCosmetic(cosmeticId) {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await sb.auth.getUser();
   if (!user) return;
-  await supabase.from('user_cosmetics').upsert({ user_id: user.id, cosmetic_id: cosmeticId, unlocked: true });
+  await sb.from('user_cosmetics').upsert({ user_id: user.id, cosmetic_id: cosmeticId, unlocked: true });
   unlockedCosmetics.add(cosmeticId);
 }
 
 async function loadBetsHistory() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await sb.auth.getUser();
   if (!user) return [];
-  const { data } = await supabase.from('bets').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(200);
+  const { data } = await sb.from('bets').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(200);
   return data || [];
 }
 
 async function recordBet(betData) {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await sb.auth.getUser();
   if (!user) return;
-  await supabase.from('bets').insert({
+  await sb.from('bets').insert({
     user_id: user.id, bet_amount: betData.amount, result: betData.result,
     payout: betData.payout, crash_point: betData.crashPoint, cashout_at: betData.cashoutAt
   });
 }
 
 async function recordDeposit(amount) {
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await sb.auth.getUser();
   if (!user) return;
-  await supabase.from('deposits').insert({ user_id: user.id, amount });
+  await sb.from('deposits').insert({ user_id: user.id, amount });
 }
 
 async function loadGlobalRounds(limit = 30) {
-  const { data } = await supabase.from('global_rounds').select('crash_point').order('created_at', { ascending: false }).limit(limit);
+  const { data } = await sb.from('global_rounds').select('crash_point').order('created_at', { ascending: false }).limit(limit);
   return data || [];
 }
 
 async function recordGlobalRound(cp, wagered, payout) {
-  await supabase.from('global_rounds').insert({ crash_point: cp, total_wagered: wagered, total_payout: payout });
+  await sb.from('global_rounds').insert({ crash_point: cp, total_wagered: wagered, total_payout: payout });
 }
 
 async function loadLeaderboard() {
   try {
-    const { data, error } = await supabase.from('profiles').select('username, balance').order('balance', { ascending: false }).limit(50);
+    const { data, error } = await sb.from('profiles').select('username, balance').order('balance', { ascending: false }).limit(50);
     if (error) return [];
     return (data || []).map(p => ({ username: p.username, profit: Number(p.balance) - 1000 }));
   } catch (e) { return []; }
@@ -1041,7 +1036,7 @@ function updateStreak() {
 
 function showMysteryBox() { el('mysteryModal').classList.add('show'); }
 
-async function showShareModal(mult) {
+function showShareModal(mult) {
   el('shareMult').textContent = fmt(mult) + 'x';
   el('shareModal').classList.add('show');
 }
@@ -1282,8 +1277,6 @@ async function enterApp() {
     return;
   }
   if (!userProfile) {
-    // Profile might not exist yet (race condition with trigger)
-    // Wait and retry
     await new Promise(r => setTimeout(r, 500));
     try { userProfile = await loadProfile(); } catch (e) {}
     if (!userProfile) {
@@ -1578,10 +1571,9 @@ function spawnClouds() {
 }
 
 // ============================================
-// INIT — UI FIRST, then async cloud stuff
+// UI SETUP (sync — runs instantly, buttons work immediately)
 // ============================================
 function setupUI() {
-  // All synchronous UI setup — runs immediately, buttons work right away
   syncConfigFromInputs();
   spawnClouds();
   initBots();
@@ -1592,7 +1584,6 @@ function setupUI() {
   switchAuthTab('signin');
   loadOwnerStats();
 
-  // Event listeners
   el('tabSignIn').addEventListener('click', () => switchAuthTab('signin'));
   el('tabSignUp').addEventListener('click', () => switchAuthTab('signup'));
   el('signInBtn').addEventListener('click', handleSignIn);
@@ -1684,17 +1675,20 @@ function setupUI() {
   });
 }
 
+// ============================================
+// INIT
+// ============================================
 async function init() {
-  // STEP 1: UI setup (sync, instant)
+  // STEP 1: UI setup (sync, instant — buttons work immediately)
   setupUI();
 
   // STEP 2: Check Supabase
-  if (!supabase) {
+  if (!sb) {
     setDbStatus(false, 'Supabase not configured');
     return;
   }
   try {
-    await supabase.auth.getSession();
+    await sb.auth.getSession();
     setDbStatus(true, 'Cloud connected');
   } catch (e) {
     setDbStatus(false, 'Cloud failed');
@@ -1712,7 +1706,7 @@ async function init() {
 
   // STEP 4: Auto-login if session exists
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await sb.auth.getSession();
     if (session) await enterApp();
   } catch (e) { console.warn('auto-login failed:', e); }
 }
