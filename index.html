@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Jabu Skies Bets</title>
+<title>Play-Money Crash Game — SA Skies</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0b1220">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -61,23 +61,104 @@
   .history-chip.h-mid { color: #8fd3ff; }
   .history-chip.h-big { color: var(--sa-gold); background: #2b2410; }
   .history-empty { font-size: 0.78rem; color: var(--muted); padding: 4px 2px; }
-  .flight-scene { position: relative; height: 220px; border-radius: 14px; overflow: hidden; margin-bottom: 6px; background: linear-gradient(180deg, #1b3a63 0%, #2c5c8a 45%, #4d7fa3 75%, #7a9db3 100%); border: 1px solid var(--panel-border); }
-  .mountain { position: absolute; bottom: 0; left: 0; width: 100%; height: 70px; background: #0d1a2b; clip-path: polygon(0% 100%, 0% 60%, 8% 45%, 14% 58%, 22% 30%, 30% 55%, 40% 20%, 48% 48%, 56% 35%, 64% 52%, 74% 25%, 82% 50%, 90% 38%, 100% 55%, 100% 100%); opacity: 0.85; transition: transform 0.08s linear; }
+  
+  /* ===== FLIGHT SCENE - REALISTIC ENVIRONMENT ===== */
+  .flight-scene { 
+    position: relative; height: 220px; border-radius: 14px; overflow: hidden; margin-bottom: 6px; 
+    background: linear-gradient(180deg, #1b3a63 0%, #2c5c8a 45%, #4d7fa3 75%, #7a9db3 100%);
+    border: 1px solid var(--panel-border);
+    transition: background 0.8s ease;
+  }
+  .flight-scene.high-altitude {
+    background: linear-gradient(180deg, #0a1e3d 0%, #1b3a63 30%, #2c5c8a 60%, #4d7fa3 100%);
+  }
+  .flight-scene.extreme-altitude {
+    background: linear-gradient(180deg, #050d1a 0%, #0a1e3d 25%, #1b3a63 50%, #2c5c8a 100%);
+  }
+  
+  /* Mountains scroll horizontally */
+  .mountain-layer {
+    position: absolute; bottom: 0; left: 0; width: 200%; height: 70px;
+    background: #0d1a2b;
+    clip-path: polygon(0% 100%, 0% 60%, 3% 45%, 6% 58%, 9% 30%, 12% 55%, 15% 20%, 18% 48%, 21% 35%, 24% 52%, 27% 25%, 30% 50%, 33% 38%, 36% 55%, 39% 30%, 42% 58%, 45% 45%, 48% 60%, 51% 35%, 54% 52%, 57% 40%, 60% 55%, 63% 30%, 66% 58%, 69% 45%, 72% 60%, 75% 35%, 78% 52%, 81% 40%, 84% 55%, 87% 30%, 90% 58%, 93% 45%, 96% 60%, 100% 55%, 100% 100%);
+    opacity: 0.85;
+    animation: scrollMountains 10s linear infinite;
+    animation-play-state: paused;
+  }
+  .flight-scene.flying .mountain-layer { animation-play-state: running; }
+  @keyframes scrollMountains {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  
+  /* Clouds rush past */
   .clouds { position: absolute; inset: 0; pointer-events: none; }
-  .cloud { position: absolute; background: rgba(255,255,255,0.18); border-radius: 40px; width: 70px; height: 18px; transition: left 0.08s linear; }
-  .trail-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .plane-wrap { position: absolute; left: 8%; bottom: 22%; transform: translate(0,0) rotate(-8deg); transition: left 0.08s linear, bottom 0.08s linear, transform 0.08s linear; font-size: 2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
-  .plane-wrap.crashed { transition: transform 0.5s ease-in, bottom 0.5s ease-in, opacity 0.4s ease-in 0.4s; transform: translate(0,0) rotate(120deg); bottom: -10%; opacity: 0; }
-  .multiplier-overlay { position: absolute; top: 12px; left: 0; right: 0; text-align: center; font-size: 2.6rem; font-weight: 800; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+  .cloud { 
+    position: absolute; background: rgba(255,255,255,0.25); border-radius: 40px; 
+    width: 80px; height: 20px;
+    animation: rushCloud 3s linear infinite;
+    animation-play-state: paused;
+  }
+  .flight-scene.flying .cloud { animation-play-state: running; }
+  @keyframes rushCloud {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-150px); }
+  }
+  
+  /* Plane stays centered with subtle bobbing */
+  .plane-wrap {
+    position: absolute; left: 50%; top: 45%; 
+    transform: translate(-50%, -50%) rotate(-5deg);
+    font-size: 2.8rem; 
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+    animation: planeBob 2s ease-in-out infinite;
+    animation-play-state: paused;
+    z-index: 10;
+  }
+  .flight-scene.flying .plane-wrap { animation-play-state: running; }
+  @keyframes planeBob {
+    0%, 100% { transform: translate(-50%, -50%) rotate(-5deg); }
+    50% { transform: translate(-50%, calc(-50% - 8px)) rotate(-3deg); }
+  }
+  .plane-wrap.crashed {
+    animation: planeCrash 0.6s ease-in forwards !important;
+  }
+  @keyframes planeCrash {
+    0% { transform: translate(-50%, -50%) rotate(-5deg); opacity: 1; }
+    100% { transform: translate(-50%, 150px) rotate(45deg); opacity: 0; }
+  }
+  
+  /* Trail shows path behind plane */
+  .trail-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+  
+  .multiplier-overlay {
+    position: absolute; top: 12px; left: 0; right: 0; text-align: center;
+    font-size: 2.6rem; font-weight: 800; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    z-index: 20;
+  }
   .multiplier-overlay.crashed { color: #ffb3ab; }
-  .badge-sa { position: absolute; top: 10px; right: 12px; font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; background: rgba(0,0,0,0.35); display:flex; gap:4px; align-items:center; }
-  .sponsored-badge { position: absolute; top: 10px; left: 12px; font-size: 0.68rem; padding: 3px 8px; border-radius: 20px; background: rgba(168,85,247,0.25); color: var(--purple); border: 1px solid var(--purple); display:none; }
-  .countdown-overlay { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(8,13,24,0.55); }
-  .countdown-number { font-size: 3.6rem; font-weight: 800; color: var(--sa-gold); line-height: 1; text-shadow: 0 2px 12px rgba(0,0,0,0.6); }
-  .countdown-label { font-size: 0.8rem; color: var(--text); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .badge-sa {
+    position: absolute; top: 10px; right: 12px; font-size: 0.7rem; padding: 3px 8px;
+    border-radius: 20px; background: rgba(0,0,0,0.35); display:flex; gap:4px; align-items:center;
+    z-index: 20;
+  }
+  .sponsored-badge {
+    position: absolute; top: 10px; left: 12px; font-size: 0.68rem; padding: 3px 8px;
+    border-radius: 20px; background: rgba(168,85,247,0.25); color: var(--purple);
+    border: 1px solid var(--purple); display:none; z-index: 20;
+  }
+  .countdown-overlay {
+    position: absolute; inset: 0; z-index: 30; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; background: rgba(8,13,24,0.55);
+  }
+  .countdown-number {
+    font-size: 3.6rem; font-weight: 800; color: var(--sa-gold); line-height: 1;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  }
+  .countdown-label {
+    font-size: 0.8rem; color: var(--text); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em;
+  }
   .status-line { text-align: center; color: var(--muted); font-size: 0.9rem; margin: 8px 0 12px; min-height: 1.2em; }
-  .replay-btn { background: var(--sa-gold); color: #0d1220; border: none; font-family: inherit; font-size: 0.85rem; font-weight: 700; padding: 6px 16px; border-radius: 20px; cursor: pointer; margin: 0 auto 12px; display: none; }
-  .replay-btn:hover { background: #e6a310; }
   .bets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; }
   @media (max-width: 560px) { .bets-grid { grid-template-columns: 1fr; } }
   .bet-panel { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; }
@@ -91,8 +172,9 @@
   .bet-adjust-btn:hover { background: #1c2438; border-color: var(--accent); }
   .bet-amount-input { width: 60px; text-align: center; padding: 4px; border-radius: 6px; border: 1px solid var(--panel-border); background: #0d1220; color: var(--text); font-size: 0.9rem; }
   .quick-bets { display: flex; gap: 4px; margin-top: 4px; }
-  .quick-bet-btn { flex: 1; padding: 4px 2px; font-size: 0.72rem; font-weight: 600; background: #1c2438; border: 1px solid var(--panel-border); color: var(--text); border-radius: 6px; cursor: pointer; }
+  .quick-bet-btn { flex: 1; padding: 4px 2px; font-size: 0.72rem; font-weight: 600; background: #1c2438; border: 1px solid var(--panel-border); color: var(--text); border-radius: 6px; cursor: pointer; transition: all 0.15s; }
   .quick-bet-btn:hover { background: #2a3450; border-color: var(--accent); }
+  .quick-bet-btn:active { transform: scale(0.95); background: var(--accent); }
   .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; font-size: 0.82rem; }
   .switch { position: relative; display: inline-block; width: 34px; height: 19px; flex-shrink: 0; }
   .switch input { opacity: 0; width: 0; height: 0; }
@@ -161,20 +243,12 @@
   .auth-form .btn-action { margin-top: 14px; }
   .auth-error { color: var(--red); font-size: 0.8rem; min-height: 1.1em; margin-top: 8px; text-align: center; }
   .auth-note { color: var(--muted); font-size: 0.75rem; margin-top: 10px; text-align: center; line-height: 1.4; }
-  
-  /* Google Button Styles */
-  .google-btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; background: #ffffff; color: #3c4043; border: 1px solid #dadce0;
-    font-family: inherit; font-size: 0.9rem; font-weight: 500; padding: 10px;
-    border-radius: 8px; cursor: pointer; margin-top: 12px; transition: background 0.2s;
-  }
+  .google-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: #ffffff; color: #3c4043; border: 1px solid #dadce0; font-family: inherit; font-size: 0.9rem; font-weight: 500; padding: 10px; border-radius: 8px; cursor: pointer; margin-top: 12px; transition: background 0.2s; }
   .google-btn:hover { background: #f8f9fa; border-color: #d2e3fc; }
   .google-btn svg { width: 18px; height: 18px; }
   .divider { display: flex; align-items: center; text-align: center; margin: 16px 0; color: var(--muted); font-size: 0.8rem; }
   .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--panel-border); }
   .divider span { padding: 0 10px; }
-
   .owner-section { margin-top: 32px; border-top: 1px solid var(--panel-border); padding-top: 16px; }
   .owner-toggle-btn { width: 100%; background: #0d1220; border: 1px solid var(--panel-border); color: var(--muted); font-family: inherit; font-size: 0.8rem; padding: 10px; border-radius: 8px; cursor: pointer; }
   .owner-toggle-btn:hover { background: #1c2438; color: var(--text); }
@@ -246,10 +320,10 @@
 </head>
 <body>
 <div class="app">
-  <h1>Jabu Skies Bets</h1>
-  <div style="text-align:center;"><span class="db-status loading" id="dbStatus">⚪ Connecting...</span></div>
+  <h1>🇿🇦 Play-Money Crash Game — SA Skies</h1>
+  <div class="subtitle">Practice chips only — no real money. Cloud-synced via Supabase.</div>
+  <div style="text-align:center;"><span class="db-status loading" id="dbStatus">⚪ Connecting to cloud...</span></div>
 
-  <!-- AGE GATE MODAL -->
   <div class="modal-overlay show" id="ageGateModal">
     <div class="modal-box">
       <h2>🔞 Age Verification & Legal</h2>
@@ -260,27 +334,22 @@
         Data is processed in accordance with POPIA. 
         <a href="#" style="color:var(--accent);">Read Privacy Policy</a>
       </p>
-      <button class="modal-action gold" id="acceptAgeGateBtn" aria-label="Confirm age and enter">I am 18+ and Agree</button>
+      <button class="modal-action gold" id="acceptAgeGateBtn">I am 18+ and Agree</button>
     </div>
   </div>
 
-  <!-- ONBOARDING MODAL -->
   <div class="modal-overlay" id="onboardingModal">
     <div class="modal-box" style="text-align:left;">
-      <h2>👋 Welcome to Jabu Skies Bets!</h2>
-      <div id="onboardingStep1">
-        <p>1️⃣ <b>Place your bet:</b> Choose an amount and set an auto cash-out target.</p>
-      </div>
-      <div id="onboardingStep2" style="display:none;">
-        <p>2️⃣ <b>Watch it fly:</b> The multiplier increases. The higher it goes, the more you win!</p>
-      </div>
+      <h2>👋 Welcome to SA Skies!</h2>
+      <div id="onboardingStep1"><p>1️⃣ <b>Place your bet:</b> Choose an amount and set an auto cash-out target.</p></div>
+      <div id="onboardingStep2" style="display:none;"><p>2️⃣ <b>Watch it fly:</b> The multiplier increases. The higher it goes, the more you win!</p></div>
       <div id="onboardingStep3" style="display:none;">
         <p>3️⃣ <b>Cash out:</b> Click "Cash Out" before the plane crashes! If it crashes first, you lose the bet.</p>
         <p style="color:var(--green); font-weight:bold; margin-top:12px;">🎁 Bonus: Your first R50 bet is on us!</p>
       </div>
       <div style="display:flex; justify-content:space-between; margin-top:16px;">
-        <button class="modal-close" id="skipOnboarding" aria-label="Skip tutorial">Skip</button>
-        <button class="modal-action gold" id="nextOnboarding" aria-label="Next tutorial step">Next</button>
+        <button class="modal-close" id="skipOnboarding">Skip</button>
+        <button class="modal-action gold" id="nextOnboarding">Next</button>
       </div>
     </div>
   </div>
@@ -288,33 +357,30 @@
   <div class="auth-screen" id="authScreen" style="display:none;">
     <div class="auth-box">
       <div class="auth-tabs">
-        <button class="auth-tab active" id="tabSignIn" type="button" aria-label="Sign in tab">Sign In</button>
-        <button class="auth-tab" id="tabSignUp" type="button" aria-label="Sign up tab">Sign Up</button>
+        <button class="auth-tab active" id="tabSignIn" type="button">Sign In</button>
+        <button class="auth-tab" id="tabSignUp" type="button">Sign Up</button>
       </div>
-      
-      <!-- GOOGLE SIGN IN BUTTON (Shared for both tabs) -->
-      <button class="google-btn" id="googleSignInBtn" type="button" aria-label="Sign in with Google">
+      <button class="google-btn" id="googleSignInBtn" type="button">
         <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg"><g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)"><path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/><path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/><path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"/><path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/></g></svg>
         Continue with Google
       </button>
-
       <div class="divider"><span>or use username</span></div>
-
       <div class="auth-form" id="signInForm">
         <label for="siUsername">Username</label>
-        <input type="text" id="siUsername" autocomplete="username" aria-label="Username">
+        <input type="text" id="siUsername" autocomplete="username">
         <label for="siPassword">Password</label>
-        <input type="password" id="siPassword" autocomplete="current-password" aria-label="Password">
-        <button class="btn-action place" id="signInBtn" type="button" aria-label="Sign in button">Sign In</button>
+        <input type="password" id="siPassword" autocomplete="current-password">
+        <button class="btn-action place" id="signInBtn" type="button">Sign In</button>
         <div class="auth-error" id="signInError"></div>
       </div>
       <div class="auth-form" id="signUpForm" style="display:none;">
         <label for="suUsername">Choose a username</label>
-        <input type="text" id="suUsername" autocomplete="username" aria-label="Choose username">
+        <input type="text" id="suUsername" autocomplete="username">
         <label for="suPassword">Choose a password</label>
-        <input type="password" id="suPassword" autocomplete="new-password" aria-label="Choose password">
-        <button class="btn-action place" id="signUpBtn" type="button" aria-label="Create account button">Create account</button>
+        <input type="password" id="suPassword" autocomplete="new-password">
+        <button class="btn-action place" id="signUpBtn" type="button">Create account</button>
         <div class="auth-error" id="signUpError"></div>
+        <div class="auth-note">New accounts start with 1000.00 in practice chips.</div>
       </div>
     </div>
   </div>
@@ -323,36 +389,37 @@
     <div class="user-bar">
       <span>Signed in as <b id="currentUsername"></b></span>
       <div class="user-bar-actions">
-        <span class="streak-chip" id="streakChip" title="Daily login streak">🔥 0</span>
+        <span class="streak-chip" id="streakChip">🔥 0</span>
         <span class="balance-chip" id="balanceChip">R0.00</span>
         <span class="profit-chip" id="profitChip">R0.00</span>
-        <button class="user-bar-btn" id="shopBtn" type="button" aria-label="Open cosmetics shop">🎨 Shop</button>
-        <button class="user-bar-btn" id="depositToggleBtn" type="button" aria-label="Toggle deposit options">💵 Deposit</button>
-        <button class="user-bar-btn" id="signOutBtn" type="button" aria-label="Sign out">Sign out</button>
+        <button class="user-bar-btn" id="shopBtn" type="button">🎨 Shop</button>
+        <button class="user-bar-btn" id="depositToggleBtn" type="button">💵 Deposit</button>
+        <button class="user-bar-btn" id="signOutBtn" type="button">Sign out</button>
       </div>
     </div>
 
     <div class="topup-row" id="topupRow" style="display:none;">
       <span class="topup-label">Add practice chips:</span>
-      <button class="topup-btn" data-amount="100" aria-label="Add 100 chips">+R100</button>
-      <button class="topup-btn" data-amount="500" aria-label="Add 500 chips">+R500</button>
-      <button class="topup-btn" data-amount="1000" aria-label="Add 1000 chips">+R1000</button>
+      <button class="topup-btn" data-amount="100">+R100</button>
+      <button class="topup-btn" data-amount="500">+R500</button>
+      <button class="topup-btn" data-amount="1000">+R1000</button>
+      <span class="topup-hint">(simulated)</span>
     </div>
 
     <div class="history-section">
       <div class="history-header">
         <h3>Recent Multipliers</h3>
-        <button class="history-toggle" id="historyToggle" style="display:none;" aria-label="Toggle history view">Show more ▾</button>
+        <button class="history-toggle" id="historyToggle" style="display:none;">Show more ▾</button>
       </div>
       <div class="history-chips" id="historyChips"></div>
     </div>
 
     <div class="flight-scene" id="flightScene">
       <div class="clouds" id="cloudsLayer"></div>
+      <div class="mountain-layer" id="mountainLayer"></div>
       <svg class="trail-svg" id="trailSvg" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <polyline id="trailLine" points="" fill="none" stroke="#ffb612" stroke-width="1.2" />
+        <polyline id="trailLine" points="" fill="none" stroke="#ffb612" stroke-width="0.8" opacity="0.6" />
       </svg>
-      <div class="mountain" id="mountainLayer"></div>
       <div class="sponsored-badge" id="sponsoredBadge">✨ Sponsored Round</div>
       <div class="badge-sa">🦁 Karoo Route 1</div>
       <div class="multiplier-overlay" id="multDisplay">1.00x</div>
@@ -362,8 +429,6 @@
         <div class="countdown-label">Next round in</div>
       </div>
     </div>
-    <button hidden class="replay-btn" id="replayBtn" aria-label="Replay last bet">🔄 Replay Last Bet</button>
-    
     <div class="status-line" id="statusLine">Table is live.</div>
 
     <div class="bets-grid">
@@ -373,30 +438,30 @@
           <div class="field" style="grid-column: 1 / -1;">
             <label for="amount1">Bet amount</label>
             <div class="bet-amount-row">
-              <button class="bet-adjust-btn" type="button" data-adj="1,-1" aria-label="Decrease bet 1">−</button>
-              <input type="number" id="amount1" min="1" value="10" step="1" class="bet-amount-input" aria-label="Bet 1 amount">
-              <button class="bet-adjust-btn" type="button" data-adj="1,1" aria-label="Increase bet 1">+</button>
+              <button class="bet-adjust-btn" type="button" data-adj="1,-1">−</button>
+              <input type="number" id="amount1" min="1" value="10" step="1" class="bet-amount-input">
+              <button class="bet-adjust-btn" type="button" data-adj="1,1">+</button>
             </div>
             <div class="quick-bets">
-              <button class="quick-bet-btn" type="button" data-set="1,2" aria-label="Set bet 1 to 2">R2</button>
-              <button class="quick-bet-btn" type="button" data-set="1,5" aria-label="Set bet 1 to 5">R5</button>
-              <button class="quick-bet-btn" type="button" data-set="1,10" aria-label="Set bet 1 to 10">R10</button>
-              <button class="quick-bet-btn" type="button" data-set="1,20" aria-label="Set bet 1 to 20">R20</button>
+              <button class="quick-bet-btn" type="button" data-increment="2">+R2</button>
+              <button class="quick-bet-btn" type="button" data-increment="5">+R5</button>
+              <button class="quick-bet-btn" type="button" data-increment="10">+R10</button>
+              <button class="quick-bet-btn" type="button" data-increment="20">+R20</button>
             </div>
           </div>
           <div class="toggle-row" style="grid-column: 1 / -1;">
             <label for="auto1">Auto cash-out</label>
             <label class="switch">
-              <input type="checkbox" id="auto1" checked aria-label="Toggle auto cash-out 1">
+              <input type="checkbox" id="auto1" checked>
               <span class="slider-toggle"></span>
             </label>
           </div>
           <div class="field" id="autoTargetField1" style="grid-column: 1 / -1;">
             <label for="target1">Cash-out at (×)</label>
-            <input type="number" id="target1" min="1.01" step="0.05" value="2.00" class="bet-amount-input" style="width: 100%; text-align: left;" aria-label="Auto cash-out target 1">
+            <input type="number" id="target1" min="1.01" step="0.05" value="2.00" class="bet-amount-input" style="width: 100%; text-align: left;">
           </div>
         </div>
-        <button class="btn-action place" id="actionBtn1" aria-label="Place bet 1">🎯 Place bet</button>
+        <button class="btn-action place" id="actionBtn1">🎯 Place bet</button>
         <div class="bet-status" id="status1" style="display:none;"></div>
       </div>
 
@@ -406,30 +471,30 @@
           <div class="field" style="grid-column: 1 / -1;">
             <label for="amount2">Bet amount</label>
             <div class="bet-amount-row">
-              <button class="bet-adjust-btn" type="button" data-adj="2,-1" aria-label="Decrease bet 2">−</button>
-              <input type="number" id="amount2" min="1" value="10" step="1" class="bet-amount-input" aria-label="Bet 2 amount">
-              <button class="bet-adjust-btn" type="button" data-adj="2,1" aria-label="Increase bet 2">+</button>
+              <button class="bet-adjust-btn" type="button" data-adj="2,-1">−</button>
+              <input type="number" id="amount2" min="1" value="10" step="1" class="bet-amount-input">
+              <button class="bet-adjust-btn" type="button" data-adj="2,1">+</button>
             </div>
             <div class="quick-bets">
-              <button class="quick-bet-btn" type="button" data-set="2,2" aria-label="Set bet 2 to 2">R2</button>
-              <button class="quick-bet-btn" type="button" data-set="2,5" aria-label="Set bet 2 to 5">R5</button>
-              <button class="quick-bet-btn" type="button" data-set="2,10" aria-label="Set bet 2 to 10">R10</button>
-              <button class="quick-bet-btn" type="button" data-set="2,20" aria-label="Set bet 2 to 20">R20</button>
+              <button class="quick-bet-btn" type="button" data-increment="2">+R2</button>
+              <button class="quick-bet-btn" type="button" data-increment="5">+R5</button>
+              <button class="quick-bet-btn" type="button" data-increment="10">+R10</button>
+              <button class="quick-bet-btn" type="button" data-increment="20">+R20</button>
             </div>
           </div>
           <div class="toggle-row" style="grid-column: 1 / -1;">
             <label for="auto2">Auto cash-out</label>
             <label class="switch">
-              <input type="checkbox" id="auto2" checked aria-label="Toggle auto cash-out 2">
+              <input type="checkbox" id="auto2" checked>
               <span class="slider-toggle"></span>
             </label>
           </div>
           <div class="field" id="autoTargetField2" style="grid-column: 1 / -1;">
             <label for="target2">Cash-out at (×)</label>
-            <input type="number" id="target2" min="1.01" step="0.05" value="2.00" class="bet-amount-input" style="width: 100%; text-align: left;" aria-label="Auto cash-out target 2">
+            <input type="number" id="target2" min="1.01" step="0.05" value="2.00" class="bet-amount-input" style="width: 100%; text-align: left;">
           </div>
         </div>
-        <button class="btn-action place" id="actionBtn2" aria-label="Place bet 2">🎯 Place bet</button>
+        <button class="btn-action place" id="actionBtn2">🎯 Place bet</button>
         <div class="bet-status" id="status2" style="display:none;"></div>
       </div>
     </div>
@@ -442,13 +507,13 @@
       </div>
       <div class="chat-body" id="chatBody"></div>
       <div class="chat-input-row">
-        <input type="text" class="chat-input" id="chatInput" placeholder="Say something..." maxlength="100" aria-label="Chat message">
-        <button class="chat-send-btn" id="chatSendBtn" aria-label="Send chat message">Send</button>
+        <input type="text" class="chat-input" id="chatInput" placeholder="Say something..." maxlength="100">
+        <button class="chat-send-btn" id="chatSendBtn">Send</button>
       </div>
     </div>
 
     <div class="leaderboard-section">
-      <div class="log-header"><h3>🏆 Leaderboard</h3></div>
+      <div class="log-header"><h3>🏆 Leaderboard (Real Players)</h3></div>
       <div class="lb-table-wrap">
         <table class="lb-table">
           <thead>
@@ -464,10 +529,12 @@
     </div>
 
     <div class="table-section">
-      <div class="table-header"><h3>Players Table</h3></div>
-      
+      <div class="table-header"><h3>Practice Table</h3></div>
+      <div class="sim-disclaimer">
+        <b>Simulated players.</b> Everyone below is a computer-generated practice bot for atmosphere only.
+      </div>
       <label class="big-wins-toggle">
-        <input type="checkbox" id="bigWinsToggle" aria-label="Filter big wins only">
+        <input type="checkbox" id="bigWinsToggle">
         <span>Show Big Wins Only (≥ 5.00x)</span>
       </label>
       <div class="bots-table-wrap">
@@ -489,19 +556,19 @@
 
     <div class="log-section">
       <div class="log-header">
-        <h3>My Rounds</h3>
+        <h3>My Rounds (Cloud-Synced)</h3>
         <div class="filter-group">
-          <button class="filter-btn active" data-filter="all" data-target="my" aria-label="Filter all history">All</button>
-          <button class="filter-btn" data-filter="week" data-target="my" aria-label="Filter weekly history">Week</button>
-          <button class="filter-btn" data-filter="month" data-target="my" aria-label="Filter monthly history">Month</button>
+          <button class="filter-btn active" data-filter="all" data-target="my">All</button>
+          <button class="filter-btn" data-filter="week" data-target="my">Week</button>
+          <button class="filter-btn" data-filter="month" data-target="my">Month</button>
         </div>
-        <button class="user-bar-btn" id="exportCsvBtn" aria-label="Download history as CSV" style="font-size:0.72rem;">📥 Download your history bets</button>
+        <button class="user-bar-btn" id="exportCsvBtn" style="font-size:0.72rem;">📥 Download CSV</button>
       </div>
       <div id="logList"></div>
     </div>
 
     <div class="pro-section">
-      <button class="pro-toggle" id="proToggle" type="button" aria-label="Toggle pro analytics">📊 Pro Analytics (Your Stats)</button>
+      <button class="pro-toggle" id="proToggle" type="button">📊 Pro Analytics (Your Stats)</button>
       <div class="pro-panel" id="proPanel" style="display:none;">
         <div class="pro-grid">
           <div class="pro-stat"><div class="owner-label">Rounds Played</div><div class="owner-value" id="proRounds">0</div></div>
@@ -522,7 +589,7 @@
     </div>
 
     <div class="owner-section">
-      <button class="owner-toggle-btn" id="ownerToggleBtn" type="button" aria-label="Toggle owner analytics">🔒 Owner Analytics</button>
+      <button class="owner-toggle-btn" id="ownerToggleBtn" type="button">🔒 Owner Analytics</button>
       <div class="owner-panel" id="ownerPanel" style="display:none;">
         <div class="owner-grid">
           <div class="owner-stat"><div class="owner-label">Total Wagered</div><div class="owner-value" id="ownerTotalWagered">R0.00</div></div>
@@ -530,9 +597,12 @@
           <div class="owner-stat"><div class="owner-label">Net House Profit</div><div class="owner-value" id="ownerNetProfit">R0.00</div></div>
           <div class="owner-stat"><div class="owner-label">Realized House Edge</div><div class="owner-value" id="ownerHouseEdge">0.00%</div></div>
         </div>
-        <div class="owner-row">
+        <div class="chart-container">
+          <canvas id="ownerChart"></canvas>
+        </div>
+        <div class="owner-row" style="margin-top:12px;">
           <span class="owner-label">Total Rounds Tracked: <b id="ownerRounds">0</b></span>
-          <button class="owner-reset-btn" id="ownerResetBtn" aria-label="Reset owner stats">Reset Stats</button>
+          <button class="owner-reset-btn" id="ownerResetBtn">Reset Stats</button>
         </div>
       </div>
     </div>
@@ -541,12 +611,11 @@
       <b>POPIA & Legal Disclaimer:</b> This is a play-money simulation for entertainment purposes only. 
       No real money is wagered or won. This platform is not licensed by the National Gambling Board (NGB) of South Africa. 
       By using this service, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. 
-      <br><button class="user-bar-btn" id="deleteAccountBtn" style="margin-top:8px; font-size:0.7rem; color:var(--red); border-color:var(--red);" aria-label="Request account deletion">🗑️ Request Account Deletion (POPIA)</button>
+      <br><button class="user-bar-btn" id="deleteAccountBtn" style="margin-top:8px; font-size:0.7rem; color:var(--red); border-color:var(--red);">🗑️ Request Account Deletion (POPIA)</button>
     </div>
   </div>
 </div>
 
-<!-- SHARE MODAL -->
 <div class="modal-overlay" id="shareModal">
   <div class="modal-box">
     <h2>🎉 Massive Win!</h2>
@@ -556,29 +625,27 @@
       <span class="big-mult" id="shareMult">10.00x</span>
       on SA Skies! Can you beat my streak? 🇿🇦✈️
     </div>
-    <button class="modal-action whatsapp" id="shareWaBtn" aria-label="Share on WhatsApp">📱 Share on WhatsApp</button>
-    <button class="modal-action gold" id="shareCopyBtn" aria-label="Copy to clipboard">📋 Copy Text</button>
-    <button class="modal-close" data-close="shareModal" aria-label="Close share modal">Close</button>
+    <button class="modal-action whatsapp" id="shareWaBtn">📱 Share on WhatsApp</button>
+    <button class="modal-action gold" id="shareCopyBtn">📋 Copy Text</button>
+    <button class="modal-close" data-close="shareModal">Close</button>
   </div>
 </div>
 
-<!-- MYSTERY BOX MODAL -->
 <div class="modal-overlay" id="mysteryModal">
   <div class="modal-box">
     <h2>🎁 Mystery Box Unlocked!</h2>
     <p id="mysteryText">You've logged in 7 days in a row! Open your mystery reward.</p>
     <div style="font-size: 4rem; margin: 16px 0;" id="mysteryIcon">🎁</div>
-    <button class="modal-action gold" id="mysteryOpenBtn" aria-label="Open mystery box">Open Box</button>
+    <button class="modal-action gold" id="mysteryOpenBtn">Open Box</button>
   </div>
 </div>
 
-<!-- SHOP MODAL -->
 <div class="modal-overlay" id="shopModal">
   <div class="modal-box">
     <h2>🎨 Cosmetics Shop</h2>
     <p>Unlock plane skins by playing, hitting streaks, and inviting friends.</p>
     <div class="shop-grid" id="shopGrid"></div>
-    <button class="modal-close" data-close="shopModal" aria-label="Close shop">Close</button>
+    <button class="modal-close" data-close="shopModal">Close</button>
   </div>
 </div>
 
@@ -586,9 +653,9 @@
 // ============================================
 // SUPABASE CONFIGURATION — REPLACE THESE
 // ============================================
-const SUPABASE_URL = 'https://jpevxsxowfrpruetckaw.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwZXZ4c3hvd2ZycHJ1ZXRja2F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MDg5NTAsImV4cCI6MjEwNTA4NDk1MH0.6AIJsAoWuZQVAaE1Ez2nv70X3ac2QcHts-dCRPCUarA';
-  
+const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY-HERE';
+
 // ============================================
 // GLOBALS
 // ============================================
@@ -610,11 +677,11 @@ let crashPoint = null;
 let tickTimer = null;
 let trailPoints = [];
 let tickCount = 0;
-let ownerStats = { totalWagered: 0, totalPayout: 0, netProfit: 0, rounds: 0 };
+let ownerStats = { totalWagered: 0, totalPayout: 0, netProfit: 0, rounds: 0, profitHistory: [] };
 let currentRoundWagered = 0;
 let myBetsHistory = [];
-let lastBet = { amount: 10, target: 2.0 };
 let balanceChartInstance = null;
+let ownerChartInstance = null;
 
 const state = {
   1: { amount: 10, auto: true, target: 2.0, armed: false, playing: false, result: null, payout: 0 },
@@ -646,7 +713,7 @@ let myHistoryFilter = 'all';
 let onboardingStep = 1;
 
 // ============================================
-// SOUND & HAPTICS MANAGER
+// SOUND & HAPTICS
 // ============================================
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 function playSound(type) {
@@ -702,7 +769,7 @@ async function signUp(username, password, referrer = null) {
     options: { data: { username: username.toLowerCase(), referred_by: referrer } }
   });
   if (error) throw error;
-  await new Promise(r => setTimeout(r, 300)); // Wait for trigger
+  await new Promise(r => setTimeout(r, 300));
   return data.user;
 }
 
@@ -718,9 +785,7 @@ async function handleGoogleSignIn() {
     trackEvent('sign_in', { method: 'google' });
     const { error } = await sb.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: window.location.origin + window.location.pathname
-      }
+      options: { redirectTo: window.location.origin + window.location.pathname }
     });
     if (error) throw error;
   } catch (err) {
@@ -729,9 +794,7 @@ async function handleGoogleSignIn() {
   }
 }
 
-async function signOut() {
-  await sb.auth.signOut();
-}
+async function signOut() { await sb.auth.signOut(); }
 
 async function loadProfile() {
   const { data: { user } } = await sb.auth.getUser();
@@ -906,10 +969,8 @@ function placeBet(i) {
   const s = state[i];
   if (s.amount > balance) { el('warnLine').textContent = `Bet ${i} amount (R${fmt(s.amount)}) exceeds balance.`; return; }
   el('warnLine').textContent = '';
-  lastBet = { amount: s.amount, target: s.target }; // Save for replay
   s.armed = true; s.playing = false; s.result = null; s.payout = 0;
   renderActionButton(i);
-  el('replayBtn').style.display = 'none';
 }
 
 function cancelQueuedBet(i) {
@@ -951,74 +1012,103 @@ function adjustBet(i, delta) {
   renderActionButton(i);
 }
 
-function setBet(i, val) {
+// NEW: Increment bet by amount (for quick bet buttons)
+function incrementBet(i, amount) {
   if (state[i].armed) return;
-  let next = Math.max(1, Math.min(val, balance));
+  let current = parseFloat(el('amount' + i).value) || 0;
+  let next = Math.min(current + amount, balance);
+  if (next < 1) next = 1;
   el('amount' + i).value = next;
   syncConfigFromInputs();
   renderActionButton(i);
 }
 
 // ============================================
-// VISUAL
+// VISUAL — REALISTIC ENVIRONMENT
 // ============================================
-let edgeReached = false;
-let cloudData = [];
-
 function getCosmeticIcon() {
   const c = COSMETICS.find(x => x.id === equippedCosmetic);
   return c ? c.icon : '✈️';
 }
 
+function spawnClouds() {
+  const layer = el('cloudsLayer');
+  layer.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const c = document.createElement('div');
+    c.className = 'cloud';
+    c.style.top = (10 + Math.random() * 50) + '%';
+    c.style.animationDelay = (Math.random() * 3) + 's';
+    c.style.animationDuration = (2 + Math.random() * 2) + 's';
+    c.style.opacity = 0.15 + Math.random() * 0.2;
+    c.style.width = (60 + Math.random() * 60) + 'px';
+    c.style.height = (15 + Math.random() * 10) + 'px';
+    layer.appendChild(c);
+  }
+}
+
 function resetPlaneVisual() {
+  const scene = el('flightScene');
   const wrap = el('planeWrap');
+  
+  scene.classList.remove('flying', 'high-altitude', 'extreme-altitude');
   wrap.classList.remove('crashed');
-  wrap.style.left = '8%';
-  wrap.style.bottom = '22%';
-  wrap.style.transform = 'rotate(-8deg) translateY(0px)';
   wrap.textContent = getCosmeticIcon();
+  
   el('multDisplay').classList.remove('crashed');
   el('multDisplay').textContent = '1.00x';
   trailPoints = [];
   tickCount = 0;
-  edgeReached = false;
   el('trailLine').setAttribute('points', '');
-  el('mountainLayer').style.transform = 'translateX(0px)';
 }
 
 function updatePlaneVisual(mult) {
   tickCount += 1;
-  const rawProgress = tickCount / 90;
-  const progress = Math.min(rawProgress, 0.82);
-  if (rawProgress >= 0.82) edgeReached = true;
-  const climb = 62 * (1 - Math.exp(-(mult - 1) / 5));
-  const bob = edgeReached ? Math.sin(tickCount * 0.22) * 3.5 : 0;
-  const wobbleRotate = edgeReached ? Math.sin(tickCount * 0.22) * 2 : 0;
-  const leftPct = 8 + progress * 78;
-  const bottomPct = 22 + climb;
-  const wrap = el('planeWrap');
-  wrap.style.left = leftPct + '%';
-  wrap.style.bottom = bottomPct + '%';
-  wrap.style.transform = `rotate(${-8 - Math.min(climb * 0.4, 22) + wobbleRotate}deg) translateY(${-bob}px)`;
-  trailPoints.push([leftPct + (edgeReached ? bob * 0.4 : 0), 100 - bottomPct]);
+  const scene = el('flightScene');
+  
+  // Activate flying animations
+  if (!scene.classList.contains('flying')) {
+    scene.classList.add('flying');
+  }
+  
+  // Sky darkens with altitude
+  if (mult >= 10) {
+    scene.classList.add('extreme-altitude');
+    scene.classList.remove('high-altitude');
+  } else if (mult >= 5) {
+    scene.classList.add('high-altitude');
+    scene.classList.remove('extreme-altitude');
+  } else {
+    scene.classList.remove('high-altitude', 'extreme-altitude');
+  }
+  
+  // Speed up cloud animations based on multiplier
+  const cloudSpeed = Math.max(0.5, 3 - (mult - 1) * 0.15);
+  document.querySelectorAll('.cloud').forEach(cloud => {
+    cloud.style.animationDuration = cloudSpeed + 's';
+  });
+  
+  // Speed up mountain scroll
+  const mountainSpeed = Math.max(2, 10 - (mult - 1) * 0.5);
+  el('mountainLayer').style.animationDuration = mountainSpeed + 's';
+  
+  // Trail shows path behind stationary plane
+  const centerX = 50;
+  const centerY = 45;
+  const trailOffset = Math.min(tickCount * 0.5, 40);
+  trailPoints.push([centerX - trailOffset, centerY + (trailOffset * 0.3)]);
+  if (trailPoints.length > 20) trailPoints.shift();
+  
   el('trailLine').setAttribute('points', trailPoints.map(p => `${p[0]},${p[1]}`).join(' '));
   el('multDisplay').textContent = fmt(mult) + 'x';
-  updateSceneDrift(edgeReached);
-}
-
-function updateSceneDrift(fast) {
-  const speedMult = fast ? 3.2 : 1;
-  cloudData.forEach(c => {
-    c.left -= c.speed * speedMult;
-    if (c.left < -15) c.left = 105 + Math.random() * 10;
-    c.el.style.left = c.left + '%';
-  });
-  const mountainSway = Math.sin(tickCount * 0.015) * (fast ? 6 : 2);
-  el('mountainLayer').style.transform = `translateX(${mountainSway}px)`;
 }
 
 function crashPlaneVisual() {
-  el('planeWrap').classList.add('crashed');
+  const scene = el('flightScene');
+  const wrap = el('planeWrap');
+  
+  scene.classList.remove('flying');
+  wrap.classList.add('crashed');
   el('multDisplay').classList.add('crashed');
   playSound('crash');
 }
@@ -1301,7 +1391,7 @@ function sendUserChat() {
 }
 
 // ============================================
-// LEADERBOARD & PRO ANALYTICS
+// LEADERBOARD & CHARTS
 // ============================================
 async function renderLeaderboard() {
   const data = await loadLeaderboard();
@@ -1333,9 +1423,11 @@ async function renderLeaderboard() {
 }
 
 function updateBalanceChart() {
-  const ctx = el('balanceChart').getContext('2d');
+  const canvas = el('balanceChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
   const history = [...myBetsHistory].reverse().slice(-20);
-  const labels = history.map((_, i) => `Round ${i+1}`);
+  const labels = history.map((_, i) => `R${i+1}`);
   let currentBal = 1000;
   const dataPoints = history.map(h => {
     currentBal = currentBal - Number(h.bet_amount) + (h.result === 'won' ? Number(h.payout) : 0);
@@ -1356,6 +1448,52 @@ function updateBalanceChart() {
         backgroundColor: 'rgba(255, 182, 18, 0.1)',
         fill: true,
         tension: 0.4,
+        pointRadius: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { display: false },
+        y: { grid: { color: '#263049' }, ticks: { color: '#8b93a7' } }
+      }
+    }
+  });
+}
+
+// NEW: Owner profit chart
+function updateOwnerChart() {
+  const canvas = el('ownerChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  const history = ownerStats.profitHistory || [];
+  if (history.length === 0) {
+    if (ownerChartInstance) {
+      ownerChartInstance.destroy();
+      ownerChartInstance = null;
+    }
+    return;
+  }
+  
+  const last30 = history.slice(-30);
+  const labels = last30.map((_, i) => `R${i+1}`);
+  const dataPoints = last30.map(h => h.profit);
+
+  if (ownerChartInstance) ownerChartInstance.destroy();
+  ownerChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'House Profit per Round (R)',
+        data: dataPoints,
+        borderColor: '#4f8cff',
+        backgroundColor: 'rgba(79, 140, 255, 0.1)',
+        fill: true,
+        tension: 0.3,
         pointRadius: 2
       }]
     },
@@ -1608,9 +1746,6 @@ function renderStoredHistoryLog() {
   });
 }
 
-// ============================================
-// EXPORT CSV (POPIA Compliance)
-// ============================================
 function exportToCSV() {
   if (!myBetsHistory.length) return alert('No history to export.');
   let csv = 'Date,Amount,Result,Payout,Crash Point\n';
@@ -1633,7 +1768,10 @@ function exportToCSV() {
 function loadOwnerStats() {
   try {
     const saved = localStorage.getItem('sa_skies_owner_stats');
-    if (saved) ownerStats = JSON.parse(saved);
+    if (saved) {
+      ownerStats = JSON.parse(saved);
+      if (!ownerStats.profitHistory) ownerStats.profitHistory = [];
+    }
   } catch (e) {}
   updateOwnerAnalyticsUI();
 }
@@ -1658,11 +1796,12 @@ function updateOwnerAnalyticsUI() {
     edgeEl.className = 'owner-value profit-positive';
   }
   el('ownerRounds').textContent = ownerStats.rounds;
+  updateOwnerChart();
 }
 
 function resetOwnerStats() {
   if (confirm('Reset all owner analytics?')) {
-    ownerStats = { totalWagered: 0, totalPayout: 0, netProfit: 0, rounds: 0 };
+    ownerStats = { totalWagered: 0, totalPayout: 0, netProfit: 0, rounds: 0, profitHistory: [] };
     saveOwnerStats();
     updateOwnerAnalyticsUI();
   }
@@ -1733,19 +1872,20 @@ async function finishRound() {
   let currentRoundPayout = 0;
   [1, 2].forEach(i => { if (state[i].result === 'won') currentRoundPayout += state[i].payout; });
   bots.forEach(b => { b.bets.forEach(bet => { if (bet.result === 'won') currentRoundPayout += bet.payout; }); });
+  
+  const roundProfit = currentRoundWagered - currentRoundPayout;
   ownerStats.totalWagered += currentRoundWagered;
   ownerStats.totalPayout += currentRoundPayout;
   ownerStats.netProfit = ownerStats.totalWagered - ownerStats.totalPayout;
   ownerStats.rounds += 1;
+  ownerStats.profitHistory.push({ round: ownerStats.rounds, profit: roundProfit });
+  if (ownerStats.profitHistory.length > 100) ownerStats.profitHistory.shift();
+  
   saveOwnerStats();
   updateOwnerAnalyticsUI();
   await pushRoundToHistory();
   await updateProfile({ balance });
   updateStatsDisplay();
-  
-  if (lastBet.amount > 0) {
-    el('replayBtn').style.display = 'block';
-  }
   
   setTimeout(() => {
     [1, 2].forEach(i => {
@@ -1786,22 +1926,6 @@ function showCountdown(seconds) {
 
 function hideCountdown() { el('countdownOverlay').style.display = 'none'; }
 
-function spawnClouds() {
-  const layer = el('cloudsLayer');
-  layer.innerHTML = '';
-  cloudData = [];
-  for (let i = 0; i < 5; i++) {
-    const c = document.createElement('div');
-    c.className = 'cloud';
-    const left = Math.random() * 90;
-    c.style.top = (10 + Math.random() * 40) + '%';
-    c.style.left = left + '%';
-    c.style.opacity = 0.1 + Math.random() * 0.2;
-    layer.appendChild(c);
-    cloudData.push({ el: c, left, speed: 0.04 + Math.random() * 0.06 });
-  }
-}
-
 // ============================================
 // UI SETUP
 // ============================================
@@ -1820,7 +1944,7 @@ function setupUI() {
   el('tabSignUp').addEventListener('click', () => switchAuthTab('signup'));
   el('signInBtn').addEventListener('click', handleSignIn);
   el('signUpBtn').addEventListener('click', handleSignUp);
-  el('googleSignInBtn').addEventListener('click', handleGoogleSignIn); // 👈 NEW
+  el('googleSignInBtn').addEventListener('click', handleGoogleSignIn);
   el('signOutBtn').addEventListener('click', handleSignOut);
   document.querySelectorAll('.topup-btn').forEach(btn => {
     btn.addEventListener('click', () => handleTopUp(parseFloat(btn.dataset.amount)));
@@ -1851,6 +1975,7 @@ function setupUI() {
     const panel = el('ownerPanel');
     panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
     el('ownerToggleBtn').textContent = panel.style.display === 'none' ? '🔒 Owner Analytics' : '🔓 Hide Owner Analytics';
+    if (panel.style.display === 'block') updateOwnerChart();
   });
   el('ownerResetBtn').addEventListener('click', resetOwnerStats);
   
@@ -1901,18 +2026,26 @@ function setupUI() {
   document.querySelectorAll('[data-close]').forEach(btn => {
     btn.addEventListener('click', () => closeModal(btn.dataset.close));
   });
+  
+  // Bet adjust buttons
   document.querySelectorAll('[data-adj]').forEach(btn => {
     btn.addEventListener('click', () => {
       const [i, d] = btn.dataset.adj.split(',').map(Number);
       adjustBet(i, d);
     });
   });
-  document.querySelectorAll('[data-set]').forEach(btn => {
+  
+  // NEW: Quick bet INCREMENT buttons
+  document.querySelectorAll('[data-increment]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const [i, v] = btn.dataset.set.split(',').map(Number);
-      setBet(i, v);
+      const amount = parseInt(btn.dataset.increment);
+      // Determine which panel to apply to based on which is currently visible/active
+      // Apply to panel 1 by default, or panel 2 if panel 1 is armed
+      const targetPanel = state[1].armed ? 2 : 1;
+      incrementBet(targetPanel, amount);
     });
   });
+  
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => setHistoryFilter(btn.dataset.target, btn.dataset.filter));
   });
@@ -1927,15 +2060,6 @@ function setupUI() {
   });
 
   el('exportCsvBtn').addEventListener('click', exportToCSV);
-  el('replayBtn').addEventListener('click', () => {
-    state[1].amount = lastBet.amount;
-    state[1].target = lastBet.target;
-    el('amount1').value = lastBet.amount;
-    el('target1').value = lastBet.target;
-    syncConfigFromInputs();
-    placeBet(1);
-    el('replayBtn').style.display = 'none';
-  });
   el('deleteAccountBtn').addEventListener('click', () => {
     if (confirm('POPIA Request: This will sign you out and clear local data. To fully delete your account from our servers, please email support@sa-skies.app with your username.')) {
       localStorage.clear();
