@@ -718,26 +718,7 @@ async function signUp(username, password) {
   });
   
   if (error) throw error;
-  
-  // Create profile record
-  const { error: profileError } = await supabase.from('profiles').insert({
-    id: data.user.id,
-    username: username.toLowerCase(),
-    balance: 1000.00,
-    streak: 0,
-    peak_balance: 1000.00,
-    equipped_cosmetic: 'plane'
-  });
-  
-  if (profileError) throw profileError;
-  
-  // Unlock default cosmetic
-  await supabase.from('user_cosmetics').insert({
-    user_id: data.user.id,
-    cosmetic_id: 'plane',
-    unlocked: true
-  });
-  
+  // Profile is now auto-created by the database trigger!
   return data.user;
 }
 
@@ -1566,7 +1547,6 @@ function switchAuthTab(tab) {
 }
 
 async function handleSignUp() {
-  console.log('📝 Sign up clicked');
   const uname = el('suUsername').value.trim().toLowerCase();
   const pwd = el('suPassword').value;
   const errEl = el('signUpError');
@@ -1581,31 +1561,21 @@ async function handleSignUp() {
     return; 
   }
   
-  const btn = el('signUpBtn');
-  btn.disabled = true;
-  btn.textContent = 'Creating...';
+  el('signUpBtn').disabled = true;
+  el('signUpBtn').textContent = 'Creating...';
   
   try {
-    console.log('→ Calling signUp...');
     await signUp(uname, pwd);
-    console.log('✅ signUp succeeded');
-    console.log('→ Calling enterApp...');
     await enterApp();
-    console.log('✅ enterApp succeeded');
   } catch (err) {
-    console.error('❌ Sign up failed:', err);
-    errEl.textContent = err.message || 'Sign up failed. Check console (F12).';
-    if (err.message && err.message.toLowerCase().includes('confirm')) {
-      errEl.textContent = 'Email confirmation required! Disable it in Supabase Auth settings.';
-    }
+    errEl.textContent = err.message || 'Sign up failed.';
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Create account';
+    el('signUpBtn').disabled = false;
+    el('signUpBtn').textContent = 'Create account';
   }
 }
 
 async function handleSignIn() {
-  console.log('🔑 Sign in clicked');
   const uname = el('siUsername').value.trim().toLowerCase();
   const pwd = el('siPassword').value;
   const errEl = el('signInError');
@@ -1616,26 +1586,19 @@ async function handleSignIn() {
     return; 
   }
   
-  const btn = el('signInBtn');
-  btn.disabled = true;
-  btn.textContent = 'Signing in...';
+  el('signInBtn').disabled = true;
+  el('signInBtn').textContent = 'Signing in...';
   
   try {
-    console.log('→ Calling signIn...');
     await signIn(uname, pwd);
-    console.log('✅ signIn succeeded');
-    console.log('→ Calling enterApp...');
     await enterApp();
-    console.log('✅ enterApp succeeded');
   } catch (err) {
-    console.error('❌ Sign in failed:', err);
     errEl.textContent = 'Incorrect username or password.';
   } finally {
-    btn.disabled = false;
-    btn.textContent = 'Sign In';
+    el('signInBtn').disabled = false;
+    el('signInBtn').textContent = 'Sign In';
   }
 }
-
 async function enterApp() {
   console.log('🏠 Entering app...');
   
@@ -2029,85 +1992,11 @@ function spawnClouds() {
 // ============================================
 // INITIALIZATION
 // ============================================
+// ============================================
+// INITIALIZATION (crash-proof)
+// ============================================
 async function init() {
-  console.log('🚀 Starting init...');
-  
-  // Setup UI FIRST (so buttons work even if cloud fails)
-  try {
-    syncConfigFromInputs();
-    spawnClouds();
-    initBots();
-    renderBots();
-    renderHistory();
-    resetPlaneVisual();
-    [1, 2].forEach(i => renderActionButton(i));
-    switchAuthTab('signin');
-    loadOwnerStats();
-    console.log('✅ UI setup complete');
-  } catch (e) {
-    console.error('❌ UI setup failed:', e);
-  }
-  
-  // Check Supabase
-  if (!supabase) {
-    setDbStatus(false, 'Supabase not configured');
-    console.error('❌ Supabase client missing');
-    return;
-  }
-  
-  // Test connection
-  try {
-    const { error } = await supabase.auth.getSession();
-    if (error) throw error;
-    setDbStatus(true, 'Cloud connected');
-    console.log('✅ Cloud connected');
-  } catch (e) {
-    setDbStatus(false, 'Connection failed: ' + e.message);
-    console.error('❌ Connection failed:', e);
-    return;
-  }
-  
-  // Load global rounds (non-critical)
-  try {
-    const globalRounds = await loadGlobalRounds(HISTORY_MAX);
-    if (globalRounds.length > 0) {
-      multiplierHistory = globalRounds.map(r => Number(r.crash_point));
-      renderHistory();
-    }
-    console.log('✅ Global rounds loaded:', globalRounds.length);
-  } catch (e) {
-    console.warn('⚠️ Could not load global rounds:', e.message);
-  }
-  
-  // Check if already logged in
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      console.log('✅ Existing session found, entering app...');
-      await enterApp();
-    } else {
-      console.log('ℹ️ No existing session, showing login');
-    }
-  } catch (e) {
-    console.error('❌ Session check failed:', e);
-  }
-  
-  console.log('🎉 Init complete');
-}
-  
-  // Load global multiplier history
-  const globalRounds = await loadGlobalRounds(HISTORY_MAX);
-  if (globalRounds.length > 0) {
-    multiplierHistory = globalRounds.map(r => Number(r.crash_point));
-  }
-  
-  // Check if already logged in
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    await enterApp();
-  }
-  
-  // Setup UI
+  // STEP 1: Setup UI FIRST (buttons work immediately)
   syncConfigFromInputs();
   spawnClouds();
   initBots();
@@ -2117,9 +2006,39 @@ async function init() {
   [1, 2].forEach(i => renderActionButton(i));
   switchAuthTab('signin');
   loadOwnerStats();
+
+  // STEP 2: Check Supabase
+  if (!supabase) {
+    setDbStatus(false, 'Supabase not configured');
+    return;
+  }
+
+  try {
+    await supabase.auth.getSession();
+    setDbStatus(true, 'Cloud connected');
+  } catch (e) {
+    setDbStatus(false, 'Cloud failed');
+    return;
+  }
+
+  // STEP 3: Load history
+  try {
+    const gr = await loadGlobalRounds(HISTORY_MAX);
+    if (gr.length > 0) {
+      multiplierHistory = gr.map(r => Number(r.crash_point));
+      renderHistory();
+    }
+  } catch (e) {}
+
+  // STEP 4: Auto-login if session exists
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) await enterApp();
+  } catch (e) {}
 }
 
-init();
+// Start the app
+init();  // Setup UI
 </script>
 </body>
 </html>
