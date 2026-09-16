@@ -1421,7 +1421,7 @@ function updateBalanceChart() {
   const ctx = canvas.getContext('2d');
   const history = [...myBetsHistory].reverse().slice(-20);
   const labels = history.map((_, i) => `R${i+1}`);
-  let currentBal = 1000;
+  let currentBal = 10;
   const dataPoints = history.map(h => {
     currentBal = currentBal - Number(h.bet_amount) + (h.result === 'won' ? Number(h.payout) : 0);
     return currentBal;
