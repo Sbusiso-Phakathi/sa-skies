@@ -1963,23 +1963,70 @@ function spawnClouds() {
 // INITIALIZATION
 // ============================================
 async function init() {
-  // Check Supabase connection
+  console.log('🚀 Starting init...');
+  
+  // Setup UI FIRST (so buttons work even if cloud fails)
+  try {
+    syncConfigFromInputs();
+    spawnClouds();
+    initBots();
+    renderBots();
+    renderHistory();
+    resetPlaneVisual();
+    [1, 2].forEach(i => renderActionButton(i));
+    switchAuthTab('signin');
+    loadOwnerStats();
+    console.log('✅ UI setup complete');
+  } catch (e) {
+    console.error('❌ UI setup failed:', e);
+  }
+  
+  // Check Supabase
   if (!supabase) {
     setDbStatus(false, 'Supabase not configured');
+    console.error('❌ Supabase client missing');
     return;
   }
   
+  // Test connection
   try {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) {
-      setDbStatus(false, 'Connection failed');
-      return;
-    }
+    const { error } = await supabase.auth.getSession();
+    if (error) throw error;
     setDbStatus(true, 'Cloud connected');
+    console.log('✅ Cloud connected');
   } catch (e) {
-    setDbStatus(false, 'Connection failed');
+    setDbStatus(false, 'Connection failed: ' + e.message);
+    console.error('❌ Connection failed:', e);
     return;
   }
+  
+  // Load global rounds (non-critical)
+  try {
+    const globalRounds = await loadGlobalRounds(HISTORY_MAX);
+    if (globalRounds.length > 0) {
+      multiplierHistory = globalRounds.map(r => Number(r.crash_point));
+      renderHistory();
+    }
+    console.log('✅ Global rounds loaded:', globalRounds.length);
+  } catch (e) {
+    console.warn('⚠️ Could not load global rounds:', e.message);
+  }
+  
+  // Check if already logged in
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      console.log('✅ Existing session found, entering app...');
+      await enterApp();
+    } else {
+      console.log('ℹ️ No existing session, showing login');
+    }
+  } catch (e) {
+    console.error('❌ Session check failed:', e);
+  }
+  
+  console.log('🎉 Init complete');
+}
   
   // Load global multiplier history
   const globalRounds = await loadGlobalRounds(HISTORY_MAX);
