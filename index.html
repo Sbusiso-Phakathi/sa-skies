@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Play-Money Crash Game — SA Skies</title>
+<title>Jabu Skies Bets</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0b1220">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -320,9 +320,8 @@
 </head>
 <body>
 <div class="app">
-  <h1>🇿🇦 Play-Money Crash Game — SA Skies</h1>
-  <div class="subtitle">Practice chips only — no real money. Cloud-synced via Supabase.</div>
-  <div style="text-align:center;"><span class="db-status loading" id="dbStatus">⚪ Connecting to cloud...</span></div>
+  <h1>Jabu Skies Bets</h1>
+  <div style="text-align:center;"><span class="db-status loading" id="dbStatus">⚪ Connecting...</span></div>
 
   <div class="modal-overlay show" id="ageGateModal">
     <div class="modal-box">
@@ -340,7 +339,7 @@
 
   <div class="modal-overlay" id="onboardingModal">
     <div class="modal-box" style="text-align:left;">
-      <h2>👋 Welcome to SA Skies!</h2>
+      <h2>👋 Welcome to Jabu Skies Beta!</h2>
       <div id="onboardingStep1"><p>1️⃣ <b>Place your bet:</b> Choose an amount and set an auto cash-out target.</p></div>
       <div id="onboardingStep2" style="display:none;"><p>2️⃣ <b>Watch it fly:</b> The multiplier increases. The higher it goes, the more you win!</p></div>
       <div id="onboardingStep3" style="display:none;">
@@ -513,7 +512,7 @@
     </div>
 
     <div class="leaderboard-section">
-      <div class="log-header"><h3>🏆 Leaderboard (Real Players)</h3></div>
+      <div class="log-header"><h3>🏆 Leaderboard</h3></div>
       <div class="lb-table-wrap">
         <table class="lb-table">
           <thead>
@@ -529,9 +528,8 @@
     </div>
 
     <div class="table-section">
-      <div class="table-header"><h3>Practice Table</h3></div>
+      <div class="table-header"><h3>Players Table</h3></div>
       <div class="sim-disclaimer">
-        <b>Simulated players.</b> Everyone below is a computer-generated practice bot for atmosphere only.
       </div>
       <label class="big-wins-toggle">
         <input type="checkbox" id="bigWinsToggle">
@@ -556,7 +554,7 @@
 
     <div class="log-section">
       <div class="log-header">
-        <h3>My Rounds (Cloud-Synced)</h3>
+        <h3>My Rounds</h3>
         <div class="filter-group">
           <button class="filter-btn active" data-filter="all" data-target="my">All</button>
           <button class="filter-btn" data-filter="week" data-target="my">Week</button>
@@ -568,7 +566,7 @@
     </div>
 
     <div class="pro-section">
-      <button class="pro-toggle" id="proToggle" type="button">📊 Pro Analytics (Your Stats)</button>
+      <button class="pro-toggle" id="proToggle" type="button">📊 Pro Analytics</button>
       <div class="pro-panel" id="proPanel" style="display:none;">
         <div class="pro-grid">
           <div class="pro-stat"><div class="owner-label">Rounds Played</div><div class="owner-value" id="proRounds">0</div></div>
@@ -584,9 +582,6 @@
       </div>
     </div>
 
-    <div class="note">
-      RNG formula: crash_point = (1 − house_edge) / (1 − U). No strategy changes the long-run expected value.
-    </div>
 
     <div class="owner-section">
       <button class="owner-toggle-btn" id="ownerToggleBtn" type="button">🔒 Owner Analytics</button>
