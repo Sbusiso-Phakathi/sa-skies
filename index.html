@@ -1,0 +1,1922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LexSA • UNISA Law Learning App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg-2: #111827;
+    --card: rgba(255,255,255,0.04);
+    --card-border: rgba(255,255,255,0.08);
+    --text: #f3f4f6;
+    --muted: #9ca3af;
+    --primary: #fbbf24;
+    --primary-2: #f59e0b;
+    --accent: #10b981;
+    --accent-2: #059669;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    --purple: #8b5cf6;
+    --pink: #ec4899;
+    --grad-1: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #10b981 100%);
+    --grad-2: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    --grad-3: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    min-height: 100vh;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(circle at 10% 20%, rgba(251,191,36,0.15), transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(16,185,129,0.12), transparent 40%),
+      radial-gradient(circle at 50% 50%, rgba(139,92,246,0.08), transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+  .app { position: relative; z-index: 1; min-height: 100vh; }
+
+  nav.topbar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px;
+    background: rgba(10,14,26,0.75);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--card-border);
+    flex-wrap: wrap; gap: 10px;
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900; font-size: 26px;
+    background: var(--grad-1);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer;
+  }
+  .logo .scales { font-size: 28px; -webkit-text-fill-color: initial; color: var(--primary); }
+  .nav-links { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .nav-links button {
+    background: transparent; border: none; color: var(--muted);
+    padding: 8px 14px; border-radius: 10px; cursor: pointer;
+    font-weight: 500; font-size: 14px; transition: all .2s;
+    font-family: inherit;
+  }
+  .nav-links button:hover { color: var(--text); background: var(--card); }
+  .nav-links button.active { color: var(--primary); background: rgba(251,191,36,0.1); }
+  .user-chip {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card); padding: 6px 14px 6px 6px;
+    border-radius: 999px; border: 1px solid var(--card-border);
+  }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--grad-2);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+  }
+  .xp-pill { font-size: 12px; color: var(--primary); font-weight: 700; }
+
+  .container { max-width: 1280px; margin: 0 auto; padding: 28px; }
+  .view { display: none; animation: fadeIn .4s ease; }
+  .view.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .hero {
+    position: relative;
+    padding: 48px 40px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(16,185,129,0.12), rgba(139,92,246,0.1));
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .hero::before {
+    content: '⚖'; position: absolute; right: -40px; bottom: -60px;
+    font-size: 280px; opacity: 0.07; transform: rotate(-10deg);
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 900; line-height: 1.1;
+    margin-bottom: 14px;
+  }
+  .hero h1 span {
+    background: var(--grad-1);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p { color: var(--muted); font-size: 17px; max-width: 620px; margin-bottom: 22px; }
+  .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 22px; border-radius: 12px;
+    font-weight: 600; font-size: 14px; cursor: pointer;
+    border: none; font-family: inherit; transition: all .2s;
+  }
+  .btn-primary { background: var(--grad-1); color: #0a0e1a; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(251,191,36,0.3); }
+  .btn-ghost { background: var(--card); color: var(--text); border: 1px solid var(--card-border); }
+  .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-sm { padding: 8px 14px; font-size: 13px; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    padding: 20px; border-radius: 18px;
+    display: flex; align-items: center; gap: 16px;
+    transition: transform .2s;
+  }
+  .stat-card:hover { transform: translateY(-3px); }
+  .stat-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; flex-shrink: 0;
+  }
+  .stat-value { font-size: 28px; font-weight: 800; line-height: 1; }
+  .stat-label { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+  .section-title {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 32px 0 16px; flex-wrap: wrap; gap: 10px;
+  }
+  .section-title h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px; font-weight: 800;
+  }
+  .section-title .hint { color: var(--muted); font-size: 13px; }
+
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
+  }
+  .module-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 20px; padding: 22px; cursor: pointer;
+    transition: all .25s; position: relative; overflow: hidden;
+  }
+  .module-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: var(--mod-color, var(--grad-1));
+  }
+  .module-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.2); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+  .module-emoji { font-size: 38px; margin-bottom: 10px; }
+  .module-code { color: var(--primary); font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+  .module-name { font-size: 18px; font-weight: 700; margin: 6px 0 10px; }
+  .module-desc { color: var(--muted); font-size: 13px; line-height: 1.5; margin-bottom: 14px; min-height: 40px; }
+  .module-meta { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin-bottom: 12px; flex-wrap: wrap; }
+  .module-meta span { display: flex; align-items: center; gap: 4px; }
+  .progress-bar {
+    height: 6px; background: rgba(255,255,255,0.08);
+    border-radius: 999px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--mod-color, var(--grad-1));
+    border-radius: 999px; transition: width .4s;
+  }
+  .progress-label { font-size: 11px; color: var(--muted); margin-top: 6px; display: flex; justify-content: space-between; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: var(--bg-2); border: 1px solid var(--card-border);
+    border-radius: 24px; padding: 36px;
+    width: 100%; max-width: 440px;
+    animation: popIn .3s ease;
+  }
+  @keyframes popIn { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal h2 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 6px; }
+  .modal p.sub { color: var(--muted); margin-bottom: 22px; font-size: 14px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+  .field input, .field select {
+    width: 100%; padding: 12px 14px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--card-border);
+    border-radius: 10px; color: var(--text); font-family: inherit; font-size: 14px;
+    transition: border-color .2s;
+  }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); }
+  .modal .btn { width: 100%; justify-content: center; margin-top: 8px; }
+  .switch-auth { text-align: center; margin-top: 16px; color: var(--muted); font-size: 13px; }
+  .switch-auth a { color: var(--primary); cursor: pointer; font-weight: 600; }
+
+  .quiz-container {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 24px; padding: 32px;
+    max-width: 800px; margin: 0 auto;
+  }
+  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .quiz-progress-info { display: flex; align-items: center; gap: 16px; }
+  .q-counter { font-weight: 700; color: var(--primary); }
+  .timer { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent); }
+  .question-text {
+    font-size: 20px; font-weight: 600; line-height: 1.5;
+    margin-bottom: 24px; padding: 20px;
+    background: rgba(251,191,36,0.05);
+    border-left: 3px solid var(--primary);
+    border-radius: 8px;
+  }
+  .question-context { font-size: 13px; color: var(--muted); margin-bottom: 10px; font-style: italic; }
+  .options { display: grid; gap: 10px; }
+  .option {
+    padding: 16px 20px; background: rgba(255,255,255,0.03);
+    border: 2px solid var(--card-border); border-radius: 14px;
+    cursor: pointer; transition: all .2s;
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 15px; line-height: 1.5;
+  }
+  .option:hover:not(.disabled) { border-color: var(--primary); background: rgba(251,191,36,0.06); transform: translateX(4px); }
+  .option .letter {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; flex-shrink: 0; font-size: 13px;
+  }
+  .option.correct { border-color: var(--accent); background: rgba(16,185,129,0.1); }
+  .option.correct .letter { background: var(--accent); color: white; }
+  .option.wrong { border-color: var(--danger); background: rgba(239,68,68,0.1); }
+  .option.wrong .letter { background: var(--danger); color: white; }
+  .option.disabled { cursor: default; }
+
+  .explanation {
+    margin-top: 20px; padding: 18px;
+    background: rgba(59,130,246,0.08);
+    border-left: 3px solid var(--info);
+    border-radius: 8px;
+    animation: fadeIn .3s;
+  }
+  .explanation h4 { color: var(--info); margin-bottom: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+  .explanation p { font-size: 14px; line-height: 1.6; color: var(--text); }
+  .explanation .source { font-size: 12px; color: var(--muted); margin-top: 8px; font-style: italic; }
+
+  .quiz-actions { display: flex; justify-content: space-between; margin-top: 24px; gap: 10px; }
+
+  .results {
+    text-align: center; padding: 40px 20px;
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 24px; max-width: 600px; margin: 0 auto;
+  }
+  .results .trophy { font-size: 80px; margin-bottom: 16px; animation: bounce 1s; }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+  .results h2 { font-family: 'Playfair Display', serif; font-size: 36px; margin-bottom: 8px; }
+  .score-circle {
+    width: 160px; height: 160px; border-radius: 50%;
+    margin: 24px auto;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px; font-weight: 900;
+    background: conic-gradient(var(--primary) var(--pct), rgba(255,255,255,0.08) 0);
+    position: relative;
+  }
+  .score-circle::before {
+    content: ''; position: absolute; inset: 8px;
+    background: var(--bg-2); border-radius: 50%;
+  }
+  .score-circle span { position: relative; z-index: 1; }
+  .xp-earned { font-size: 20px; color: var(--primary); font-weight: 700; margin: 16px 0; }
+  .results-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+
+  .flashcard-wrap { max-width: 600px; margin: 0 auto; perspective: 1000px; }
+  .flashcard {
+    width: 100%; height: 360px; position: relative;
+    transition: transform .6s; transform-style: preserve-3d;
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .flashcard-face {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    border-radius: 24px; padding: 32px;
+    display: flex; flex-direction: column; justify-content: center;
+    border: 1px solid var(--card-border);
+  }
+  .flashcard-front { background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(139,92,246,0.1)); }
+  .flashcard-back { background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.1)); transform: rotateY(180deg); }
+  .flashcard-face h3 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 16px; }
+  .flashcard-face p { font-size: 16px; line-height: 1.6; color: var(--text); }
+  .flashcard-face .tag { font-size: 12px; color: var(--primary); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+  .flashcard-controls { display: flex; justify-content: center; gap: 12px; margin-top: 24px; }
+
+  .case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .case-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 18px; padding: 22px; cursor: pointer;
+    transition: all .2s;
+  }
+  .case-card:hover { transform: translateY(-3px); border-color: rgba(251,191,36,0.3); }
+  .case-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; margin-bottom: 6px; color: var(--primary); }
+  .case-citation { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; }
+  .case-summary { font-size: 14px; color: var(--text); line-height: 1.5; margin-bottom: 12px; }
+  .case-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag-pill {
+    font-size: 11px; padding: 3px 10px;
+    background: rgba(139,92,246,0.15); color: #c4b5fd;
+    border-radius: 999px; font-weight: 600;
+  }
+
+  .leaderboard {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 20px; padding: 24px; max-width: 700px; margin: 0 auto;
+  }
+  .lb-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px; border-radius: 12px;
+    transition: background .2s;
+  }
+  .lb-row:hover { background: rgba(255,255,255,0.03); }
+  .lb-rank { width: 32px; font-weight: 800; font-size: 18px; color: var(--muted); text-align: center; }
+  .lb-rank.gold { color: #fbbf24; }
+  .lb-rank.silver { color: #d1d5db; }
+  .lb-rank.bronze { color: #d97706; }
+  .lb-name { flex: 1; font-weight: 600; }
+  .lb-xp { color: var(--primary); font-weight: 700; }
+  .lb-row.me { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); }
+
+  .badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+  .badge {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 16px; padding: 18px; text-align: center;
+    transition: all .2s;
+  }
+  .badge.locked { opacity: 0.4; filter: grayscale(1); }
+  .badge:not(.locked):hover { transform: translateY(-4px); border-color: var(--primary); }
+  .badge-icon { font-size: 40px; margin-bottom: 8px; }
+  .badge-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+  .badge-desc { font-size: 11px; color: var(--muted); }
+
+  /* PAST PAPERS */
+  .paper-filters {
+    display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;
+    background: var(--card); padding: 16px; border-radius: 16px;
+    border: 1px solid var(--card-border);
+  }
+  .year-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .year-tab {
+    padding: 10px 18px; background: var(--card);
+    border: 1px solid var(--card-border); border-radius: 10px;
+    cursor: pointer; font-weight: 600; font-size: 14px;
+    transition: all .2s; color: var(--muted);
+  }
+  .year-tab:hover { color: var(--text); }
+  .year-tab.active { background: var(--grad-1); color: #0a0e1a; border-color: transparent; }
+
+  .paper-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 18px; padding: 22px; margin-bottom: 14px;
+    transition: all .2s;
+  }
+  .paper-card:hover { border-color: rgba(251,191,36,0.3); }
+  .paper-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 14px; gap: 12px; flex-wrap: wrap;
+  }
+  .paper-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
+  .paper-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .paper-meta span {
+    font-size: 11px; padding: 4px 10px;
+    background: rgba(59,130,246,0.15); color: #93c5fd;
+    border-radius: 999px; font-weight: 600;
+  }
+  .paper-meta span.session-may { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+  .paper-meta span.session-oct { background: rgba(239,68,68,0.15); color: #fca5a5; }
+  .paper-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .question-block {
+    background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);
+    border-radius: 12px; padding: 16px; margin-top: 12px;
+  }
+  .question-block .q-num {
+    font-size: 12px; color: var(--primary); font-weight: 700;
+    letter-spacing: 1px; margin-bottom: 6px;
+  }
+  .question-block .q-text { font-size: 15px; line-height: 1.6; margin-bottom: 10px; }
+  .question-block .q-marks {
+    display: inline-block; font-size: 11px; padding: 2px 8px;
+    background: rgba(251,191,36,0.15); color: var(--primary);
+    border-radius: 999px; font-weight: 700; margin-bottom: 10px;
+  }
+  .question-block .q-type {
+    display: inline-block; font-size: 11px; padding: 2px 8px;
+    background: rgba(139,92,246,0.15); color: #c4b5fd;
+    border-radius: 999px; font-weight: 700; margin-left: 6px;
+  }
+  .answer-toggle {
+    background: none; border: none; color: var(--info);
+    cursor: pointer; font-size: 13px; font-weight: 600;
+    font-family: inherit; padding: 0;
+  }
+  .answer-toggle:hover { text-decoration: underline; }
+  .model-answer {
+    display: none; margin-top: 12px; padding: 14px;
+    background: rgba(16,185,129,0.08);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px; font-size: 14px; line-height: 1.6;
+  }
+  .model-answer.show { display: block; animation: fadeIn .3s; }
+  .model-answer h5 { color: var(--accent); margin-bottom: 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+
+  .resource-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px; margin-top: 20px;
+  }
+  .resource-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 16px; padding: 20px;
+    text-decoration: none; color: var(--text);
+    transition: all .2s; display: block;
+  }
+  .resource-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+  .resource-card .r-icon { font-size: 32px; margin-bottom: 10px; }
+  .resource-card h4 { font-size: 16px; margin-bottom: 6px; }
+  .resource-card p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .resource-card .r-url { font-size: 11px; color: var(--primary); margin-top: 8px; font-family: monospace; }
+
+  .filter-select {
+    padding: 10px 14px; background: rgba(255,255,255,0.04);
+    border: 1px solid var(--card-border); border-radius: 10px;
+    color: var(--text); font-family: inherit; font-size: 14px;
+    cursor: pointer; min-width: 160px;
+  }
+  .filter-select:focus { outline: none; border-color: var(--primary); }
+
+  .exam-banner {
+    background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(251,191,36,0.1));
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 16px; padding: 20px; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .exam-banner .eb-icon { font-size: 40px; }
+  .exam-banner h3 { font-size: 18px; margin-bottom: 4px; }
+  .exam-banner p { color: var(--muted); font-size: 13px; }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 200;
+    background: var(--bg-2); border: 1px solid var(--card-border);
+    padding: 14px 20px; border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    display: flex; align-items: center; gap: 10px;
+    transform: translateX(120%); transition: transform .3s;
+    max-width: 320px;
+  }
+  .toast.show { transform: translateX(0); }
+  .toast.success { border-left: 4px solid var(--accent); }
+  .toast.error { border-left: 4px solid var(--danger); }
+  .toast.info { border-left: 4px solid var(--info); }
+
+  @media (max-width: 768px) {
+    nav.topbar { padding: 12px 16px; }
+    .nav-links button { padding: 6px 10px; font-size: 12px; }
+    .container { padding: 16px; }
+    .hero { padding: 28px 22px; }
+    .quiz-container { padding: 20px; }
+    .question-text { font-size: 17px; padding: 16px; }
+  }
+
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <nav class="topbar">
+    <div class="logo" onclick="showView('home')">
+      <span class="scales">⚖️</span> LexSA
+    </div>
+    <div class="nav-links" id="navLinks">
+      <button data-view="home" class="active">🏠 Home</button>
+      <button data-view="modules">📚 Modules</button>
+      <button data-view="papers">📝 Past Papers</button>
+      <button data-view="cases">📜 Case Law</button>
+      <button data-view="resources">🔗 Resources</button>
+      <button data-view="leaderboard">🏆 Leaderboard</button>
+      <button data-view="profile">👤 Profile</button>
+      <button id="authBtn" class="btn btn-primary btn-sm" onclick="openAuth()">Sign In</button>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- HOME VIEW -->
+    <div id="view-home" class="view active">
+      <div class="hero">
+        <h1>Master South African Law,<br/><span>one case at a time.</span></h1>
+        <p>LexSA is built for UNISA law students. Past papers from 2019-2024, landmark cases, flashcards, and a gamified journey through every UNISA law module — from ILS1501 to LME4801.</p>
+        <div class="hero-cta">
+          <button class="btn btn-primary" onclick="showView('papers')">📝 Past Papers</button>
+          <button class="btn btn-ghost" onclick="showView('modules')">📚 Browse Modules</button>
+          <button class="btn btn-ghost" onclick="window.open('https://gimmenotes.co.za','_blank')">🌐 gimmenotes.co.za ↗</button>
+        </div>
+      </div>
+
+      <div class="stats" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(251,191,36,0.15); color: var(--primary);">⚡</div>
+          <div><div class="stat-value" id="statXP">0</div><div class="stat-label">Total XP</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(239,68,68,0.15); color: var(--danger);">🔥</div>
+          <div><div class="stat-value" id="statStreak">0</div><div class="stat-label">Day Streak</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: var(--accent);">✅</div>
+          <div><div class="stat-value" id="statQuizzes">0</div><div class="stat-label">Exams Taken</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: rgba(139,92,246,0.15); color: var(--purple);">🎯</div>
+          <div><div class="stat-value" id="statAccuracy">0%</div><div class="stat-label">Accuracy</div></div>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <h2>📝 Latest Past Papers</h2>
+        <span class="hint">From gimmenotes.co.za</span>
+      </div>
+      <div id="homePapers"></div>
+
+      <div class="section-title">
+        <h2>📚 Popular Modules</h2>
+        <span class="hint">Click any to start studying</span>
+      </div>
+      <div class="modules-grid" id="homeModules"></div>
+
+      <div class="section-title">
+        <h2>🏛️ Landmark Cases</h2>
+        <span class="hint">Cases every UNISA law student must know</span>
+      </div>
+      <div class="case-grid" id="homeCases"></div>
+    </div>
+
+    <!-- MODULES VIEW -->
+    <div id="view-modules" class="view">
+      <div class="section-title">
+        <h2>📚 All UNISA Law Modules</h2>
+        <span class="hint" id="moduleCount">Loading...</span>
+      </div>
+      <div class="paper-filters">
+        <select class="filter-select" id="yearFilter" onchange="renderAllModules()">
+          <option value="all">All Years</option>
+          <option value="1">1st Year</option>
+          <option value="2">2nd Year</option>
+          <option value="3">3rd Year</option>
+          <option value="4">4th Year (LLB)</option>
+          <option value="hons">Honours / Masters</option>
+        </select>
+        <select class="filter-select" id="categoryFilter" onchange="renderAllModules()">
+          <option value="all">All Categories</option>
+          <option value="foundation">Foundation / Core</option>
+          <option value="public">Public Law</option>
+          <option value="private">Private Law</option>
+          <option value="commercial">Commercial Law</option>
+          <option value="procedure">Procedure & Evidence</option>
+          <option value="advanced">Advanced / Specialised</option>
+        </select>
+      </div>
+      <div class="modules-grid" id="allModules"></div>
+    </div>
+
+    <!-- MODULE DETAIL VIEW -->
+    <div id="view-module-detail" class="view">
+      <button class="btn btn-ghost btn-sm" onclick="showView('modules')" style="margin-bottom: 20px;">← Back to Modules</button>
+      <div id="moduleDetailContent"></div>
+    </div>
+
+    <!-- PAST PAPERS VIEW -->
+    <div id="view-papers" class="view">
+      <div class="section-title">
+        <h2>📝 UNISA Past Papers</h2>
+        <span class="hint">Exam-style questions 2019-2024</span>
+      </div>
+
+      <div class="exam-banner">
+        <div class="eb-icon">🎯</div>
+        <div style="flex:1;min-width:200px;">
+          <h3>Mock Exam Mode</h3>
+          <p>Simulate real UNISA exam conditions. Timed, no distractions. Past papers sourced from gimmenotes.co.za.</p>
+        </div>
+        <button class="btn btn-primary" onclick="startMockExam()">🚀 Start Mock Exam</button>
+      </div>
+
+      <div class="year-tabs" id="yearTabs"></div>
+
+      <div class="paper-filters">
+        <select class="filter-select" id="paperModuleFilter" onchange="renderPapers()">
+          <option value="all">All Modules</option>
+        </select>
+        <select class="filter-select" id="paperSessionFilter" onchange="renderPapers()">
+          <option value="all">All Sessions</option>
+          <option value="may">May/June</option>
+          <option value="oct">Oct/Nov</option>
+        </select>
+        <select class="filter-select" id="paperTypeFilter" onchange="renderPapers()">
+          <option value="all">All Question Types</option>
+          <option value="mcq">MCQ Only</option>
+          <option value="short">Short Questions</option>
+          <option value="essay">Essay Questions</option>
+        </select>
+      </div>
+
+      <div id="papersList"></div>
+
+      <div style="margin-top: 32px; padding: 24px; background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(16,185,129,0.08)); border: 1px solid var(--card-border); border-radius: 16px;">
+        <h3 style="margin-bottom: 10px;">📥 Want the actual past paper PDFs?</h3>
+        <p style="color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 14px;">
+          The questions above are <strong>exam-style practice</strong> based on UNISA's format. For the <strong>official past paper PDFs</strong> with full memorandums, visit <strong>gimmenotes.co.za</strong> — the best free resource for UNISA students.
+        </p>
+        <a href="https://gimmenotes.co.za" target="_blank" class="btn btn-primary">🌐 Visit gimmenotes.co.za ↗</a>
+      </div>
+    </div>
+
+    <!-- QUIZ VIEW -->
+    <div id="view-quiz" class="view">
+      <div id="quizContent"></div>
+    </div>
+
+    <!-- FLASHCARDS VIEW -->
+    <div id="view-flashcards" class="view">
+      <button class="btn btn-ghost btn-sm" onclick="showView('modules')" style="margin-bottom: 20px;">← Back</button>
+      <div class="section-title">
+        <h2>🎴 Flashcards</h2>
+        <span class="hint">Tap card to flip</span>
+      </div>
+      <div class="flashcard-wrap">
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+          <div class="flashcard-face flashcard-front">
+            <div class="tag" id="fcTag">Question</div>
+            <h3 id="fcQuestion">Loading...</h3>
+          </div>
+          <div class="flashcard-face flashcard-back">
+            <div class="tag" style="color: var(--accent);">Answer</div>
+            <p id="fcAnswer">...</p>
+          </div>
+        </div>
+        <div class="flashcard-controls">
+          <button class="btn btn-ghost" onclick="prevCard()">← Previous</button>
+          <button class="btn btn-primary" onclick="nextCard()">Next →</button>
+        </div>
+        <div style="text-align: center; margin-top: 16px; color: var(--muted); font-size: 13px;">
+          Card <span id="fcCounter">1</span> of <span id="fcTotal">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASE LAW VIEW -->
+    <div id="view-cases" class="view">
+      <div class="section-title">
+        <h2>📜 Landmark South African Cases</h2>
+        <span class="hint">Click a case to read more</span>
+      </div>
+      <div class="case-grid" id="allCases"></div>
+    </div>
+
+    <!-- RESOURCES VIEW -->
+    <div id="view-resources" class="view">
+      <div class="section-title">
+        <h2>🔗 Study Resources</h2>
+        <span class="hint">Everything a UNISA law student needs</span>
+      </div>
+
+      <div class="hero" style="padding: 28px;">
+        <h1 style="font-size: 28px;">🎓 Your Law School Toolkit</h1>
+        <p>Curated links to the best free and official resources for UNISA law students. Bookmark these!</p>
+      </div>
+
+      <div class="section-title"><h2>📝 Past Papers & Notes</h2></div>
+      <div class="resource-grid">
+        <a href="https://gimmenotes.co.za" target="_blank" class="resource-card">
+          <div class="r-icon">📚</div>
+          <h4>GimmeNotes</h4>
+          <p>The #1 free resource for UNISA past papers, memos, and study notes. A must-bookmark for every UNISA student.</p>
+          <div class="r-url">gimmenotes.co.za</div>
+        </a>
+        <a href="https://myunisa.unisa.ac.za" target="_blank" class="resource-card">
+          <div class="r-icon">🎓</div>
+          <h4>myUnisa</h4>
+          <p>Official UNISA portal. Access your study guides, assignments, discussion forums, and exam timetables.</p>
+          <div class="r-url">myunisa.unisa.ac.za</div>
+        </a>
+        <a href="https://libguides.unisa.ac.za" target="_blank" class="resource-card">
+          <div class="r-icon">📖</div>
+          <h4>UNISA Library</h4>
+          <p>Official library guides, e-books, journal databases, and research support for law students.</p>
+          <div class="r-url">libguides.unisa.ac.za</div>
+        </a>
+      </div>
+
+      <div class="section-title"><h2>⚖️ Legal Databases</h2></div>
+      <div class="resource-grid">
+        <a href="https://www.saflii.org" target="_blank" class="resource-card">
+          <div class="r-icon">⚖️</div>
+          <h4>SAFLII</h4>
+          <p>Southern African Legal Information Institute — free access to SA case law and legislation.</p>
+          <div class="r-url">saflii.org</div>
+        </a>
+        <a href="https://www.gov.za/documents" target="_blank" class="resource-card">
+          <div class="r-icon">🏛️</div>
+          <h4>Government Gazette</h4>
+          <p>Official source for South African legislation, proclamations, and government notices.</p>
+          <div class="r-url">gov.za/documents</div>
+        </a>
+        <a href="https://www.justice.gov.za" target="_blank" class="resource-card">
+          <div class="r-icon">🏛️</div>
+          <h4>Department of Justice</h4>
+          <p>Official judgments from the Constitutional Court, SCA, and superior courts.</p>
+          <div class="r-url">justice.gov.za</div>
+        </a>
+        <a href="https://www.constitutionalcourt.org.za" target="_blank" class="resource-card">
+          <div class="r-icon">🏛️</div>
+          <h4>Constitutional Court</h4>
+          <p>Full judgments, case summaries, and live streams from SA's apex court.</p>
+          <div class="r-url">constitutionalcourt.org.za</div>
+        </a>
+      </div>
+
+      <div class="section-title"><h2>📖 Reference Works</h2></div>
+      <div class="resource-grid">
+        <a href="https://www.oxfordreference.com" target="_blank" class="resource-card">
+          <div class="r-icon">📕</div>
+          <h4>Oxford Reference</h4>
+          <p>Legal dictionaries, encyclopedias, and reference works. Check if UNISA has institutional access.</p>
+          <div class="r-url">oxfordreference.com</div>
+        </a>
+        <a href="https://www.lawsociety.org.za" target="_blank" class="resource-card">
+          <div class="r-icon">⚖️</div>
+          <h4>Law Society of SA</h4>
+          <p>Professional body for attorneys. Useful for ethics, LPC requirements, and career guidance.</p>
+          <div class="r-url">lawsociety.org.za</div>
+        </a>
+        <a href="https://www.gcb.org.za" target="_blank" class="resource-card">
+          <div class="r-icon">👨‍⚖️</div>
+          <h4>General Council of the Bar</h4>
+          <p>For aspiring advocates. Information on pupillage, bar admissions, and practice.</p>
+          <div class="r-url">gcb.org.za</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD VIEW -->
+    <div id="view-leaderboard" class="view">
+      <div class="section-title">
+        <h2>🏆 Top Law Students</h2>
+        <span class="hint">Compete with peers across SA</span>
+      </div>
+      <div class="leaderboard" id="leaderboardList"></div>
+    </div>
+
+    <!-- PROFILE VIEW -->
+    <div id="view-profile" class="view">
+      <div class="section-title"><h2>👤 Your Profile</h2></div>
+      <div id="profileContent"></div>
+      <div class="section-title" style="margin-top: 40px;"><h2>🏅 Achievements</h2></div>
+      <div class="badges-grid" id="badgesGrid"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <h2 id="authTitle">Welcome back, Counsel</h2>
+    <p class="sub" id="authSub">Sign in to save your progress and compete with peers.</p>
+    <div id="authForm">
+      <div class="field" id="nameField" style="display:none;">
+        <label>Full Name</label>
+        <input type="text" id="authName" placeholder="Thabo Modise" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="authEmail" placeholder="you@mylife.unisa.ac.za" />
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="authPassword" placeholder="••••••••" />
+      </div>
+      <button class="btn btn-primary" id="authSubmit" onclick="submitAuth()">Sign In</button>
+      <button class="btn btn-ghost" onclick="demoLogin()" style="margin-top: 8px;">🎮 Try Demo Mode</button>
+    </div>
+    <div class="switch-auth">
+      <span id="switchText">New to LexSA?</span>
+      <a onclick="toggleAuthMode()" id="switchLink">Create account</a>
+    </div>
+    <div style="text-align: center; margin-top: 16px;">
+      <a onclick="closeAuth()" style="color: var(--muted); font-size: 13px; cursor: pointer;">Cancel</a>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   SUPABASE SETUP
+   ============================================================ */
+const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+let supabase = null;
+try {
+  if (!SUPABASE_URL.includes('YOUR-PROJECT')) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch (e) { console.warn('Supabase init failed:', e); }
+
+/* ============================================================
+   ALL UNISA LAW MODULES
+   ============================================================ */
+const MODULES = [
+  // ===== 1ST YEAR =====
+  { id: 'ils1501', code: 'ILS1501', emoji: '⚖️', name: 'Introduction to Law', desc: 'Foundations of the SA legal system, sources of law, and legal reasoning.', color: 'linear-gradient(135deg, #fbbf24, #f59e0b)', level: '1st Year', year: '1', category: 'foundation' },
+  { id: 'hfls1501', code: 'HFLS1501', emoji: '📜', name: 'Historical Foundations of SA Law 1', desc: 'Roman law, Roman-Dutch law, and the reception of law in South Africa.', color: 'linear-gradient(135deg, #d97706, #92400e)', level: '1st Year', year: '1', category: 'foundation' },
+  { id: 'hfls1512', code: 'HFLS1512', emoji: '📜', name: 'Historical Foundations of SA Law 2', desc: 'Development of SA law from the 19th century to the constitutional era.', color: 'linear-gradient(135deg, #b45309, #78350f)', level: '1st Year', year: '1', category: 'foundation' },
+  { id: 'lprl1501', code: 'LPRL1501', emoji: '👶', name: 'Law of Persons & Family Law', desc: 'Legal subjectivity, status, capacity, marriage, and parent-child relationships.', color: 'linear-gradient(135deg, #ec4899, #8b5cf6)', level: '1st Year', year: '1', category: 'private' },
+  { id: 'icl1501', code: 'ICL1501', emoji: '🌍', name: 'Indigenous Law', desc: 'African customary law, recognition under the Constitution, and living law.', color: 'linear-gradient(135deg, #a16207, #713f12)', level: '1st Year', year: '1', category: 'foundation' },
+  { id: 'csil1512', code: 'CSIL1512', emoji: '🤝', name: 'Law of Contract', desc: 'Formation, validity, breach, and remedies in the SA law of contract.', color: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', level: '1st Year', year: '1', category: 'private' },
+
+  // ===== 2ND YEAR =====
+  { id: 'csl2601', code: 'CSL2601', emoji: '🏛️', name: 'Constitutional Law', desc: 'The 1996 Constitution, Bill of Rights, separation of powers, and constitutionalism.', color: 'linear-gradient(135deg, #10b981, #059669)', level: '2nd Year', year: '2', category: 'public' },
+  { id: 'crw2601', code: 'CRW2601', emoji: '🔒', name: 'Criminal Law 1', desc: 'General principles of criminal liability, elements of a crime, and defences.', color: 'linear-gradient(135deg, #ef4444, #dc2626)', level: '2nd Year', year: '2', category: 'public' },
+  { id: 'crw2602', code: 'CRW2602', emoji: '⚔️', name: 'Criminal Law 2', desc: 'Specific crimes: murder, culpable homicide, assault, theft, robbery, fraud.', color: 'linear-gradient(135deg, #dc2626, #991b1b)', level: '2nd Year', year: '2', category: 'public' },
+  { id: 'ldl2602', code: 'LDL2602', emoji: '⚠️', name: 'Law of Delict', desc: 'Aquilian action, actio iniuriarum, elements of delictual liability.', color: 'linear-gradient(135deg, #8b5cf6, #6d28d9)', level: '2nd Year', year: '2', category: 'private' },
+  { id: 'fur2601', code: 'FUR2601', emoji: '🛡️', name: 'Fundamental Rights', desc: 'Bill of Rights in depth, equality, dignity, freedom, and socio-economic rights.', color: 'linear-gradient(135deg, #059669, #047857)', level: '2nd Year', year: '2', category: 'public' },
+  { id: 'ios2601', code: 'IOS2601', emoji: '📖', name: 'Interpretation of Statutes', desc: 'Statutory interpretation methods, canons of construction, and contextual approach.', color: 'linear-gradient(135deg, #0891b2, #0e7490)', level: '2nd Year', year: '2', category: 'foundation' },
+  { id: 'rwr2101', code: 'RWR2101', emoji: '🔍', name: 'Legal Research Methodology', desc: 'Research methodology, legal writing, and academic skills for law students.', color: 'linear-gradient(135deg, #06b6d4, #0891b2)', level: '2nd Year', year: '2', category: 'foundation' },
+
+  // ===== 3RD YEAR =====
+  { id: 'lso3661', code: 'LSO3661', emoji: '📝', name: 'Law of Succession', desc: 'Testate and intestate succession, wills, estates, and administration.', color: 'linear-gradient(135deg, #7c3aed, #5b21b6)', level: '3rd Year', year: '3', category: 'private' },
+  { id: 'lma3701', code: 'LMA3701', emoji: '👷', name: 'Labour Law', desc: 'Individual and collective labour law, LRA, BCEA, EEA, and dispute resolution.', color: 'linear-gradient(135deg, #f97316, #c2410c)', level: '3rd Year', year: '3', category: 'commercial' },
+  { id: 'cmr3701', code: 'CMR3701', emoji: '🏢', name: 'Company Law', desc: 'Companies Act 71 of 2008, corporate governance, directors duties, and shareholder rights.', color: 'linear-gradient(135deg, #0ea5e9, #0369a1)', level: '3rd Year', year: '3', category: 'commercial' },
+  { id: 'cpv3002', code: 'CPV3002', emoji: '📋', name: 'Civil Procedure', desc: 'High Court and Magistrates Court civil procedure, summons, pleadings, and trials.', color: 'linear-gradient(135deg, #14b8a6, #0f766e)', level: '3rd Year', year: '3', category: 'procedure' },
+  { id: 'cpl3003', code: 'CPL3003', emoji: '👮', name: 'Criminal Procedure', desc: 'Criminal Process Act, bail, plea, trial procedures, sentencing, and appeals.', color: 'linear-gradient(135deg, #b91c1c, #7f1d1d)', level: '3rd Year', year: '3', category: 'procedure' },
+  { id: 'lme3701', code: 'LME3701', emoji: '🌱', name: 'Environmental Law', desc: 'NEMA, constitutional environmental right, pollution control, and sustainable development.', color: 'linear-gradient(135deg, #16a34a, #15803d)', level: '3rd Year', year: '3', category: 'public' },
+  { id: 'jbr3701', code: 'JBR3701', emoji: '🧠', name: 'Jurisprudence', desc: 'Legal philosophy, natural law, legal positivism, legal realism, and critical theories.', color: 'linear-gradient(135deg, #6366f1, #4338ca)', level: '3rd Year', year: '3', category: 'foundation' },
+  { id: 'inl3101', code: 'INL3101', emoji: '🌐', name: 'Public International Law', desc: 'Sources of international law, statehood, treaties, UN, and international dispute settlement.', color: 'linear-gradient(135deg, #0284c7, #075985)', level: '3rd Year', year: '3', category: 'public' },
+  { id: 'mrl2601', code: 'MRL2601', emoji: '💼', name: 'Mercantile Law', desc: 'General principles of commercial law, insolvency, negotiable instruments, and insurance.', color: 'linear-gradient(135deg, #0d9488, #115e59)', level: '3rd Year', year: '3', category: 'commercial' },
+
+  // ===== 4TH YEAR (LLB) =====
+  { id: 'lcp3701', code: 'LCP3701', emoji: '⚖️', name: 'Legal Philosophy', desc: 'Advanced legal theory, critical legal studies, feminism, post-colonialism, and ubuntu.', color: 'linear-gradient(135deg, #a855f7, #7e22ce)', level: '4th Year', year: '4', category: 'foundation' },
+  { id: 'lme4801', code: 'LME4801', emoji: '🤝', name: 'Mediation & ADR', desc: 'Alternative dispute resolution, mediation, arbitration, and negotiation skills.', color: 'linear-gradient(135deg, #84cc16, #4d7c0f)', level: '4th Year', year: '4', category: 'procedure' },
+  { id: 'lme4809', code: 'LME4809', emoji: '🎖️', name: 'Legal Ethics', desc: 'Professional responsibility, code of conduct for attorneys and advocates, and disciplinary proceedings.', color: 'linear-gradient(135deg, #eab308, #a16207)', level: '4th Year', year: '4', category: 'foundation' },
+  { id: 'lcp4802', code: 'LCP4802', emoji: '🌍', name: 'Comparative Law', desc: 'Comparative legal systems, mixed jurisdictions, and transnational legal traditions.', color: 'linear-gradient(135deg, #2563eb, #1e3a8a)', level: '4th Year', year: '4', category: 'advanced' },
+  { id: 'lme4813', code: 'LME4813', emoji: '🔎', name: 'Law of Evidence', desc: 'Rules of evidence, burden of proof, hearsay, privilege, and admissibility.', color: 'linear-gradient(135deg, #db2777, #9d174d)', level: '4th Year', year: '4', category: 'procedure' },
+  { id: 'lme4814', code: 'LME4814', emoji: '💸', name: 'Insolvency Law', desc: 'Insolvency Act, sequestration, voidable dispositions, and rehabilitation.', color: 'linear-gradient(135deg, #ea580c, #9a3412)', level: '4th Year', year: '4', category: 'commercial' },
+  { id: 'lme4815', code: 'LME4815', emoji: '💡', name: 'Intellectual Property Law', desc: 'Copyright, patents, trademarks, designs, and protection of IP in SA.', color: 'linear-gradient(135deg, #f59e0b, #b45309)', level: '4th Year', year: '4', category: 'commercial' },
+  { id: 'lme4816', code: 'LME4816', emoji: '👨‍👩‍👧', name: 'Advanced Family Law', desc: 'Divorce, domestic partnerships, domestic violence, and maintenance.', color: 'linear-gradient(135deg, #d946ef, #a21caf)', level: '4th Year', year: '4', category: 'private' },
+  { id: 'lme4817', code: 'LME4817', emoji: '🏛️', name: 'Administrative Law', desc: 'PAJA, judicial review, administrative justice, and legality principle.', color: 'linear-gradient(135deg, #0891b2, #155e75)', level: '4th Year', year: '4', category: 'public' },
+  { id: 'lme4818', code: 'LME4818', emoji: '🏠', name: 'Law of Things / Property', desc: 'Real rights, ownership, possession, servitudes, and constitutional property clause (s 25).', color: 'linear-gradient(135deg, #65a30d, #3f6212)', level: '4th Year', year: '4', category: 'private' },
+  { id: 'lme4819', code: 'LME4819', emoji: '🛒', name: 'Consumer Protection', desc: 'Consumer Protection Act 68 of 2008, consumer rights, and supplier obligations.', color: 'linear-gradient(135deg, #e11d48, #9f1239)', level: '4th Year', year: '4', category: 'commercial' },
+  { id: 'lme4820', code: 'LME4820', emoji: '🌐', name: 'Private International Law', desc: 'Conflict of laws, jurisdiction, choice of law, and recognition of foreign judgments.', color: 'linear-gradient(135deg, #1d4ed8, #1e40af)', level: '4th Year', year: '4', category: 'advanced' },
+
+  // ===== HONOURS / MASTERS =====
+  { id: 'lme5801', code: 'LME5801', emoji: '🎓', name: 'Legal Research Methodology (PG)', desc: 'Advanced research design, methodology, and thesis writing for postgraduate law.', color: 'linear-gradient(135deg, #7c2d12, #431407)', level: 'Honours', year: 'hons', category: 'advanced' },
+  { id: 'lme5802', code: 'LME5802', emoji: '📊', name: 'Legal Theory (PG)', desc: 'Advanced jurisprudential theories, critical approaches, and contemporary debates.', color: 'linear-gradient(135deg, #581c87, #3b0764)', level: 'Honours', year: 'hons', category: 'advanced' }
+];
+
+/* ============================================================
+   QUESTIONS (for quiz mode)
+   ============================================================ */
+const QUESTIONS = {
+  ils1501: [
+    { q: "Which of the following is NOT a formal source of South African law?", context: "Think about where law officially comes from in our legal system.", options: ["Legislation", "Case law (judicial precedent)", "A lecturer's textbook", "Common law"], answer: 2, explanation: "A textbook is a material (persuasive) source, not a formal source. Formal sources in SA include legislation, case law, common law, and customary law.", source: "ILS1501 Study Guide, Unit 2" },
+    { q: "The highest court in South Africa in constitutional matters is the:", options: ["Supreme Court of Appeal", "High Court", "Constitutional Court", "Magistrate's Court"], answer: 2, explanation: "The Constitutional Court, established by the 1993 Interim Constitution and confirmed in s 167 of the 1996 Constitution, is the apex court on constitutional matters.", source: "Constitution s 167; ILS1501" },
+    { q: "The doctrine of stare decisis means:", options: ["The law is written", "Let the decision stand", "The law is fair", "The court has jurisdiction"], answer: 1, explanation: "Stare decisis et non quieta movere — 'to stand by things decided'. It is the basis of the judicial precedent system in SA.", source: "ILS1501 Unit 3" },
+    { q: "Which legal tradition most heavily influenced South African law?", options: ["English common law only", "Roman-Dutch law mixed with English law", "French civil law", "German law only"], answer: 1, explanation: "SA has a mixed legal system: Roman-Dutch common law (from Dutch settlers, 1652) layered with English law influences (especially procedural and commercial law, post-1806).", source: "ILS1501 Unit 1" },
+    { q: "A 'peremptory' statutory provision is one that:", options: ["May be ignored by courts", "Must be strictly complied with — non-compliance renders the act invalid", "Is merely a guideline", "Applies only in criminal law"], answer: 1, explanation: "Peremptory (mandatory) provisions demand strict compliance; directory provisions allow substantial compliance.", source: "ILS1501 — Interpretation of Statutes" }
+  ],
+  csl2601: [
+    { q: "The founding provisions of the 1996 Constitution are found in section:", options: ["Section 1", "Section 7", "Section 27", "Section 36"], answer: 0, explanation: "Section 1 contains the founding values: human dignity, equality, human rights, non-racialism, non-sexism, supremacy of the Constitution, and the rule of law.", source: "Constitution of RSA 1996, s 1" },
+    { q: "Which case abolished the death penalty in South Africa?", options: ["S v Makwanyane 1995", "S v Zuma 1995", "Fedsure v Greater Johannesburg", "Soobramoney v Minister of Health"], answer: 0, explanation: "S v Makwanyane 1995 (3) SA 391 (CC) unanimously held that the death penalty violates the rights to life, dignity, and freedom from cruel/inhuman/degrading punishment.", source: "CSL2601 — Landmark Cases" },
+    { q: "The limitation of rights in the Bill of Rights is governed by:", options: ["Section 36 (the general limitations clause)", "Section 39", "Section 8", "Section 172"], answer: 0, explanation: "Section 36 is the general limitations clause — a right may be limited only by law of general application to the extent reasonable and justifiable.", source: "Constitution s 36" },
+    { q: "Co-operative government in SA recognises three spheres of government. These are:", options: ["National, Provincial, and Local", "Executive, Legislative, Judicial", "Urban, Rural, Traditional", "Federal, State, Municipal"], answer: 0, explanation: "Chapter 3 of the Constitution (ss 40-41) establishes national, provincial, and local spheres of government.", source: "CSL2601 Chapter 3" },
+    { q: "In Government of RSA v Grootboom 2001, the Constitutional Court held that:", options: ["The state has no housing obligations", "The state must take reasonable legislative and other measures, within available resources, to realise the right of access to housing", "Housing is not a constitutional right", "Only citizens can claim housing rights"], answer: 1, explanation: "Grootboom established the 'reasonableness review' approach to socio-economic rights under s 26.", source: "Grootboom 2001 (1) SA 46 (CC)" }
+  ],
+  crw2601: [
+    { q: "The general elements of a crime in SA law are:", options: ["Conduct, criminal capacity, unlawfulness, fault (mens rea)", "Act, motive, intent, punishment", "Mens rea, actus reus, causation, harm", "Duty, breach, causation, damage"], answer: 0, explanation: "The general elements are: (1) voluntary human conduct, (2) compliance with definition of the crime, (3) unlawfulness, (4) criminal capacity, and (5) fault (intention or negligence).", source: "CRW2601 Unit 2" },
+    { q: "Private defence (self-defence) requires that the attack be:", options: ["Imminent or already commenced, unlawful, and directed at legally protected interests", "Only verbal threats", "Completed already", "Approved by a court"], answer: 0, explanation: "Private defence requires an unlawful, imminent or commenced attack on a legally recognised interest. The defensive act must be necessary and reasonable.", source: "CRW2601 — Grounds of Justification" },
+    { q: "Mens rea in the form of dolus eventualis exists when:", options: ["The accused directly intends the result", "The accused foresees the possibility of the result and reconciles themselves to it", "A reasonable person would have foreseen the result", "The accused is negligent"], answer: 1, explanation: "Dolus eventualis: the accused subjectively foresees the possibility of the consequence and nevertheless proceeds.", source: "CRW2601 — Fault" }
+  ],
+  crw2602: [
+    { q: "The crime of murder requires:", options: ["The intentional and unlawful killing of another human being", "The negligent killing of another", "Any unlawful killing", "The killing of a fetus"], answer: 0, explanation: "Murder = intentional + unlawful + killing + of another human being. Culpable homicide is the negligent form.", source: "CRW2602" },
+    { q: "The difference between theft and robbery is:", options: ["Robbery involves force or threats; theft does not", "Theft is more serious than robbery", "Robbery applies only to immovable property", "There is no difference"], answer: 0, explanation: "Robbery = theft + violence or threats. It is essentially aggravated theft.", source: "CRW2602" }
+  ],
+  ldl2602: [
+    { q: "The Aquilian action is used to claim compensation for:", options: ["Patrimonial (pecuniary) loss", "Injury to dignity/reputation", "Pain and suffering only", "Breach of contract"], answer: 0, explanation: "The actio legis Aquiliae compensates for patrimonial/financial loss. Injury to personality uses the actio iniuriarum.", source: "LDL2602 Unit 1" },
+    { q: "In the 'but-for' test of legal causation, the court asks:", options: ["Was the defendant the first cause?", "But for the defendant's conduct, would the loss have occurred?", "Was the loss foreseeable?", "Did the plaintiff contribute to the loss?"], answer: 1, explanation: "The conditio sine qua non (but-for) test asks: but for the defendant's wrongful act, would the plaintiff's damage have occurred?", source: "LDL2602 — Causation" }
+  ],
+  csil1512: [
+    { q: "The essential elements of a valid contract in SA law include:", options: ["Consensus, contractual capacity, legality, possibility of performance, formalities (if required)", "Only written agreement and signatures", "Consideration and seal", "Registration with CIPC"], answer: 0, explanation: "SA contract law requires: (1) consensus, (2) contractual capacity, (3) legality, (4) possibility of performance, and (5) prescribed formalities where applicable.", source: "CSIL1512 Unit 3" },
+    { q: "The case of Barkhuizen v Napier 2007 dealt with:", options: ["Consumer protection", "Time-limitation clauses in contracts and their constitutionality", "Labour disputes", "Divorce settlements"], answer: 1, explanation: "Barkhuizen v Napier 2007 (5) SA 323 (CC) held that contractual terms must be reasonable and consistent with public policy as informed by the Constitution.", source: "Barkhuizen v Napier 2007 (5) SA 323 (CC)" }
+  ],
+  lprl1501: [
+    { q: "Legal subjectivity begins at:", options: ["Conception", "Birth (when the child is alive and fully separated from the mother's body)", "Registration of birth", "Turning 1 year old"], answer: 1, explanation: "In SA law, legal subjectivity commences at a live birth — the child must be fully separated from the mother's body and show signs of life.", source: "LPRL1501 Unit 2" },
+    { q: "The Age of Majority Act (now absorbed into the Children's Act) sets majority at:", options: ["16 years", "18 years", "21 years", "25 years"], answer: 1, explanation: "Since the Children's Act 38 of 2005, majority is attained at 18 years.", source: "Children's Act 38 of 2005; LPRL1501" }
+  ],
+  fur2601: [
+    { q: "Section 9 of the Constitution protects:", options: ["The right to equality", "The right to life", "Freedom of expression", "The right to education"], answer: 0, explanation: "Section 9 is the equality clause — everyone is equal before the law and has the right to equal protection and benefit of the law.", source: "Constitution s 9" },
+    { q: "Which right is NOT subject to progressive realisation?", options: ["Right to housing (s 26)", "Right to healthcare (s 27)", "Right to dignity (s 10)", "Right to social security (s 27)"], answer: 2, explanation: "Civil and political rights like dignity (s 10) are immediately realisable. Socio-economic rights (ss 26, 27) are subject to progressive realisation within available resources.", source: "FUR2601" }
+  ],
+  lso3661: [
+    { q: "Intestate succession occurs when:", options: ["The deceased left a valid will", "The deceased died without a valid will", "The estate is insolvent", "The Master appoints an executor"], answer: 1, explanation: "Intestate succession applies when a person dies without leaving a valid will (or where the will is invalid). Governed by the Intestate Succession Act 81 of 1987.", source: "LSO3661" },
+    { q: "A will must comply with the formalities of section 2(1)(a) of the Wills Act. Which is NOT a requirement?", options: ["Signed by the testator", "Signed by two competent witnesses", "Registered with the Master", "Each page signed by testator and witnesses"], answer: 2, explanation: "Registration with the Master is NOT required for validity. The formalities are: signed by testator, two competent witnesses present at the same time, each page signed.", source: "Wills Act 7 of 1953; LSO3661" }
+  ],
+  lma3701: [
+    { q: "The Labour Relations Act 66 of 1995 primarily governs:", options: ["Individual and collective labour relations, including unfair dismissal and strikes", "Only minimum wages", "Occupational health and safety", "Pension funds"], answer: 0, explanation: "The LRA regulates individual and collective labour relations, including unfair dismissal, strikes, lock-outs, and collective bargaining.", source: "LMA3701" },
+    { q: "The CCMA stands for:", options: ["Commission for Conciliation, Mediation and Arbitration", "Central Court of Municipal Appeals", "Council for Commercial Mediation Affairs", "Committee for Collective Management Agreements"], answer: 0, explanation: "The CCMA is a statutory body established by the LRA to resolve labour disputes through conciliation, mediation, and arbitration.", source: "LMA3701" }
+  ],
+  ios2601: [
+    { q: "The 'golden rule' of statutory interpretation emphasizes:", options: ["Giving words their ordinary grammatical meaning", "Always favoring the state", "Ignoring the context", "Using only Latin maxims"], answer: 0, explanation: "The golden rule (literal rule) starts with the ordinary grammatical meaning of the text, considered in context, in light of the purpose of the provision.", source: "IOS2601" }
+  ],
+  cmr3701: [
+    { q: "The Companies Act 71 of 2008 introduced which type of company?", options: ["State-owned companies only", "Personal liability, private, state-owned, public, and non-profit companies", "Only private companies", "Only public companies"], answer: 1, explanation: "The 2008 Act recognises five types: personal liability (Inc.), private (Pty) Ltd, state-owned (SOC) Ltd, public Ltd, and non-profit (NPC).", source: "CMR3701" }
+  ],
+  lme4817: [
+    { q: "PAJA stands for:", options: ["Promotion of Administrative Justice Act 3 of 2000", "Public Administration Justice Act", "Protection of Administrative Justice Agreement", "Procedural Administrative Justice Act"], answer: 0, explanation: "PAJA gives effect to the right to administrative action that is lawful, reasonable, and procedurally fair (s 33 of the Constitution).", source: "LME4817; PAJA" }
+  ]
+};
+
+/* ============================================================
+   FLASHCARDS
+   ============================================================ */
+const FLASHCARDS = {
+  ils1501: [
+    { q: "What is a 'mixed legal system'?", a: "A system combining elements of different legal traditions — SA combines Roman-Dutch common law with English law influences, plus customary law." },
+    { q: "Define 'legal precedent' (stare decisis).", a: "The doctrine that lower courts are bound by decisions of higher courts. A previous decision serves as authority for deciding similar future cases." },
+    { q: "What is the difference between ratio decidendi and obiter dicta?", a: "Ratio decidendi = the binding reason for the decision. Obiter dicta = statements made 'by the way' — persuasive but not binding." },
+    { q: "Name the hierarchy of SA courts (highest to lowest).", a: "Constitutional Court → Supreme Court of Appeal → High Courts → Magistrates' Courts (District & Regional)." }
+  ],
+  csl2601: [
+    { q: "What are the founding values in s 1 of the Constitution?", a: "Human dignity, achievement of equality, advancement of human rights and freedoms, non-racialism, non-sexism, supremacy of the Constitution, rule of law, democratic multi-party system." },
+    { q: "What does 'ubuntu' mean in SA constitutional law?", a: "An African philosophy meaning 'I am because we are' — emphasising humaneness, group solidarity, compassion. Recognised in S v Makwanyane." },
+    { q: "What is the test for limiting a right under s 36?", a: "The proportionality test: (a) nature of the right, (b) importance of the purpose, (c) nature/extent of limitation, (d) relation between limitation and purpose, (e) less restrictive means." }
+  ],
+  crw2601: [
+    { q: "What is the difference between intention (dolus) and negligence (culpa)?", a: "Intention (dolus) is subjective — the accused wills the act/result. Negligence (culpa) is objective — the reasonable person would have foreseen and guarded against the consequence." },
+    { q: "Name the three forms of dolus (intention).", a: "(1) Dolus directus — direct purpose. (2) Dolus indirectus — result is necessary means to an end. (3) Dolus eventualis — foresight of possibility + reconciliation to it." }
+  ],
+  ldl2602: [
+    { q: "What are the three actions in the law of delict?", a: "(1) Actio legis Aquiliae — for patrimonial loss. (2) Actio iniuriarum — for intentional injury to personality. (3) Action for pain and suffering (under Motor Vehicle Accidents / Road Accident Fund context)." },
+    { q: "What is the reasonable person test (diligens paterfamilias)?", a: "An objective test: would a reasonable person in the defendant's position have foreseen the harm and taken steps to guard against it? Used to determine negligence (culpa)." }
+  ],
+  csil1512: [
+    { q: "What is 'consensus' in contract law?", a: "Meeting of the minds — both parties must have a serious intention to contract, be in agreement as to material terms, and be aware of such agreement." },
+    { q: "What is the difference between a void and voidable contract?", a: "Void = invalid from the outset, no legal effect. Voidable = valid until avoided by a party with the right to do so (e.g. due to misrepresentation)." }
+  ],
+  lso3661: [
+    { q: "Who is an executor?", a: "A person appointed by the Master of the High Court to administer the deceased estate — collect assets, pay debts, and distribute the balance to heirs." },
+    { q: "What is a legatee vs an heir?", a: "Heir = inherits the estate or a portion (residuary). Legatee = receives a specific item or sum of money from the estate." }
+  ]
+};
+
+/* ============================================================
+   PAST PAPERS (exam-style questions 2019-2024)
+   ============================================================ */
+const PAST_PAPERS = [
+  // 2024
+  { year: 2024, session: 'oct', module: 'ils1501', code: 'ILS1501', title: 'Introduction to Law — Oct/Nov Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'Which ONE of the following is NOT a formal source of South African law?', marks: 1, options: ['Legislation', 'Judicial precedent', 'Legal writings (doctrine)', 'Customary law'], answer: 2, explanation: 'Legal writings (doctrine) are a persuasive/material source, not a formal source. Formal sources are legislation, case law, common law, and customary law.' },
+    { type: 'mcq', num: 'Q2', text: 'The Constitutional Court of South Africa was established in terms of:', marks: 1, options: ['Section 165 of the 1996 Constitution', 'Section 167 of the 1996 Constitution', 'The Superior Courts Act', 'The Interim Constitution only'], answer: 1, explanation: 'Section 167 of the 1996 Constitution establishes the Constitutional Court as the highest court in constitutional matters.' },
+    { type: 'short', num: 'Q3', text: 'Briefly explain the doctrine of stare decisis and its application in the South African court hierarchy.', marks: 5, answer: 'Stare decisis (let the decision stand) means lower courts are bound by decisions of higher courts. In SA: (1) Constitutional Court binds all courts on constitutional matters; (2) SCA binds all lower courts; (3) High Court divisions bind their own single judges; (4) Magistrates courts bound by all superior courts. The ratio decidendi is binding; obiter dicta are persuasive.' },
+    { type: 'essay', num: 'Q4', text: 'Critically discuss the mixed legal system of South Africa with reference to its Roman-Dutch and English law influences. Use case law and examples to support your answer.', marks: 25, answer: 'A strong essay should cover: (1) Historical background — Dutch settlement 1652 introduced Roman-Dutch law; British occupation 1806 introduced English law influences. (2) Areas of English influence: evidence, procedure, commercial law, company law. (3) Areas of Roman-Dutch influence: law of delict, property, succession, contract principles. (4) Key cases: e.g. Feldman (Pty) Ltd v Mall 1945 AD; Baker v Craggs 1992. (5) Current position: mixed system recognised and celebrated; Constitution also a major source. (6) Critical analysis: advantages (flexibility, richness) and challenges (complexity, uncertainty). Reference to scholars like Zimmerman, Reid, and Van der Walt.' }
+  ]},
+  { year: 2024, session: 'may', module: 'csl2601', code: 'CSL2601', title: 'Constitutional Law — May/June Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'The Bill of Rights applies:', marks: 1, options: ['Only vertically (state vs individual)', 'Only horizontally (between private parties)', 'Both vertically and horizontally, as per s 8', 'Only to citizens'], answer: 2, explanation: 'Section 8 of the Constitution provides for both vertical (state-individual) and horizontal (private) application of the Bill of Rights.' },
+    { type: 'short', num: 'Q2', text: 'Explain the difference between direct and indirect horizontal application of the Bill of Rights.', marks: 5, answer: 'Direct horizontal application (s 8(2)-(3)): the Bill of Rights binds natural and juristic persons directly, subject to the nature of the right. Indirect horizontal application (s 39(2)): courts must develop the common law and interpret legislation in ways that promote the spirit, purport, and objects of the Bill of Rights — even in disputes between private parties.' },
+    { type: 'essay', num: 'Q3', text: 'Using decided cases, critically analyse the Constitutional Court\'s approach to socio-economic rights under sections 26 and 27 of the Constitution. Has the reasonableness review been effective?', marks: 25, answer: 'Essay should cover: (1) Text of ss 26, 27 — progressive realisation within available resources. (2) Grootboom 2001 — reasonableness review established; programme must address those in desperate need. (3) TAC 2002 — court can order specific policy changes. (4) Mazibuko 2010 — deference to policy choices; basic water supply policy reasonable. (5) Blue Moonroot 2021 / recent cases. (6) Critical analysis: strengths (practical, deferential) vs weaknesses (no minimum core, limited enforcement). Reference to Liebenberg, Tsenoli, and Davis.' }
+  ]},
+  { year: 2024, session: 'oct', module: 'crw2601', code: 'CRW2601', title: 'Criminal Law 1 — Oct/Nov Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'Dolus eventualis requires:', marks: 1, options: ['Direct intention to cause the result', 'Subjective foresight of possibility and reconciliation to it', 'Objective foreseeability by a reasonable person', 'Negligence'], answer: 1, explanation: 'Dolus eventualis = subjective foresight of the possibility of the result occurring + reconciliation (acceptance) of that possibility.' },
+    { type: 'short', num: 'Q2', text: 'Distinguish between automatism and non-pathological criminal incapacity with reference to case law.', marks: 8, answer: 'Automatism: conduct not voluntary (e.g. sleepwalking, epileptic fit, reflex) — negates the act requirement (actus reus). Examples: S v Johnson 1968. Non-pathological criminal incapacity: emotional stress/provocation affects cognitive or conative capacity — accused may act voluntarily but lacks criminal capacity or fault. S v Eadie 2002 (SCA) confirmed this can be a defence. Distinction: automatism negates conduct; non-pathological incapacity negates capacity/fault despite voluntary conduct.' },
+    { type: 'essay', num: 'Q3', text: 'Critically discuss whether the defence of non-pathological criminal incapacity (emotional stress/road rage) should be abolished in South African law. Refer to case law and policy considerations.', marks: 25, answer: 'Essay should cover: (1) Historical development — S v Campher 1987 (AD) first recognised; S v Eadie 2002 (SCA) refined. (2) Legal basis: capacity element of criminal liability. (3) Arguments for abolition: potential for abuse, difficulty of proof, undermines accountability, road safety concerns. (4) Arguments against: genuine psychological phenomenon, consistent with principles of criminal liability, protects those genuinely unable to control conduct. (5) Current position: still recognised but courts cautious — S v Eadie strict approach. (6) Recommendation with policy analysis. Reference to Snyman, Burchell, and Pieterse.' }
+  ]},
+  { year: 2024, session: 'may', module: 'ldl2602', code: 'LDL2602', title: 'Law of Delict — May/June Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'The actio iniuriarum is used to claim for:', marks: 1, options: ['Patrimonial loss', 'Intentional injury to personality (dignity, reputation, etc.)', 'Breach of contract', 'Negligent harm'], answer: 1, explanation: 'The actio iniuriarum provides a remedy for intentional iniuria — injury to personality interests like dignity, reputation, and privacy.' },
+    { type: 'short', num: 'Q2', text: 'Outline the five elements of delictual liability.', marks: 10, answer: '(1) Conduct — voluntary human act or omission. (2) Wrongfulness — objective unreasonableness; infringement of a legally recognised interest in legally reprehensible way. (3) Fault (mens rea) — intention (dolus) or negligence (culpa). (4) Causation — factual (but-for test) and legal (policy-based, flexible approach). (5) Harm / damage — patrimonial or non-patrimonial loss. All five must be present for liability.' },
+    { type: 'essay', num: 'Q3', text: 'Critically analyse the role of legal policy in determining wrongfulness and legal causation in the SA law of delict. Refer to decided cases.', marks: 25, answer: 'Essay should cover: (1) Wrongfulness as a policy-based element — not just infringement but legally reprehensible. (2) Cases: Minister of Safety and Security v Van Duivenboden 2002 (legal duty of care from statute); Carmichele 2001 (state liability for failing to protect); Telematrix 2006 (pure economic loss). (3) Legal causation — flexible policy approach after Fourway Haulage 2009 (SCA). (4) Factors: foreseeability, prevention, relationship between parties, fairness. (5) Critical analysis: policy promotes flexibility but creates uncertainty. Reference to Neethling, Potgieter, and Visser.' }
+  ]},
+
+  // 2023
+  { year: 2023, session: 'oct', module: 'ils1501', code: 'ILS1501', title: 'Introduction to Law — Oct/Nov Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'The Constitution of the Republic of South Africa, 1996, came into operation on:', marks: 1, options: ['27 April 1994', '10 May 1994', '4 February 1997', '8 May 1996'], answer: 2, explanation: 'The 1996 Constitution came into operation on 4 February 1997 (most provisions), though it was adopted on 8 May 1996 and assented to on 10 December 1996.' },
+    { type: 'short', num: 'Q2', text: 'Explain the difference between an in rem and an in personam right.', marks: 5, answer: 'In rem right (real right): enforceable against the whole world (erga omnes), e.g. ownership. In personam right (personal right): enforceable against a specific person, arising from contract or delict, e.g. right to claim payment from a debtor.' },
+    { type: 'essay', num: 'Q3', text: 'Discuss the reception and development of Roman-Dutch law in South Africa from 1652 to the present day.', marks: 25, answer: 'Essay should cover: (1) 1652 — Dutch East India Company establishes Cape; Roman-Dutch law applies as common law of Holland. (2) 1806 — British occupation; English law introduced in certain areas (commercial, procedural). (3) 1910 Union — continued mixed system. (4) 1994+ — Constitution as supreme law; customary law recognised. (5) Key cases showing development: e.g. Feldman v Mall 1945 AD on delict; Sasol v Prevent 2006 SCA on contract. (6) Current status: Roman-Dutch law remains common law where not displaced by statute or Constitution.' }
+  ]},
+  { year: 2023, session: 'may', module: 'csil1512', code: 'CSIL1512', title: 'Law of Contract — May/June Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'A contract concluded under duress is:', marks: 1, options: ['Void ab initio', 'Voidable at the instance of the innocent party', 'Valid but unenforceable', 'Automatically cancelled'], answer: 1, explanation: 'Duress renders a contract voidable — the innocent party may choose to rescind. It is not void ab initio.' },
+    { type: 'short', num: 'Q2', text: 'List and briefly explain the requirements for a valid contract in South African law.', marks: 10, answer: '(1) Consensus — meeting of minds on material terms. (2) Contractual capacity — parties must have capacity to act (majority, sane, not insolvent, etc.). (3) Legality — contract must be lawful, not contrary to statute, common law, or public policy. (4) Physical and legal possibility of performance. (5) Compliance with prescribed formalities (if required, e.g. writing for sale of land under Alienation of Land Act).' },
+    { type: 'essay', num: 'Q3', text: 'Critically discuss the impact of the Constitution on the law of contract, with reference to Barkhuizen v Napier 2007 (5) SA 323 (CC) and Beadica 231 CC v Trustees of the Oregon Trust 2020 (9) BCLR 1049 (CC).', marks: 25, answer: 'Essay should cover: (1) Pre-constitutional position — freedom of contract, sanctity of contract. (2) Constitutional era — public policy now informed by Constitution (s 39(2)). (3) Barkhuizen v Napier 2007 — two-stage test: (a) is clause reasonable? (b) if so, was it enforced in circumstances making enforcement unreasonable? (4) Bredenkamp 2010 — further development. (5) Beadica 2020 — reaffirmed Barkhuizen; emphasised that courts should not use public policy to undermine certainty in contracts. (6) Critical analysis: balance between constitutional values and commercial certainty. Reference to Bradfield, Naude, and Lubbe.' }
+  ]},
+  { year: 2023, session: 'oct', module: 'csl2601', code: 'CSL2601', title: 'Constitutional Law — Oct/Nov Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'The principle of constitutional supremacy means:', marks: 1, options: ['Parliament is the highest authority', 'The Constitution is the supreme law and all conduct inconsistent with it is invalid', 'The President is above the law', 'The common law prevails over the Constitution'], answer: 1, explanation: 'Section 2 of the Constitution: "This Constitution is the supreme law of the Republic; law or conduct inconsistent with it is invalid."' },
+    { type: 'short', num: 'Q2', text: 'Explain the concept of co-operative government in the 1996 Constitution.', marks: 5, answer: 'Co-operative government (Chapter 3, ss 40-41) recognises three spheres of government — national, provincial, local — which are "distinctive, interdependent and interrelated". They must cooperate, avoid conflict, and resolve disputes through negotiation. Neither "tier" nor "level" — "sphere" reflects equal dignity.' },
+    { type: 'essay', num: 'Q3', text: 'Critically analyse the Constitutional Court\'s approach to separation of powers, with reference to at least three decided cases.', marks: 25, answer: 'Essay should cover: (1) SA model — not strict separation but "diffuse" with checks and balances. (2) Key cases: (a) S v Dodo 2001 — court\'s role in sentencing legislation. (b) Doctors for Life 2006 — procedural requirements for valid legislation; court can review parliamentary process. (c) Premier, Western Cape v President 1999 — functional separation. (d) Glenister v President 2011 — court can require structural interdict to protect rights. (3) Tension: judicial activism vs deference. (4) Critical analysis: SA approach balances rights protection with democratic legitimacy.' }
+  ]},
+
+  // 2022
+  { year: 2022, session: 'oct', module: 'crw2601', code: 'CRW2601', title: 'Criminal Law 1 — Oct/Nov Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'Which ONE of the following is a ground of justification?', marks: 1, options: ['Intoxication', 'Private defence', 'Mental illness', 'Provocation'], answer: 1, explanation: 'Private defence (self-defence) is a ground of justification that renders conduct lawful. Intoxication, mental illness, and provocation relate to criminal capacity or fault, not justification.' },
+    { type: 'short', num: 'Q2', text: 'Discuss the requirements for a successful plea of private defence.', marks: 10, answer: 'Requirements for the attack: (1) It must have commenced or be imminent. (2) It must be unlawful. (3) It must threaten a legally protected interest (life, bodily integrity, property, etc.). Requirements for the defensive act: (1) It must be necessary to avert the attack. (2) It must be reasonable/proportionate — directed at the attacker, not excessive. Cases: S v Fernandes 1966; S v Jackson 1969.' },
+    { type: 'essay', num: 'Q3', text: 'Critically discuss the defence of intoxication in South African criminal law, with reference to section 1(1) of the Criminal Law Amendment Act 1 of 1988 and decided cases.', marks: 25, answer: 'Essay should cover: (1) Common law position — voluntary intoxication can negate intention (S v Chretien 1981 (1) SA 58 (A)). (2) Problem: Chretien led to acquittals of dangerously intoxicated offenders. (3) Legislative response: Criminal Law Amendment Act 1 of 1988, s 1(1) — creates statutory crime of committing prohibited act while criminally incapacitated by voluntary intoxication. (4) Elements: (a) voluntary consumption; (b) criminal incapacity; (c) commission of prohibited act; (d) knowledge of intoxicating effect. (5) Criticism: punishes status rather than conduct; maximum sentence limited. (6) Case law: S v Bourke 1989; S v Johnson 1996. (7) Reform proposals.' }
+  ]},
+  { year: 2022, session: 'may', module: 'lprl1501', code: 'LPRL1501', title: 'Law of Persons — May/June Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'The nasciturus fiction provides that:', marks: 1, options: ['A fetus has full legal subjectivity', 'If it is to the fetus\'s advantage, it is deemed to have been born at conception', 'A fetus can sue its mother', 'A fetus is a legal person'], answer: 1, explanation: 'The nasciturus fiction: "nasciturus pro iam nato habetur quotiens de commodo eius agitur" — if it is to the advantage of the conceived child, it is regarded as already born. It does NOT confer full legal subjectivity.' },
+    { type: 'short', num: 'Q2', text: 'Explain the legal status of a prodigal in South African law.', marks: 5, answer: 'A prodigal is a person who, through pathological spendthrift behaviour, cannot manage their own affairs. They are placed under curatorship by the High Court. Effect: limited capacity to act — cannot alienate property, contract debts, or litigate without curator\'s assistance. Status similar to a minor but based on different grounds. Governed by common law; Mental Health Care Act may also apply if mental illness present.' },
+    { type: 'essay', num: 'Q3', text: 'Critically discuss the legal position of children born out of wedlock in South African law, with reference to the Constitution and decided cases.', marks: 25, answer: 'Essay should cover: (1) Historical position — illegitimate children had limited rights. (2) Constitutional era — s 9 (equality), s 28 (children\'s rights). (3) Key cases: (a) Bhe v Magistrate, Khayelitsha 2005 — struck down male primogeniture in customary law; affirmed equality of all children. (b) Satchwell v President 2002 — benefits extended to same-sex partners\' children. (c) Children\'s Act 38 of 2005 — equal treatment. (4) Reform of Customary Law of Succession Act 11 of 2009. (5) Current position: all children equal regardless of birth circumstances. (6) Critical analysis: progress made but challenges remain in practice.' }
+  ]},
+
+  // 2021
+  { year: 2021, session: 'oct', module: 'csl2601', code: 'CSL2601', title: 'Constitutional Law — Oct/Nov Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'The right to human dignity is protected in section:', marks: 1, options: ['Section 9', 'Section 10', 'Section 11', 'Section 12'], answer: 1, explanation: 'Section 10: "Everyone has inherent dignity and the right to have their dignity respected and protected."' },
+    { type: 'short', num: 'Q2', text: 'Explain the two-stage enquiry used by courts in determining whether a right has been violated.', marks: 8, answer: 'Stage 1 (infringement): Has a right in the Bill of Rights been infringed? Consider: (a) who bears the duty (state/private)? (b) does the applicant have standing? (c) has the right been limited? Stage 2 (justification): If yes, is the limitation justifiable under s 36? Apply the proportionality test: (a) nature of the right, (b) importance of the purpose, (c) nature and extent of limitation, (d) relation between limitation and purpose, (e) less restrictive means. Cases: Harksen v Lane 1997; S v Makwanyane 1995.' },
+    { type: 'essay', num: 'Q3', text: 'Critically analyse the Constitutional Court\'s jurisprudence on equality under section 9 of the Constitution. Has the Court achieved substantive equality?', marks: 25, answer: 'Essay should cover: (1) Text of s 9 — formal and substantive equality. (2) Harksen v Lane 1997 — equality test: differentiation, rational basis, unfair discrimination. (3) National Coalition for Gay and Lesbian Equality 1999 — unfair discrimination; listed and analogous grounds. (4) Minister of Finance v Van Heerden 2004 — remedial/restitutive measures (affirmative action). (5) Recent cases: e.g. Jonsson v Workmen\'s Compensation 2021. (6) Critical analysis: shift from formal to substantive equality; challenges in implementation; intersectionality. Reference to Albertyn, Goldblatt, and Fredman.' }
+  ]},
+  { year: 2021, session: 'may', module: 'ldl2602', code: 'LDL2602', title: 'Law of Delict — May/June Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'The "but-for" test is used to determine:', marks: 1, options: ['Wrongfulness', 'Fault', 'Factual causation', 'Legal causation'], answer: 2, explanation: 'The conditio sine qua non (but-for) test determines factual causation: but for the defendant\'s conduct, would the plaintiff\'s harm have occurred? If no, conduct is a factual cause.' },
+    { type: 'short', num: 'Q2', text: 'Distinguish between the tests for wrongfulness in cases of positive conduct and omissions.', marks: 8, answer: 'Positive conduct: wrongfulness determined by the boni mores test — was the infringement of the plaintiff\'s interest unreasonable according to the legal convictions of the community? Omissions: more complex — requires a legal duty to act. Legal duty can arise from: (1) statute, (2) prior conduct creating dangerous situation, (3) special relationship, (4) control of dangerous object, (5) office/occupation. Cases: Minister van Polisie v Ewels 1975 (boni mores); Minister of Safety and Security v Van Duivenboden 2002 (legal duty from statute).' },
+    { type: 'essay', num: 'Q3', text: 'Critically discuss the development of the law of delict in light of the Constitution, with reference to Carmichele v Minister of Safety and Security 2001 (4) SA 938 (CC) and subsequent cases.', marks: 25, answer: 'Essay should cover: (1) Pre-constitutional position — common law static. (2) Constitutional mandate — s 39(2) courts must develop common law in line with Bill of Rights. (3) Carmichele 2001 — landmark case; court has duty to develop common law; state liable for failing to protect woman from known violent offender. (4) K v Minister of Safety and Security 2005 — police liable for rape by off-duty officers. (5) Van Eeden 2003 — duty to protect released prisoner. (6) Recent developments: e.g. F v Minister of Safety and Security 2012. (7) Critical analysis: transformative constitutionalism in delict; balance between rights and policy. Reference to Neethling, Potgieter, and Loubser.' }
+  ]},
+
+  // 2020
+  { year: 2020, session: 'oct', module: 'ils1501', code: 'ILS1501', title: 'Introduction to Law — Oct/Nov Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'Which of the following is an example of a directory statutory provision?', marks: 1, options: ['A provision requiring a will to be in writing', 'A provision stating that a licence "should" be renewed within 30 days', 'A provision that failure to register renders a contract void', 'A provision that "must" be complied with'], answer: 1, explanation: 'Directory provisions allow substantial compliance; non-compliance does not invalidate the act. Peremptory provisions require strict compliance. Words like "should" (vs "must") often indicate directory provisions.' },
+    { type: 'short', num: 'Q2', text: 'Explain the difference between the inquisitorial and adversarial systems of procedure.', marks: 5, answer: 'Adversarial system (SA): parties control the proceedings; judge acts as neutral umpire; evidence presented by parties; cross-examination. Inquisitorial system (continental Europe): judge actively investigates; questions witnesses; controls proceedings. SA follows adversarial system (English influence), though elements of inquisitorial approach appear in some tribunals.' },
+    { type: 'essay', num: 'Q3', text: 'Discuss the role of customary law as a source of South African law, with reference to the Constitution and decided cases.', marks: 25, answer: 'Essay should cover: (1) Recognition — s 211(3) Constitution: courts must apply customary law when applicable, subject to Constitution and legislation. (2) Requirements for valid customary law: (a) must be established practice, (b) regularly observed, (c) not contrary to Bill of Rights. (3) Key cases: (a) Shilubana 2009 — living customary law; female succession allowed. (b) Mayelane v Ngwenyama 2013 — consent of first wife required for subsequent customary marriage. (c) Pilane 2013 — recognition of BaKgatla traditional authority. (4) Tension: official vs living customary law. (5) Reform: Recognition of Customary Marriages Act 120 of 1998; Reform of Customary Law of Succession Act 11 of 2009. (6) Critical analysis: progress but challenges in harmonisation.' }
+  ]},
+  { year: 2020, session: 'may', module: 'crw2601', code: 'CRW2601', title: 'Criminal Law 1 — May/June Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'Which of the following is NOT an element of a crime?', marks: 1, options: ['Conduct', 'Unlawfulness', 'Motive', 'Fault'], answer: 2, explanation: 'Motive is NOT an element of a crime — it may be relevant for sentencing or certain specific crimes, but is not required for criminal liability. The elements are: conduct, compliance with definitional elements, unlawfulness, criminal capacity, and fault.' },
+    { type: 'short', num: 'Q2', text: 'Distinguish between legal impossibility and factual impossibility in the law of attempt.', marks: 6, answer: 'Legal impossibility: the completed act would not constitute a crime (e.g. attempting to commit a crime that doesn\'t exist). Generally not punishable. Factual impossibility: the crime cannot be completed due to factual circumstances (e.g. shooting at a corpse believing it alive; picking an empty pocket). Punishable as attempt in SA — R v Schoombee 1948. Distinction: factual impossibility still punishable; legal impossibility generally not.' },
+    { type: 'essay', num: 'Q3', text: 'Critically discuss the requirements for criminal capacity in South African law, with reference to mental illness, intoxication, and youth.', marks: 25, answer: 'Essay should cover: (1) Definition of criminal capacity: ability to appreciate wrongfulness of act and act in accordance with such appreciation (cognitive and conative components). (2) Mental illness/defect — Mental Health Care Act 17 of 2002; s 78 CPA — not guilty by reason of mental illness. Cases: S v McBride 1987. (3) Youth — Children\'s Act; doli incapax for under 10s; rebuttable presumption for 10-14s (abolished for certain serious crimes). Case: S v W 2011. (4) Intoxication — Criminal Law Amendment Act 1 of 1988 (discussed earlier). (5) Non-pathological incapacity — S v Eadie 2002. (6) Critical analysis: balance between protecting vulnerable and ensuring accountability.' }
+  ]},
+
+  // 2019
+  { year: 2019, session: 'oct', module: 'csil1512', code: 'CSIL1512', title: 'Law of Contract — Oct/Nov Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'A material mistake (iustus error) in contract law:', marks: 1, options: ['Renders the contract voidable', 'Negates consensus and renders the contract void', 'Has no effect on the contract', 'Only applies to written contracts'], answer: 1, explanation: 'A material mistake (iustus error) negates consensus — the parties were not truly in agreement. The contract is void ab initio. Examples: mistake in personam, in corpore, in substantia.' },
+    { type: 'short', num: 'Q2', text: 'Explain the doctrine of quasi-mutual assent (estoppel) in contract law.', marks: 8, answer: 'Quasi-mutual assent (estoppel): even if actual consensus is lacking, a party may be bound if the other party reasonably believed consensus existed. Requirements (from National and Overseas Distributors 1958 (1) SA 491 (A)): (1) one party by words/conduct created impression that consensus existed; (2) the other party was actually influenced by this; (3) such influence was reasonable. Effect: contract treated as valid despite actual mistake. Case: Sonap Petroleum 1992.' },
+    { type: 'essay', num: 'Q3', text: 'Critically analyse the remedies for breach of contract in South African law. Are they adequate?', marks: 25, answer: 'Essay should cover: (1) Types of breach: mora debitoris, mora creditoris, positive malperformance, prevention of performance, repudiation. (2) Remedies: (a) specific performance (primary remedy); (b) damages (compensatory); (c) cancellation (where breach is material); (d) interdict; (e) exceptio non adimpleti contractus. (3) Cases:BK Tooling 1979; Datacolor 2004; Peninsula Estates 2005. (4) Consumer Protection Act 68 of 2008 — additional protections. (5) Critical analysis: adequacy, flexibility, comparison with other systems. Reference to Christie, Bradfield, and Hutchison.' }
+  ]},
+  { year: 2019, session: 'may', module: 'csl2601', code: 'CSL2601', title: 'Constitutional Law — May/June Exam', questions: [
+    { type: 'mcq', num: 'Q1', text: 'The Public Protector\'s findings are:', marks: 1, options: ['Always binding on organs of state', 'Binding unless set aside by a court (as per Nkandla case)', 'Purely advisory', 'Only binding if confirmed by Parliament'], answer: 1, explanation: 'In Economic Freedom Fighters v Speaker 2016 (Nkandla case), the Constitutional Court held that the Public Protector\'s findings are binding and can only be set aside by a court on review.' },
+    { type: 'short', num: 'Q2', text: 'Explain the principle of legality as part of the rule of law in South African constitutional law.', marks: 5, answer: 'The principle of legality is a founding value of the Constitution (s 1(d)). It requires that all exercise of public power must have a legal basis and be rational. Even conduct not subject to administrative justice under PAJA must comply with legality. Case: Fedsure v Greater Johannesburg 1999; Pharmaceutical Manufacturers 2000; Albutt 2010.' },
+    { type: 'essay', num: 'Q3', text: 'Critically analyse the Constitutional Court\'s jurisprudence on the separation of powers, with reference to the role of the judiciary in a constitutional democracy.', marks: 25, answer: 'Essay should cover: (1) Constitutional framework — no strict separation but checks and balances. (2) Key cases: (a) S v Dodo 2001 — court\'s role in sentencing. (b) Doctors for Life 2006 — review of parliamentary process. (c) Glenister 2011 — structural interdict. (d) EFF v Speaker 2016 — judicial enforcement of remedial action. (3) Tension: activism vs deference. (4) Comparative perspective. (5) Critical analysis: SA approach balances rights protection with democratic legitimacy; court as guardian of Constitution.' }
+  ]}
+];
+
+/* ============================================================
+   CASES
+   ============================================================ */
+const CASES = [
+  { name: "S v Makwanyane", citation: "1995 (3) SA 391 (CC)", summary: "The Constitutional Court unanimously abolished the death penalty in SA, holding it violates the rights to life, dignity, and freedom from cruel/inhuman/degrading punishment. Introduced the concept of ubuntu into SA jurisprudence.", tags: ["Constitutional Law", "Death Penalty", "Ubuntu", "Bill of Rights"], year: 1995 },
+  { name: "Government of RSA v Grootboom", citation: "2001 (1) SA 46 (CC)", summary: "Established the 'reasonableness review' for socio-economic rights. The state must take reasonable measures, within available resources, to progressively realise the right of access to housing (s 26).", tags: ["Socio-Economic Rights", "Housing", "s 26"], year: 2001 },
+  { name: "Minister of Health v Treatment Action Campaign", citation: "2002 (5) SA 721 (CC)", summary: "The Court ordered the state to make Nevirapine available to prevent mother-to-child HIV transmission — a landmark for the right to healthcare and the enforceability of socio-economic rights.", tags: ["Healthcare", "HIV/AIDS", "s 27"], year: 2002 },
+  { name: "Bhe v Magistrate, Khayelitsha", citation: "2005 (1) SA 580 (CC)", summary: "Struck down male primogeniture in customary law as unconstitutional discrimination. Affirmed equality of women and children born outside wedlock in succession.", tags: ["Customary Law", "Equality", "Succession", "Gender"], year: 2005 },
+  { name: "Minister of Home Affairs v Fourie", citation: "2006 (1) SA 524 (CC)", summary: "Legalised same-sex marriage in South Africa, holding that the common-law definition of marriage and the Marriage Act were unconstitutional for excluding same-sex couples.", tags: ["Equality", "Marriage", "LGBTQ+", "s 9"], year: 2006 },
+  { name: "Carmichele v Minister of Safety and Security", citation: "2001 (4) SA 938 (CC)", summary: "Confirmed that courts have a duty under s 39(2) to develop the common law in line with the Bill of Rights. State can be liable for failing to protect women from known violent offenders.", tags: ["Delict", "Development of Common Law", "State Liability"], year: 2001 },
+  { name: "S v Zuma", citation: "1995 (2) SA 642 (CC)", summary: "The Constitutional Court's first judgment — established that the interim Constitution is supreme and that courts have the power to strike down legislation inconsistent with it.", tags: ["Constitutional Supremacy", "Foundational"], year: 1995 },
+  { name: "Barkhuizen v Napier", citation: "2007 (5) SA 323 (CC)", summary: "Held that contractual terms must be consistent with public policy as informed by the Constitution. Time-limitation clauses are subject to a reasonableness test.", tags: ["Contract Law", "Public Policy", "Constitution"], year: 2007 },
+  { name: "Daniels v Campbell", citation: "2004 (5) SA 331 (CC)", summary: "Recognised partners in Muslim marriages as 'surviving spouses' for purposes of the Intestate Succession Act — a step toward recognising religious marriages.", tags: ["Muslim Marriages", "Succession", "Equality"], year: 2004 },
+  { name: "Harksen v Lane", citation: "1997 (11) BCLR 1489 (CC)", summary: "Established the two-stage test for equality under s 9: (1) does differentiation amount to discrimination? (2) if so, is it unfair? Listed and analogous grounds identified.", tags: ["Equality", "s 9", "Discrimination"], year: 1997 },
+  { name: "S v Eadie", citation: "2002 (1) SACR 325 (SCA)", summary: "Confirmed that non-pathological factors (provocation, emotional stress, intoxication) can affect criminal capacity and fault, and must be considered by the court.", tags: ["Criminal Law", "Criminal Capacity", "Road Rage"], year: 2002 },
+  { name: "Minister of Safety and Security v Van Duivenboden", citation: "2002 (6) SA 431 (SCA)", summary: "Confirmed that the state can be delictionally liable for wrongful acts of its servants; a legal duty of care can arise from statutory duties.", tags: ["Delict", "State Liability", "Legal Duty"], year: 2002 },
+  { name: "Beadica 231 CC v Trustees of the Oregon Trust", citation: "2020 (9) BCLR 1049 (CC)", summary: "Reaffirmed Barkhuizen v Napier; emphasised that courts should not use public policy to undermine certainty in contracts. Balance between constitutional values and commercial certainty.", tags: ["Contract Law", "Public Policy", "Commercial Certainty"], year: 2020 },
+  { name: "Economic Freedom Fighters v Speaker", citation: "2016 (5) SA 250 (CC)", summary: "The Nkandla case — held that the Public Protector's findings are binding and can only be set aside by a court on review. Affirmed accountability of the President.", tags: ["Public Protector", "Accountability", "Executive Power"], year: 2016 },
+  { name: "Mayelane v Ngwenyama", citation: "2013 (4) SA 437 (CC)", summary: "Held that the consent of the first wife is a requirement for the validity of a subsequent customary marriage under the Recognition of Customary Marriages Act.", tags: ["Customary Marriages", "Consent", "Gender Equality"], year: 2013 }
+];
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+const BADGES = [
+  { id: 'first_quiz', icon: '🎯', name: 'First Steps', desc: 'Complete your first quiz' },
+  { id: 'perfect', icon: '💯', name: 'Perfect Score', desc: 'Get 100% on any quiz' },
+  { id: 'streak_3', icon: '🔥', name: 'On Fire', desc: '3-day streak' },
+  { id: 'streak_7', icon: '⚡', name: 'Unstoppable', desc: '7-day streak' },
+  { id: 'xp_500', icon: '🌟', name: 'Rising Star', desc: 'Earn 500 XP' },
+  { id: 'xp_1000', icon: '💎', name: 'Diamond Scholar', desc: 'Earn 1000 XP' },
+  { id: 'all_modules', icon: '🎓', name: 'Well-Rounded', desc: 'Try every module' },
+  { id: 'case_master', icon: '📜', name: 'Case Master', desc: 'View 10 landmark cases' },
+  { id: 'paper_hawk', icon: '🦅', name: 'Paper Hawk', desc: 'Attempt 5 past papers' },
+  { id: 'essay_pro', icon: '✍️', name: 'Essay Pro', desc: 'Answer 10 essay questions' },
+  { id: 'night_owl', icon: '🦉', name: 'Night Owl', desc: 'Study after 10pm' },
+  { id: 'early_bird', icon: '🐦', name: 'Early Bird', desc: 'Study before 7am' }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  user: null, xp: 0, streak: 0, lastStudyDate: null,
+  quizzesCompleted: 0, correctAnswers: 0, totalAnswers: 0,
+  badges: [], moduleProgress: {}, casesViewed: [], modulesTried: [],
+  papersAttempted: 0, essaysAnswered: 0
+};
+
+let currentQuiz = { moduleId: null, questions: [], index: 0, score: 0, answered: false };
+let currentFlashcards = { moduleId: null, cards: [], index: 0 };
+let currentPaperYear = 2024;
+
+/* ============================================================
+   STORAGE
+   ============================================================ */
+const STORAGE_KEY = 'lexsa_state_v2';
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+  if (supabase && state.user) {
+    supabase.from('profiles').upsert({
+      id: state.user.id, xp: state.xp, streak: state.streak,
+      last_study_date: state.lastStudyDate, quizzes_completed: state.quizzesCompleted,
+      correct_answers: state.correctAnswers, total_answers: state.totalAnswers,
+      badges: state.badges, module_progress: state.moduleProgress,
+      cases_viewed: state.casesViewed, modules_tried: state.modulesTried,
+      papers_attempted: state.papersAttempted, essays_answered: state.essaysAnswered
+    }).then();
+  }
+}
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) state = { ...state, ...JSON.parse(raw) };
+  } catch(e){}
+}
+
+/* ============================================================
+   AUTH
+   ============================================================ */
+let authMode = 'signin';
+function openAuth() { document.getElementById('authModal').classList.add('active'); }
+function closeAuth() { document.getElementById('authModal').classList.remove('active'); }
+function toggleAuthMode() {
+  authMode = authMode === 'signin' ? 'signup' : 'signin';
+  document.getElementById('authTitle').textContent = authMode === 'signin' ? 'Welcome back, Counsel' : 'Join LexSA';
+  document.getElementById('authSub').textContent = authMode === 'signin' ? 'Sign in to save your progress.' : 'Create your account and start learning.';
+  document.getElementById('nameField').style.display = authMode === 'signup' ? 'block' : 'none';
+  document.getElementById('authSubmit').textContent = authMode === 'signin' ? 'Sign In' : 'Create Account';
+  document.getElementById('switchText').textContent = authMode === 'signin' ? 'New to LexSA?' : 'Already have an account?';
+  document.getElementById('switchLink').textContent = authMode === 'signin' ? 'Create account' : 'Sign in';
+}
+async function submitAuth() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const name = document.getElementById('authName').value.trim();
+  if (!email || !password) { toast('Please fill in all fields', 'error'); return; }
+  if (supabase) {
+    try {
+      if (authMode === 'signup') {
+        const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name } } });
+        if (error) throw error;
+        state.user = { id: data.user.id, email, name };
+        toast('Account created! Welcome to LexSA 🎓', 'success');
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        state.user = { id: data.user.id, email, name: data.user.user_metadata?.name || email.split('@')[0] };
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', state.user.id).single();
+        if (profile) {
+          state.xp = profile.xp || 0; state.streak = profile.streak || 0;
+          state.lastStudyDate = profile.last_study_date;
+          state.quizzesCompleted = profile.quizzes_completed || 0;
+          state.correctAnswers = profile.correct_answers || 0;
+          state.totalAnswers = profile.total_answers || 0;
+          state.badges = profile.badges || [];
+          state.moduleProgress = profile.module_progress || {};
+          state.casesViewed = profile.cases_viewed || [];
+          state.modulesTried = profile.modules_tried || [];
+          state.papersAttempted = profile.papers_attempted || 0;
+          state.essaysAnswered = profile.essays_answered || 0;
+        }
+        toast(`Welcome back, ${state.user.name}! 👋`, 'success');
+      }
+      closeAuth(); saveState(); renderAll();
+    } catch (e) { toast(e.message || 'Auth failed', 'error'); }
+  } else {
+    state.user = { id: 'demo_' + Date.now(), email, name: name || email.split('@')[0] };
+    toast(`Welcome, ${state.user.name}! (Demo mode) 🎮`, 'success');
+    closeAuth(); saveState(); renderAll();
+  }
+}
+function demoLogin() {
+  state.user = { id: 'demo_user', email: 'demo@lexsa.app', name: 'Demo Student' };
+  toast('Demo mode activated! Progress saved locally 🎮', 'info');
+  closeAuth(); saveState(); renderAll();
+}
+function logout() {
+  if (supabase) supabase.auth.signOut().then();
+  state.user = null; saveState(); toast('Signed out', 'info'); renderAll();
+}
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.nav-links button[data-view]').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === name);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (name === 'leaderboard') renderLeaderboard();
+  if (name === 'profile') renderProfile();
+  if (name === 'papers') { renderYearTabs(); renderPapers(); populatePaperFilters(); }
+}
+document.querySelectorAll('.nav-links button[data-view]').forEach(b => {
+  b.addEventListener('click', () => showView(b.dataset.view));
+});
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderAll() {
+  renderNav(); renderStats(); renderHomePapers(); renderHomeModules();
+  renderAllModules(); renderHomeCases(); renderAllCases();
+}
+
+function renderNav() {
+  const authBtn = document.getElementById('authBtn');
+  if (state.user) {
+    authBtn.outerHTML = `
+      <div class="user-chip">
+        <div class="avatar">${state.user.name.charAt(0).toUpperCase()}</div>
+        <div>
+          <div style="font-size:12px;font-weight:600;">${state.user.name}</div>
+          <div class="xp-pill">⚡ ${state.xp} XP</div>
+        </div>
+        <button onclick="logout()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;margin-left:4px;" title="Sign out">✕</button>
+      </div>`;
+  } else {
+    authBtn.outerHTML = `<button id="authBtn" class="btn btn-primary btn-sm" onclick="openAuth()">Sign In</button>`;
+  }
+}
+
+function renderStats() {
+  document.getElementById('statXP').textContent = state.xp;
+  document.getElementById('statStreak').textContent = state.streak;
+  document.getElementById('statQuizzes').textContent = state.quizzesCompleted;
+  const acc = state.totalAnswers > 0 ? Math.round((state.correctAnswers / state.totalAnswers) * 100) : 0;
+  document.getElementById('statAccuracy').textContent = acc + '%';
+}
+
+function renderModuleCard(m) {
+  const prog = state.moduleProgress[m.id] || 0;
+  const qCount = QUESTIONS[m.id]?.length || 0;
+  const fCount = (FLASHCARDS[m.id] || []).length;
+  const paperCount = PAST_PAPERS.filter(p => p.module === m.id).length;
+  return `
+    <div class="module-card" style="--mod-color: ${m.color};" onclick="openModule('${m.id}')">
+      <div class="module-emoji">${m.emoji}</div>
+      <div class="module-code">${m.code} • ${m.level}</div>
+      <div class="module-name">${m.name}</div>
+      <div class="module-desc">${m.desc}</div>
+      <div class="module-meta">
+        <span>📝 ${qCount} questions</span>
+        <span>🎴 ${fCount} cards</span>
+        ${paperCount > 0 ? `<span>📜 ${paperCount} papers</span>` : ''}
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${prog}%;"></div></div>
+      <div class="progress-label"><span>Progress</span><span>${prog}%</span></div>
+    </div>`;
+}
+function renderHomeModules() {
+  document.getElementById('homeModules').innerHTML = MODULES.slice(0, 4).map(renderModuleCard).join('');
+}
+function renderAllModules() {
+  const yearF = document.getElementById('yearFilter')?.value || 'all';
+  const catF = document.getElementById('categoryFilter')?.value || 'all';
+  const filtered = MODULES.filter(m => {
+    if (yearF !== 'all' && m.year !== yearF) return false;
+    if (catF !== 'all' && m.category !== catF) return false;
+    return true;
+  });
+  document.getElementById('allModules').innerHTML = filtered.map(renderModuleCard).join('');
+  document.getElementById('moduleCount').textContent = `${filtered.length} of ${MODULES.length} modules`;
+}
+
+function renderHomeCases() {
+  document.getElementById('homeCases').innerHTML = CASES.slice(0, 3).map(renderCaseCard).join('');
+}
+function renderAllCases() {
+  document.getElementById('allCases').innerHTML = CASES.map(renderCaseCard).join('');
+}
+function renderCaseCard(c) {
+  return `
+    <div class="case-card" onclick="viewCase('${c.name.replace(/'/g,"\\'")}')">
+      <div class="case-name">${c.name}</div>
+      <div class="case-citation">${c.citation}</div>
+      <div class="case-summary">${c.summary.substring(0, 140)}...</div>
+      <div class="case-tags">${c.tags.map(t => `<span class="tag-pill">${t}</span>`).join('')}</div>
+    </div>`;
+}
+
+/* ============================================================
+   HOME PAPERS
+   ============================================================ */
+function renderHomePapers() {
+  const recent = PAST_PAPERS.slice(0, 3);
+  document.getElementById('homePapers').innerHTML = recent.map(p => `
+    <div class="paper-card">
+      <div class="paper-header">
+        <div>
+          <div class="paper-title">${p.title}</div>
+          <div class="paper-meta">
+            <span>${p.code}</span>
+            <span class="session-${p.session}">${p.session === 'may' ? 'May/June' : 'Oct/Nov'} ${p.year}</span>
+            <span>${p.questions.length} questions</span>
+          </div>
+        </div>
+      </div>
+      <div class="paper-actions">
+        <button class="btn btn-primary btn-sm" onclick="attemptPaper(${PAST_PAPERS.indexOf(p)})">📝 Attempt Paper</button>
+        <button class="btn btn-ghost btn-sm" onclick="showView('papers')">View All Papers</button>
+      </div>
+    </div>`).join('');
+}
+
+/* ============================================================
+   PAST PAPERS VIEW
+   ============================================================ */
+function renderYearTabs() {
+  const years = [...new Set(PAST_PAPERS.map(p => p.year))].sort((a,b) => b-a);
+  document.getElementById('yearTabs').innerHTML = years.map(y => `
+    <div class="year-tab ${y === currentPaperYear ? 'active' : ''}" onclick="selectYear(${y})">${y}</div>
+  `).join('');
+}
+function selectYear(y) {
+  currentPaperYear = y;
+  renderYearTabs();
+  renderPapers();
+}
+function populatePaperFilters() {
+  const sel = document.getElementById('paperModuleFilter');
+  const mods = [...new Set(PAST_PAPERS.map(p => p.module))];
+  sel.innerHTML = '<option value="all">All Modules</option>' + mods.map(m => {
+    const mod = MODULES.find(x => x.id === m);
+    return `<option value="${m}">${mod?.code || m}</option>`;
+  }).join('');
+}
+function renderPapers() {
+  const modF = document.getElementById('paperModuleFilter')?.value || 'all';
+  const sesF = document.getElementById('paperSessionFilter')?.value || 'all';
+  const typF = document.getElementById('paperTypeFilter')?.value || 'all';
+  const filtered = PAST_PAPERS.filter(p => {
+    if (p.year !== currentPaperYear) return false;
+    if (modF !== 'all' && p.module !== modF) return false;
+    if (sesF !== 'all' && p.session !== sesF) return false;
+    if (typF !== 'all' && !p.questions.some(q => q.type === typF)) return false;
+    return true;
+  });
+  const el = document.getElementById('papersList');
+  if (filtered.length === 0) {
+    el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted);">
+      <div style="font-size:60px;margin-bottom:14px;">📭</div>
+      <h3>No papers match your filters</h3>
+      <p style="margin-top:8px;">Try adjusting the year or filters above.</p>
+    </div>`;
+    return;
+  }
+  el.innerHTML = filtered.map((p, idx) => {
+    const realIdx = PAST_PAPERS.indexOf(p);
+    const filteredQs = typF === 'all' ? p.questions : p.questions.filter(q => q.type === typF);
+    return `
+    <div class="paper-card">
+      <div class="paper-header">
+        <div>
+          <div class="paper-title">${p.title}</div>
+          <div class="paper-meta">
+            <span>${p.code}</span>
+            <span class="session-${p.session}">${p.session === 'may' ? 'May/June' : 'Oct/Nov'} ${p.year}</span>
+            <span>${filteredQs.length} questions</span>
+            <span>${filteredQs.reduce((s,q)=>s+q.marks,0)} marks</span>
+          </div>
+        </div>
+      </div>
+      <div class="paper-actions" style="margin-bottom:14px;">
+        <button class="btn btn-primary btn-sm" onclick="attemptPaper(${realIdx})">📝 Attempt as Quiz</button>
+        <button class="btn btn-ghost btn-sm" onclick="window.open('https://gimmenotes.co.za/?s=${p.code}','_blank')">🌐 Find on GimmeNotes ↗</button>
+      </div>
+      ${filteredQs.map(q => renderQuestion(q, realIdx)).join('')}
+    </div>`;
+  }).join('');
+}
+
+function renderQuestion(q, paperIdx) {
+  const typeLabel = q.type === 'mcq' ? 'MCQ' : q.type === 'short' ? 'Short Q' : 'Essay';
+  let body = '';
+  if (q.type === 'mcq') {
+    body = `<div class="options" style="margin-top:10px;">
+      ${q.options.map((opt, i) => `
+        <div class="option" onclick="answerPaperMCQ(${paperIdx}, '${q.num}', ${i}, ${q.answer})" data-pidx="${paperIdx}" data-qnum="${q.num}">
+          <div class="letter">${String.fromCharCode(65 + i)}</div>
+          <div>${opt}</div>
+        </div>`).join('')}
+    </div>`;
+  }
+  return `
+    <div class="question-block">
+      <div class="q-num">${q.num} <span class="q-marks">[${q.marks} ${q.marks === 1 ? 'mark' : 'marks'}]</span><span class="q-type">${typeLabel}</span></div>
+      <div class="q-text">${q.text}</div>
+      ${body}
+      <button class="answer-toggle" onclick="toggleAnswer(this)">💡 Show model answer / guidance</button>
+      <div class="model-answer">
+        <h5>Model Answer / Guidance</h5>
+        <p>${q.answer}</p>
+      </div>
+    </div>`;
+}
+
+function answerPaperMCQ(paperIdx, qnum, selected, correct) {
+  const opts = document.querySelectorAll(`.option[data-pidx="${paperIdx}"][data-qnum="${qnum}"]`);
+  if (opts[0].classList.contains('disabled')) return;
+  opts.forEach(o => o.classList.add('disabled'));
+  state.totalAnswers++;
+  if (selected === correct) {
+    opts[selected].classList.add('correct');
+    state.correctAnswers++;
+    state.xp += 5;
+    toast('✅ Correct! +5 XP', 'success');
+  } else {
+    opts[selected].classList.add('wrong');
+    opts[correct].classList.add('correct');
+    toast('❌ Not quite — see model answer', 'error');
+  }
+  saveState(); renderStats(); checkBadges();
+}
+
+function toggleAnswer(btn) {
+  const ans = btn.nextElementSibling;
+  ans.classList.toggle('show');
+  btn.textContent = ans.classList.contains('show') ? '🙈 Hide model answer' : '💡 Show model answer / guidance';
+  if (ans.classList.contains('show')) {
+    const qType = btn.closest('.question-block').querySelector('.q-type').textContent;
+    if (qType === 'Essay') {
+      state.essaysAnswered = (state.essaysAnswered || 0) + 1;
+      state.xp += 3;
+      saveState(); renderStats(); checkBadges();
+    }
+  }
+}
+
+function attemptPaper(idx) {
+  if (!state.user) { openAuth(); return; }
+  const p = PAST_PAPERS[idx];
+  const mcqs = p.questions.filter(q => q.type === 'mcq');
+  if (mcqs.length === 0) {
+    toast('This paper has no MCQs — view it inline below', 'info');
+    return;
+  }
+  state.papersAttempted = (state.papersAttempted || 0) + 1;
+  currentQuiz = {
+    moduleId: p.module,
+    mode: 'paper',
+    paperTitle: p.title,
+    questions: shuffle([...mcqs]).map(q => ({
+      q: q.text, options: q.options, answer: q.answer,
+      explanation: q.answer, source: `${p.code} ${p.year} ${p.session.toUpperCase()}`
+    })),
+    index: 0, score: 0, answered: false,
+    timeLeft: mcqs.length * 2,
+    timer: null
+  };
+  showView('quiz');
+  renderQuiz();
+  saveState(); checkBadges();
+}
+
+function startMockExam() {
+  if (!state.user) { openAuth(); return; }
+  const yearPapers = PAST_PAPERS.filter(p => p.year === currentPaperYear);
+  if (yearPapers.length === 0) { toast('No papers for this year', 'error'); return; }
+  const p = yearPapers[Math.floor(Math.random() * yearPapers.length)];
+  attemptPaper(PAST_PAPERS.indexOf(p));
+}
+
+/* ============================================================
+   MODULE DETAIL
+   ============================================================ */
+function openModule(id) {
+  const m = MODULES.find(x => x.id === id);
+  if (!m) return;
+  if (!state.modulesTried.includes(id)) {
+    state.modulesTried.push(id);
+    if (state.modulesTried.length === MODULES.length) awardBadge('all_modules');
+    saveState();
+  }
+  const qCount = QUESTIONS[id]?.length || 0;
+  const fCount = (FLASHCARDS[id] || []).length;
+  const papers = PAST_PAPERS.filter(p => p.module === id);
+  const el = document.getElementById('moduleDetailContent');
+  el.innerHTML = `
+    <div class="hero" style="margin-bottom:24px;">
+      <div style="font-size:60px;margin-bottom:10px;">${m.emoji}</div>
+      <div class="module-code" style="color:var(--primary);font-size:13px;font-weight:700;letter-spacing:1.5px;">${m.code} • ${m.level}</div>
+      <h1 style="font-size:36px;">${m.name}</h1>
+      <p>${m.desc}</p>
+    </div>
+    <div class="stats" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+      <div class="stat-card"><div class="stat-icon" style="background: rgba(251,191,36,0.15); color: var(--primary);">📝</div><div><div class="stat-value">${qCount}</div><div class="stat-label">Questions</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background: rgba(139,92,246,0.15); color: var(--purple);">🎴</div><div><div class="stat-value">${fCount}</div><div class="stat-label">Flashcards</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background: rgba(239,68,68,0.15); color: var(--danger);">📜</div><div><div class="stat-value">${papers.length}</div><div class="stat-label">Past Papers</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background: rgba(16,185,129,0.15); color: var(--accent);">📊</div><div><div class="stat-value">${state.moduleProgress[id] || 0}%</div><div class="stat-label">Progress</div></div></div>
+    </div>
+    <div class="section-title"><h2>🚀 Start Learning</h2></div>
+    <div class="modules-grid">
+      ${qCount > 0 ? `<div class="module-card" style="--mod-color: ${m.color};" onclick="startQuiz('${id}')">
+        <div class="module-emoji">📝</div><div class="module-name">Quiz Mode</div>
+        <div class="module-desc">Test your knowledge with ${qCount} questions. Earn XP and track progress!</div>
+        <button class="btn btn-primary btn-sm" style="margin-top:12px;">Start Quiz →</button>
+      </div>` : ''}
+      ${fCount > 0 ? `<div class="module-card" style="--mod-color: ${m.color};" onclick="startFlashcards('${id}')">
+        <div class="module-emoji">🎴</div><div class="module-name">Flashcards</div>
+        <div class="module-desc">Quick revision with ${fCount} key concepts and definitions.</div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:12px;">Open Cards →</button>
+      </div>` : ''}
+      ${qCount > 0 ? `<div class="module-card" style="--mod-color: ${m.color};" onclick="startQuiz('${id}', 'timed')">
+        <div class="module-emoji">⏱️</div><div class="module-name">Timed Challenge</div>
+        <div class="module-desc">Race against the clock! Bonus XP for speed and accuracy.</div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:12px;">Start Challenge →</button>
+      </div>` : ''}
+    </div>
+    ${papers.length > 0 ? `
+      <div class="section-title"><h2>📜 Past Papers</h2><span class="hint">From ${papers[papers.length-1].year} to ${papers[0].year}</span></div>
+      ${papers.map(p => {
+        const realIdx = PAST_PAPERS.indexOf(p);
+        return `<div class="paper-card">
+          <div class="paper-header">
+            <div>
+              <div class="paper-title">${p.title}</div>
+              <div class="paper-meta">
+                <span class="session-${p.session}">${p.session === 'may' ? 'May/June' : 'Oct/Nov'} ${p.year}</span>
+                <span>${p.questions.length} questions</span>
+                <span>${p.questions.reduce((s,q)=>s+q.marks,0)} marks</span>
+              </div>
+            </div>
+          </div>
+          <div class="paper-actions">
+            <button class="btn btn-primary btn-sm" onclick="attemptPaper(${realIdx})">📝 Attempt MCQs</button>
+            <button class="btn btn-ghost btn-sm" onclick="showView('papers');selectYear(${p.year})">View All Questions</button>
+            <button class="btn btn-ghost btn-sm" onclick="window.open('https://gimmenotes.co.za/?s=${p.code}','_blank')">🌐 GimmeNotes ↗</button>
+          </div>
+        </div>`;
+      }).join('')}
+    ` : `<div style="margin-top:20px;padding:20px;background:var(--card);border:1px solid var(--card-border);border-radius:16px;text-align:center;">
+      <div style="font-size:40px;margin-bottom:10px;">📭</div>
+      <h3 style="margin-bottom:8px;">No past papers yet for ${m.code}</h3>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:14px;">Check GimmeNotes for the actual past paper PDFs.</p>
+      <a href="https://gimmenotes.co.za/?s=${m.code}" target="_blank" class="btn btn-primary">🌐 Search GimmeNotes ↗</a>
+    </div>`}
+  `;
+  showView('module-detail');
+}
+
+/* ============================================================
+   QUIZ
+   ============================================================ */
+function startQuiz(moduleId, mode) {
+  if (!state.user) { openAuth(); return; }
+  const qs = QUESTIONS[moduleId];
+  if (!qs || qs.length === 0) { toast('No questions yet for this module', 'error'); return; }
+  currentQuiz = {
+    moduleId, mode: mode || 'normal',
+    questions: shuffle([...qs]),
+    index: 0, score: 0, answered: false,
+    timeLeft: mode === 'timed' ? 20 : 0, timer: null
+  };
+  showView('quiz'); renderQuiz();
+}
+
+function renderQuiz() {
+  const q = currentQuiz.questions[currentQuiz.index];
+  const total = currentQuiz.questions.length;
+  const el = document.getElementById('quizContent');
+  el.innerHTML = `
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <div class="quiz-progress-info">
+          <div class="q-counter">${currentQuiz.paperTitle || 'Question'} ${currentQuiz.index + 1} / ${total}</div>
+          ${currentQuiz.mode === 'timed' || currentQuiz.mode === 'paper' ? `<div class="timer">⏱️ <span id="timerDisplay">${currentQuiz.timeLeft}s</span></div>` : ''}
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="showView('modules')">✕ Exit</button>
+      </div>
+      <div class="progress-bar" style="margin-bottom:24px;">
+        <div class="progress-fill" style="width:${((currentQuiz.index) / total) * 100}%;"></div>
+      </div>
+      ${q.context ? `<div class="question-context">💡 ${q.context}</div>` : ''}
+      <div class="question-text">${q.q}</div>
+      <div class="options" id="optionsList">
+        ${q.options.map((opt, i) => `
+          <div class="option" onclick="selectOption(${i})" data-idx="${i}">
+            <div class="letter">${String.fromCharCode(65 + i)}</div>
+            <div>${opt}</div>
+          </div>`).join('')}
+      </div>
+      <div id="explanationBox"></div>
+      <div class="quiz-actions" id="quizActions" style="display:none;">
+        <button class="btn btn-ghost" onclick="showView('modules')">Stop</button>
+        <button class="btn btn-primary" onclick="nextQuestion()">
+          ${currentQuiz.index === total - 1 ? 'See Results →' : 'Next Question →'}
+        </button>
+      </div>
+    </div>`;
+  currentQuiz.answered = false;
+  if (currentQuiz.mode === 'timed' || currentQuiz.mode === 'paper') startTimer();
+}
+
+function startTimer() {
+  clearInterval(currentQuiz.timer);
+  currentQuiz.timer = setInterval(() => {
+    currentQuiz.timeLeft--;
+    const disp = document.getElementById('timerDisplay');
+    if (disp) disp.textContent = currentQuiz.timeLeft + 's';
+    if (currentQuiz.timeLeft <= 0) {
+      clearInterval(currentQuiz.timer);
+      if (!currentQuiz.answered) selectOption(-1);
+    }
+  }, 1000);
+}
+
+function selectOption(idx) {
+  if (currentQuiz.answered) return;
+  currentQuiz.answered = true;
+  clearInterval(currentQuiz.timer);
+  const q = currentQuiz.questions[currentQuiz.index];
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(o => o.classList.add('disabled'));
+  state.totalAnswers++;
+  if (idx === q.answer) {
+    opts[idx].classList.add('correct');
+    currentQuiz.score++;
+    state.correctAnswers++;
+    const xp = currentQuiz.mode === 'timed' || currentQuiz.mode === 'paper' ? 20 : 10;
+    state.xp += xp;
+  } else {
+    if (idx >= 0) opts[idx].classList.add('wrong');
+    opts[q.answer].classList.add('correct');
+  }
+  document.getElementById('explanationBox').innerHTML = `
+    <div class="explanation">
+      <h4>${idx === q.answer ? '✅ Correct!' : idx < 0 ? '⏱️ Time\'s up!' : '❌ Not quite'}</h4>
+      <p>${q.explanation}</p>
+      ${q.source ? `<div class="source">📖 ${q.source}</div>` : ''}
+    </div>`;
+  document.getElementById('quizActions').style.display = 'flex';
+  saveState(); checkBadges();
+}
+
+function nextQuestion() {
+  currentQuiz.index++;
+  if (currentQuiz.index >= currentQuiz.questions.length) finishQuiz();
+  else renderQuiz();
+}
+
+function finishQuiz() {
+  clearInterval(currentQuiz.timer);
+  state.quizzesCompleted++;
+  const total = currentQuiz.questions.length;
+  const pct = Math.round((currentQuiz.score / total) * 100);
+  const xpEarned = currentQuiz.score * (currentQuiz.mode === 'timed' || currentQuiz.mode === 'paper' ? 20 : 10);
+  const prev = state.moduleProgress[currentQuiz.moduleId] || 0;
+  state.moduleProgress[currentQuiz.moduleId] = Math.max(prev, pct);
+  const today = new Date().toDateString();
+  if (state.lastStudyDate !== today) {
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    state.streak = (state.lastStudyDate === yesterday) ? state.streak + 1 : 1;
+    state.lastStudyDate = today;
+  }
+  saveState(); checkBadges();
+  const trophy = pct === 100 ? '🏆' : pct >= 80 ? '🥇' : pct >= 60 ? '🥈' : pct >= 40 ? '🥉' : '📚';
+  const msg = pct === 100 ? 'Perfect! You\'re a natural!' : pct >= 80 ? 'Excellent work, Counsel!' : pct >= 60 ? 'Good effort — keep going!' : pct >= 40 ? 'Not bad — review and retry!' : 'Keep studying — you\'ll get there!';
+  document.getElementById('quizContent').innerHTML = `
+    <div class="results">
+      <div class="trophy">${trophy}</div>
+      <h2>${msg}</h2>
+      <p style="color:var(--muted);">You scored ${currentQuiz.score} out of ${total}</p>
+      <div class="score-circle" style="--pct: ${pct}%;"><span>${pct}%</span></div>
+      <div class="xp-earned">+${xpEarned} XP earned ⚡</div>
+      <div style="color:var(--muted);font-size:14px;">🔥 Streak: ${state.streak} day${state.streak !== 1 ? 's' : ''}</div>
+      <div class="results-actions">
+        <button class="btn btn-ghost" onclick="startQuiz('${currentQuiz.moduleId}', '${currentQuiz.mode}')">🔄 Retry</button>
+        <button class="btn btn-primary" onclick="openModule('${currentQuiz.moduleId}')">📚 Back to Module</button>
+        <button class="btn btn-ghost" onclick="showView('papers')">📝 More Papers</button>
+      </div>
+    </div>`;
+  renderStats();
+}
+
+/* ============================================================
+   FLASHCARDS
+   ============================================================ */
+function startFlashcards(moduleId) {
+  const cards = FLASHCARDS[moduleId];
+  if (!cards || cards.length === 0) { toast('No flashcards yet', 'error'); return; }
+  currentFlashcards = { moduleId, cards: shuffle([...cards]), index: 0 };
+  showView('flashcards'); renderFlashcard();
+}
+function renderFlashcard() {
+  const c = currentFlashcards.cards[currentFlashcards.index];
+  document.getElementById('fcQuestion').textContent = c.q;
+  document.getElementById('fcAnswer').textContent = c.a;
+  document.getElementById('fcCounter').textContent = currentFlashcards.index + 1;
+  document.getElementById('fcTotal').textContent = currentFlashcards.cards.length;
+  document.getElementById('flashcard').classList.remove('flipped');
+  state.xp += 1; saveState(); renderStats();
+}
+function flipCard() { document.getElementById('flashcard').classList.toggle('flipped'); }
+function nextCard() {
+  currentFlashcards.index = (currentFlashcards.index + 1) % currentFlashcards.cards.length;
+  renderFlashcard();
+}
+function prevCard() {
+  currentFlashcards.index = (currentFlashcards.index - 1 + currentFlashcards.cards.length) % currentFlashcards.cards.length;
+  renderFlashcard();
+}
+
+/* ============================================================
+   CASE VIEWER
+   ============================================================ */
+function viewCase(name) {
+  const c = CASES.find(x => x.name === name);
+  if (!c) return;
+  if (!state.casesViewed.includes(name)) {
+    state.casesViewed.push(name);
+    state.xp += 5; saveState(); renderStats();
+    if (state.casesViewed.length >= 10) awardBadge('case_master');
+  }
+  document.getElementById('quizContent').innerHTML = `
+    <div class="quiz-container">
+      <button class="btn btn-ghost btn-sm" onclick="showView('cases')" style="margin-bottom:20px;">← Back to Cases</button>
+      <div class="case-name" style="font-size:32px;margin-bottom:8px;">${c.name}</div>
+      <div class="case-citation" style="font-size:14px;margin-bottom:20px;">${c.citation}</div>
+      <div style="padding:20px;background:rgba(251,191,36,0.05);border-left:3px solid var(--primary);border-radius:8px;margin-bottom:20px;">
+        <p style="line-height:1.7;font-size:16px;">${c.summary}</p>
+      </div>
+      <div class="case-tags">${c.tags.map(t => `<span class="tag-pill">${t}</span>`).join('')}</div>
+      <div style="margin-top:24px;padding:16px;background:rgba(16,185,129,0.08);border-radius:12px;">
+        <strong style="color:var(--accent);">💡 Why this case matters for UNISA students:</strong>
+        <p style="margin-top:8px;font-size:14px;line-height:1.6;color:var(--text);">
+          This case is frequently examined across multiple modules. Understanding its ratio decidendi and the court's reasoning will serve you well in exams and assignments.
+        </p>
+      </div>
+      <div style="margin-top:16px;">
+        <a href="https://www.saflii.org/cgi-bin/sino.pl?method=status&query=${encodeURIComponent(c.name)}" target="_blank" class="btn btn-ghost btn-sm">🔍 Read full judgment on SAFLII ↗</a>
+      </div>
+    </div>`;
+  showView('quiz');
+}
+
+/* ============================================================
+   LEADERBOARD
+   ============================================================ */
+function renderLeaderboard() {
+  const fakeUsers = [
+    { name: 'Naledi M.', xp: 2840, avatar: 'N' },
+    { name: 'Sipho K.', xp: 2410, avatar: 'S' },
+    { name: 'Amahle T.', xp: 1980, avatar: 'A' },
+    { name: 'Thabo R.', xp: 1750, avatar: 'T' },
+    { name: 'Zanele D.', xp: 1520, avatar: 'Z' },
+    { name: 'Kagiso P.', xp: 1280, avatar: 'K' },
+    { name: 'Lerato B.', xp: 980, avatar: 'L' }
+  ];
+  const all = [...fakeUsers];
+  if (state.user) all.push({ name: state.user.name + ' (you)', xp: state.xp, avatar: state.user.name.charAt(0).toUpperCase(), me: true });
+  all.sort((a, b) => b.xp - a.xp);
+  document.getElementById('leaderboardList').innerHTML = all.map((u, i) => {
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+    return `<div class="lb-row ${u.me ? 'me' : ''}">
+      <div class="lb-rank ${rankClass}">${medal || (i + 1)}</div>
+      <div class="avatar">${u.avatar}</div>
+      <div class="lb-name">${u.name}</div>
+      <div class="lb-xp">⚡ ${u.xp} XP</div>
+    </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   PROFILE & BADGES
+   ============================================================ */
+function renderProfile() {
+  const el = document.getElementById('profileContent');
+  if (!state.user) {
+    el.innerHTML = `<div class="quiz-container" style="text-align:center;">
+      <h2>Please sign in to view your profile</h2>
+      <button class="btn btn-primary" style="margin-top:16px;" onclick="openAuth()">Sign In</button>
+    </div>`;
+    return;
+  }
+  const acc = state.totalAnswers > 0 ? Math.round((state.correctAnswers / state.totalAnswers) * 100) : 0;
+  el.innerHTML = `
+    <div class="quiz-container">
+      <div style="display:flex;align-items:center;gap:20px;margin-bottom:24px;">
+        <div class="avatar" style="width:80px;height:80px;font-size:32px;">${state.user.name.charAt(0).toUpperCase()}</div>
+        <div>
+          <h2 style="font-family:'Playfair Display',serif;">${state.user.name}</h2>
+          <div style="color:var(--muted);">${state.user.email}</div>
+        </div>
+      </div>
+      <div class="stats" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(251,191,36,0.15);color:var(--primary);">⚡</div><div><div class="stat-value">${state.xp}</div><div class="stat-label">Total XP</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(239,68,68,0.15);color:var(--danger);">🔥</div><div><div class="stat-value">${state.streak}</div><div class="stat-label">Day Streak</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(16,185,129,0.15);color:var(--accent);">✅</div><div><div class="stat-value">${state.quizzesCompleted}</div><div class="stat-label">Exams Taken</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:rgba(139,92,246,0.15);color:var(--purple);">🎯</div><div><div class="stat-value">${acc}%</div><div class="stat-label">Accuracy</div></div></div>
+      </div>
+      <div style="margin-top:20px;">
+        <h3 style="margin-bottom:12px;">📚 Module Progress</h3>
+        ${MODULES.map(m => `
+          <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+              <span>${m.emoji} ${m.name}</span>
+              <span style="color:var(--muted);">${state.moduleProgress[m.id] || 0}%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:${state.moduleProgress[m.id] || 0}%;background:${m.color};"></div></div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  renderBadges();
+}
+
+function renderBadges() {
+  document.getElementById('badgesGrid').innerHTML = BADGES.map(b => `
+    <div class="badge ${state.badges.includes(b.id) ? '' : 'locked'}">
+      <div class="badge-icon">${b.icon}</div>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-desc">${b.desc}</div>
+    </div>`).join('');
+}
+
+function awardBadge(id) {
+  if (!state.badges.includes(id)) {
+    state.badges.push(id);
+    const b = BADGES.find(x => x.id === id);
+    if (b) toast(`🏅 Achievement unlocked: ${b.name}!`, 'success');
+    saveState();
+  }
+}
+
+function checkBadges() {
+  if (state.quizzesCompleted >= 1) awardBadge('first_quiz');
+  if (state.streak >= 3) awardBadge('streak_3');
+  if (state.streak >= 7) awardBadge('streak_7');
+  if (state.xp >= 500) awardBadge('xp_500');
+  if (state.xp >= 1000) awardBadge('xp_1000');
+  if ((state.papersAttempted || 0) >= 5) awardBadge('paper_hawk');
+  if ((state.essaysAnswered || 0) >= 10) awardBadge('essay_pro');
+  const h = new Date().getHours();
+  if (h >= 22 || h < 5) awardBadge('night_owl');
+  if (h >= 4 && h < 7) awardBadge('early_bird');
+  if (currentQuiz.score === currentQuiz.questions.length && currentQuiz.questions.length > 0) awardBadge('perfect');
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function toast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+loadState();
+renderAll();
+(function checkStreak() {
+  if (state.lastStudyDate) {
+    const today = new Date().toDateString();
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (state.lastStudyDate !== today && state.lastStudyDate !== yesterday) {
+      state.streak = 0; saveState();
+    }
+  }
+})();
+setTimeout(() => {
+  if (!state.user) toast('Welcome to LexSA! Sign in or try demo mode 🎓', 'info');
+}, 800);
+</script>
+</body>
+</html>
