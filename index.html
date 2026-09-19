@@ -832,12 +832,13 @@
 /* ============================================================
    SUPABASE SETUP
    ============================================================ */
-const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
-let supabase = null;
+const SUPABASE_URL = 'https://jpevxsxowfrpruetckaw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwZXZ4c3hvd2ZycHJ1ZXRja2F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MDg5NTAsImV4cCI6MjEwNTA4NDk1MH0.6AIJsAoWuZQVAaE1Ez2nv70X3ac2QcHts-dCRPCUarA';
+
+let sb = null;
 try {
   if (!SUPABASE_URL.includes('YOUR-PROJECT')) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
 } catch (e) { console.warn('Supabase init failed:', e); }
 
