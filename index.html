@@ -443,7 +443,10 @@ document.querySelectorAll("#site section .card,#site section h2,#site section .s
 
 <script>
 /* ===== Supabase layer: paste your project values below ===== */
-const SUPABASE_URL="PASTE_YOUR_SUPABASE_URL",SUPABASE_ANON_KEY="PASTE_YOUR_ANON_KEY";
+// ============================================
+const SUPABASE_URL = 'https://jpevxsxowfrpruetckaw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwZXZ4c3hvd2ZycHJ1ZXRja2F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MDg5NTAsImV4cCI6MjEwNTA4NDk1MH0.6AIJsAoWuZQVAaE1Ez2nv70X3ac2QcHts-dCRPCUarA';
+
 const sb=(SUPABASE_URL.startsWith("https://")&&window.supabase)?supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{flowType:"pkce",detectSessionInUrl:true,persistSession:true}}):null;
 const toRow=b=>({id:b.id,user_id:ME.id,name:b.name,phone:b.phone,email:b.email||"",svc:b.svc,price:b.price,booking_date:b.date,booking_time:b.time,mode:b.mode,pay:b.pay,note:b.note||"",status:"Pending",paid:false,created:b.created});
 const fromRow=r=>({id:r.id,uid:r.user_id,name:r.name,phone:r.phone,email:r.email,svc:r.svc,price:r.price,date:r.booking_date,time:r.booking_time,mode:r.mode,pay:r.pay,note:r.note,status:r.status,paid:r.paid,created:r.created,notes:(Array.isArray(r.booking_notes)?(r.booking_notes[0]||{}).notes:(r.booking_notes||{}).notes)||""});
