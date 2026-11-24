@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>UniformShare – Every learner deserves a uniform</title>
+<style>
+:root{--bg:#f5f6fb;--card:#fff;--tx:#161a33;--mu:#68708f;--pr:#5b4bff;--pr2:#00c2a8;--bd:#e4e7f3;--sh:0 8px 30px rgba(40,40,120,.08);color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1120;--card:#1a1d33;--tx:#eef0ff;--mu:#9aa1c7;--bd:#2a2e4d;--sh:0 8px 30px rgba(0,0,0,.4);color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1120;--card:#1a1d33;--tx:#eef0ff;--mu:#9aa1c7;--bd:#2a2e4d;--sh:0 8px 30px rgba(0,0,0,.4);color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx);line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+.grad{background:linear-gradient(135deg,var(--pr),var(--pr2))}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;padding:12px 20px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:1.2rem;display:flex;gap:8px;align-items:center}.logo i{font-style:normal;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff}
+nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+nav button{border:0;background:none;padding:8px 14px;border-radius:99px;cursor:pointer;color:var(--mu);font-weight:600}
+nav button.on{background:var(--pr);color:#fff}
+.btn{border:0;border-radius:12px;padding:10px 18px;font-weight:700;cursor:pointer;background:var(--pr);color:#fff}
+.btn.alt{background:transparent;border:1.5px solid var(--bd);color:var(--tx)}.btn.sm{padding:6px 12px;font-size:.85rem}.btn.g{background:var(--pr2);color:#04362f}
+main{max-width:1100px;margin:0 auto;padding:20px}
+.hero{border-radius:24px;color:#fff;padding:44px 28px;margin-bottom:24px;text-align:center}
+.hero h1{margin:0 0 8px;font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.15}.hero p{margin:0 auto 20px;max-width:560px;opacity:.95}
+.hero .btn{background:#fff;color:#2b2380;margin:4px}
+.bar{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap;align-items:center}
+.bar input,.bar select{flex:1;min-width:140px;padding:10px 14px;border-radius:12px;border:1.5px solid var(--bd);background:var(--card)}
+h2{margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;box-shadow:var(--sh);overflow:hidden;display:flex;flex-direction:column}
+.card video{width:100%;aspect-ratio:16/10;background:#000;display:block}
+.cb{padding:16px;display:flex;flex-direction:column;gap:10px;flex:1}
+.who{display:flex;align-items:center;gap:10px}.av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;flex:none}
+.who b{display:block}.who small,.mu{color:var(--mu)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}.tag{background:color-mix(in srgb,var(--pr) 12%,transparent);color:var(--pr);padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:700}
+.tag.f{background:color-mix(in srgb,var(--pr2) 18%,transparent);color:#00846f}
+.mini{border-top:1px dashed var(--bd);padding-top:10px;font-size:.88rem}
+.mini video{border-radius:12px;margin-top:6px;aspect-ratio:16/9}
+.empty{text-align:center;padding:50px 20px;color:var(--mu);border:2px dashed var(--bd);border-radius:20px}
+.modal{position:fixed;inset:0;background:rgba(10,10,30,.6);z-index:20;display:grid;place-items:center;padding:16px;overflow:auto}
+.box{background:var(--card);border-radius:22px;padding:24px;width:100%;max-width:480px;max-height:92vh;overflow:auto}
+.box h3{margin:0 0 4px;font-size:1.3rem}
+label{display:block;font-weight:600;font-size:.88rem;margin:12px 0 4px}
+.box input:not([type=checkbox]):not([type=radio]),.box select,.box textarea{width:100%;padding:10px 12px;border-radius:12px;border:1.5px solid var(--bd);background:var(--bg)}
+.chk{display:flex;flex-wrap:wrap;gap:6px}.chk label{margin:0;display:flex;gap:6px;align-items:center;border:1.5px solid var(--bd);padding:6px 12px;border-radius:99px;font-weight:600;cursor:pointer}
+.chk input:checked+span{color:var(--pr)}
+.seg{display:flex;gap:8px;margin-bottom:8px}.seg button{flex:1}
+.note{background:color-mix(in srgb,var(--pr2) 15%,transparent);border-radius:14px;padding:12px;font-size:.9rem;margin-top:12px}
+.err{color:#e5484d;font-size:.85rem;min-height:1.2em}
+.row{display:flex;gap:10px;margin-top:16px}.row .btn{flex:1}
+.dr{border:1px solid var(--bd);border-radius:14px;padding:10px;margin-top:10px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}.pl{font-size:.8rem;font-weight:600}
+.det{display:flex;flex-direction:column;gap:6px;font-size:.85rem}.dl{display:flex;gap:8px;align-items:center}.dl img{width:48px;height:48px;border-radius:10px;object-fit:cover;background:var(--bd);flex:none}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:12px 20px;border-radius:99px;z-index:30;font-weight:600}
+.card{position:relative}
+.badge{position:absolute;top:12px;left:12px;z-index:2;padding:5px 12px;border-radius:99px;font-size:.78rem;font-weight:800;letter-spacing:.03em;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.badge.done{background:#12a150}.badge.part{background:#f59e0b}.badge.open{background:#e5484d}.badge.off{background:var(--pr)}
+.card.done{border:2px solid #12a150}
+.card .ph{padding:54px 16px 0;font-size:.8rem;color:var(--mu);font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:8px}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;text-align:center}.stat b{display:block;font-size:1.8rem}
+.stat.s1 b{color:#12a150}.stat.s2 b{color:#e5484d}.stat.s3 b{color:var(--pr)}
+</style><style>
+/* Class of 2026 Uniform Drive (additive) */
+.ud-splash{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:24px;text-align:center;color:#fff;overflow:auto;background:radial-gradient(circle at 25% 15%,#5b4bff,#1b1560 55%,#0b0a2a);animation:udf .6s}
+@keyframes udf{from{opacity:0}to{opacity:1}}@keyframes udp{50%{transform:scale(1.05)}}
+.ud-splash .in{max-width:580px}.ud-splash h1{font-family:Georgia,serif;font-size:clamp(2rem,7vw,3.3rem);line-height:1.12;margin:12px 0 14px}
+.ud-splash .btn{margin:4px;animation:udp 2.4s infinite}.ud-splash .btn.alt{animation:none}
+.ud-gown{font-size:3.2rem;filter:drop-shadow(0 6px 18px #0008)}
+.ud-q{font-style:italic;min-height:3em;transition:opacity .5s;margin:6px 0}
+.ud-sec{border-radius:24px;padding:26px;margin-bottom:24px;background:var(--card);border:1px solid var(--bd);box-shadow:var(--sh)}
+.ud-top{text-align:center;max-width:640px;margin:0 auto 18px}.ud-top h2{font-family:Georgia,serif;font-size:clamp(1.5rem,4vw,2.1rem);margin:10px 0 4px}
+.ud-bar{height:12px;border-radius:99px;background:var(--bd);overflow:hidden;margin:12px 0 6px}.ud-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--pr),var(--pr2))}
+.ud-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.ud-lv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:8px 0 20px}
+.ud-lv div{border:2px solid var(--lc);border-radius:14px;padding:10px;text-align:center}.ud-lv b,.ud-lv small{display:block}
+.ud-wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:18px;padding-top:10px}
+.ud-f{position:relative;border:3px solid var(--lc,var(--bd));border-radius:18px;padding:18px 10px 12px;text-align:center;background:var(--bg);display:flex;flex-direction:column;gap:6px;box-shadow:0 6px 18px color-mix(in srgb,var(--lc,#888) 22%,transparent)}
+.ud-f.ghost{border-style:dashed;opacity:.65}.ud-f .rb{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--lc);color:#fff;font-size:.72rem;font-weight:800;padding:2px 10px;border-radius:99px;white-space:nowrap}
+.pic{width:100%;aspect-ratio:1;border-radius:12px;object-fit:cover;display:grid;place-items:center;font-size:2.4rem;font-weight:800;color:#fff;background:var(--bd)}
+.ud-p{font-size:.82rem;border-top:1px dashed var(--bd);padding-top:6px}
+.ud-pv{width:64px;height:64px;flex:none}.ud-pv .pic{border-radius:50%;font-size:1.6rem}
+.ud-r{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--bd)}.ud-r b{display:inline-block;min-width:34px;text-align:center}
+</style>
+<style>
+.ud-tools{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.ud-lg{display:inline-flex;border:1.5px solid var(--bd);border-radius:99px;overflow:hidden}.ud-lg button{border:0;background:none;padding:4px 10px;font-weight:700;font-size:.8rem;cursor:pointer;color:var(--mu)}.ud-lg button.on{background:var(--pr);color:#fff}
+.ud-splash .ud-lg{border-color:#fff6;margin-bottom:10px}.ud-splash .ud-lg button{color:#fff}.ud-splash .ud-lg button.on{background:#fff;color:#2b2380}
+.ud-act{display:flex;gap:6px;justify-content:center;margin-top:auto;padding-top:6px}
+.ud-sc{display:grid;grid-template-columns:minmax(120px,1.4fr) 2fr 62px;gap:10px;align-items:center;font-size:.88rem;margin:6px 0}.ud-sb{height:10px;border-radius:99px;background:var(--bd);overflow:hidden}.ud-sb i{display:block;height:100%;background:var(--pr2)}
+.ud-lite .ud-splash,.ud-lite .ud-splash .btn{animation:none}.ud-lite .ud-splash{background:#1b1560}
+</style>
+</head>
+<body>
+<header><div class="logo"><i class="grad">👕</i>UniformShare</div><nav id="nav"></nav><span id="usr"></span></header>
+<main id="app"></main><footer style="text-align:center;padding:20px;color:var(--mu);font-size:.85rem"><a href="#" onclick="privacy();return false" style="color:inherit">Privacy &amp; safety (POPIA)</a></footer>
+<div id="modal"></div>
+<script>
+const ITEMS=["Shoes","Jerseys","Pullover","Tie","Socks","Blazer","Hoodie","Shirt","Trousers","Skirt","Other"];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const mem={};
+const get=k=>{try{return JSON.parse(localStorage.getItem(k))??mem[k]??null}catch(e){return mem[k]??null}};
+const set=(k,v)=>{mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const uid=()=>Math.random().toString(36).slice(2,10);
+// video storage (IndexedDB, falls back to memory)
+const vmem={};
+const idb=()=>new Promise((res,rej)=>{try{const r=indexedDB.open("us",1);r.onupgradeneeded=()=>r.result.createObjectStore("v");r.onsuccess=()=>res(r.result);r.onerror=()=>rej()}catch(e){rej()}});
+async function saveVid(id,blob){vmem[id]=blob;try{const d=await idb();d.transaction("v","readwrite").objectStore("v").put(blob,id)}catch(e){}}
+async function getVid(id){if(vmem[id])return vmem[id];try{const d=await idb();return await new Promise(r=>{const q=d.transaction("v").objectStore("v").get(id);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)})}catch(e){return null}}
+async function hydrate(){for(const v of document.querySelectorAll("video[data-vid],img[data-vid]")){const b=await getVid(v.dataset.vid);if(b)v.src=URL.createObjectURL(b);else v.poster=""}}
+function checkDur(file){return new Promise(res=>{const v=document.createElement("video");v.preload="metadata";v.onloadedmetadata=()=>{URL.revokeObjectURL(v.src);res(v.duration)};v.onerror=()=>res(-1);v.src=URL.createObjectURL(file)})}
+function toast(t){const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),2800)}
+
+let view="feed",me=get("session");
+const users=()=>get("users")||[],reqs=()=>get("reqs")||[],offs=()=>get("offs")||[];
+const av=n=>`<div class="av grad">${esc((n||"?")[0]).toUpperCase()}</div>`;
+const tags=(a,f)=>`<div class="tags">${f?'<span class="tag f">Full uniform</span>':""}${(a||[]).map(i=>`<span class="tag">${esc(i)}</span>`).join("")}</div>`;
+const ago=t=>new Date(t).toLocaleDateString(undefined,{day:"numeric",month:"short"});
+
+function nav(){
+  const n=$("#nav"),u=$("#usr");
+  if(!me){n.innerHTML="";u.innerHTML=`<button class="btn sm alt" onclick="authModal('login')">Log in</button> <button class="btn sm" onclick="authModal('signup')">Sign up</button>`;return}
+  n.innerHTML=[["feed","Activity"],["requests","Requests"],["offers","Donor offers"],...(me.role=="donor"?[["bulk",me.kind=="company"?"Adopt a school":"Bulk giving"]]:[]),["mine","My activity"]].map(([k,l])=>`<button class="${view==k?"on":""}" onclick="go('${k}')">${l}</button>`).join("");
+  u.innerHTML=`<span class="mu">${esc(me.name)} · ${me.role}</span> <button class="btn sm alt" onclick="schoolsModal()">📥 Schools</button> <button class="btn sm alt" onclick="logout()">Log out</button>`;
+}
+function go(v){view=v;render()}
+function render(){nav();const a=$("#app");
+  if(!me){a.innerHTML=`<section class="hero grad"><h1>Every learner deserves a uniform 💙</h1><p>Seekers share a short motivational reel. Donors give second-hand or new items. Together we get learners school-ready.</p><p style="font-weight:800;font-size:1.1rem">🎉 ${cntDone()} learners sorted so far</p><button class="btn" onclick="authModal('signup','seeker')">I’m a parent or learner (18+) needing uniform</button><button class="btn" onclick="authModal('signup','donor')">I want to donate</button></section>
+  <div class="grid"><div class="card cb"><h3>🎥 Seekers</h3><span class="mu">Pick your school and location, choose a full uniform or single items, and post a 3–5 minute video about why it matters.</span></div><div class="card cb"><h3>🎁 Donors</h3><span class="mu">Browse requests, give second-hand or buy new, or post items you want to give away and let learners motivate for them.</span></div><div class="card cb"><h3>📦 Delivery</h3><span class="mu">Arrange collection from the donor, or drop the wrapped parcel at the school, labelled with the learner's name.</span></div></div>`;return}
+  a[view]; ({bulk:vBulk,feed:vFeed,requests:vReq,offers:vOff,mine:vMine})[view](a);hydrate()}
+
+function filters(){return `<div class="bar"><input id="q" placeholder="Search school or location…" oninput="render2()"><select id="fi" onchange="render2()"><option value="">All items</option>${ITEMS.map(i=>`<option>${i}</option>`).join("")}</select></div>`}
+let q="",fi="";
+function render2(){q=$("#q").value.toLowerCase();fi=$("#fi").value;const g=$("#list");g.innerHTML=(view=="requests"?reqCards():offCards());hydrate()}
+const match=x=>(!q||((x.school||"")+" "+x.loc).toLowerCase().includes(q))&&(!fi||x.items.includes(fi));
+
+function vReq(a){
+  a.innerHTML=`<div class="bar"><h2>Learners who need uniforms</h2>${me.role=="seeker"?`<button class="btn" style="margin-left:auto" onclick="reqModal()">+ Post a request</button>`:""}</div>${filters()}<div class="grid" id="list">${reqCards()}</div>`}
+function reqCards(){const l=reqs().filter(x=>match(x)&&!hid(x.id)).reverse();if(!l.length)return `<div class="empty" style="grid-column:1/-1">No requests yet. ${me.role=="seeker"?"Post the first one!":"Check back soon."}</div>`;
+  return l.map(r=>`<div class="card ${rst(r)=="done"?"done":""}">${bdg(r)}<video controls preload="metadata" data-vid="${r.vid}"></video><div class="cb"><div class="who">${av(r.name)}<div><b>${esc(r.name)}</b><small>${esc(r.school)} · 📍${esc(r.loc)}</small></div></div>${tags(r.items,r.full)}<p style="margin:0">${esc(r.story)}</p>${detHtml(r)}
+  ${(r.pledges||[]).map(p=>`<div class="mini">✅ <b>${esc(p.dn)}</b> pledged ${esc(p.items.join(", "))} (${p.cond}, ${p.method=="collect"?"collection":"drop at school"})</div>`).join("")}
+  ${me.role=="donor"&&rst(r)!="done"?`<button class="btn g" style="margin-top:auto" onclick="pledgeModal('${r.id}')">Donate to ${esc(r.name.split(" ")[0])}</button>`:""}</div></div>`).join("")}
+
+function vOff(a){
+  a.innerHTML=`<div class="bar"><h2>Items donors are giving away</h2>${me.role=="donor"?`<button class="btn" style="margin-left:auto" onclick="offModal()">+ Post items</button>`:""}</div>${filters()}<div class="grid" id="list">${offCards()}</div>`}
+function offCards(){const l=offs().filter(x=>match(x)&&!hid(x.id)).reverse();if(!l.length)return `<div class="empty" style="grid-column:1/-1">No donor offers yet.</div>`;
+  return l.map(o=>`<div class="card ${ost(o)=="done"?"done":""}">${bdg(o,1)}<div class="ph"></div><div class="cb"><div class="who">${av(o.dn)}<div><b>${esc(o.dn)}</b><small>${o.school?esc(o.school)+" · ":""}📍${esc(o.loc)} · ${ago(o.date)}</small></div></div>${tags(o.items)}<div class="mu">${o.cond} · ${o.method=="collect"?"Collect from donor":"Drop-off at a school"} · helps up to ${o.qty||1}</div><p style="margin:0">${esc(o.note)}</p>${detHtml(o)}
+  ${(o.res||[]).filter(r=>!hid(r.id)).map(r=>`<div class="mini ${o.chosen==r.id?"":""}"><b>${esc(r.name)}</b> · ${esc(r.school)} ${r.by=="parent"?'<span class="tag">🛡️ Parent consent</span>':""}${!picks(o).includes(r.id)&&helped(r.uid)?'<span class="tag" style="background:#f59e0b22;color:#b45309">✅ Already helped</span>':""} ${picks(o).includes(r.id)?'<span class="tag f">Chosen ✔</span>':""}<br>${esc(r.msg)}<video controls preload="metadata" data-vid="${r.vid}"></video>${r.uid!=me.id?`<button class="btn sm alt" style="margin-top:6px" onclick="reportModal('${r.id}','v')">🚩 Report</button> `:""}${o.uid==me.id&&!picks(o).includes(r.id)&&ost(o)!="done"&&!helped(r.uid)?`<button class="btn sm g" style="margin-top:6px" onclick="choose('${o.id}','${r.id}')">Choose this learner</button>`:""}</div>`).join("")}
+  ${me.role=="seeker"&&!helped(me.id)&&ost(o)!="done"?`<button class="btn" style="margin-top:auto" onclick="resModal('${o.id}')">🎥 Send my motivation video</button>`:""}</div></div>`).join("")}
+
+function vMine(a){
+  const r=reqs().filter(x=>x.uid==me.id),o=offs().filter(x=>x.uid==me.id);
+  const pl=reqs().flatMap(x=>(x.pledges||[]).filter(p=>p.did==me.id).map(p=>({...p,r:x})));
+  const sent=offs().flatMap(x=>(x.res||[]).filter(p=>p.uid==me.id).map(p=>({...p,o:x})));
+  let h=`<h2>My activity</h2><p class="mu">Signed in as ${esc(me.email)}</p>`;
+  if(me.role=="seeker"){h+=`<h3>My requests</h3><div class="grid">${r.map(x=>`<div class="card"><video controls data-vid="${x.vid}"></video><div class="cb"><b>${esc(x.school)}</b>${tags(x.items,x.full)}<span class="mu">${(x.pledges||[]).length} pledge(s)</span>${hid(x.id)?'<span class="tag">⏸ Under review</span>':""}<button class="btn sm alt" onclick="delReq('${x.id}')">🗑️ Withdraw consent &amp; delete</button></div></div>`).join("")||'<div class="empty">No requests yet.</div>'}</div>
+  <h3>Videos I sent to donors</h3><div class="grid">${sent.map(s=>`<div class="card cb"><b>To ${esc(s.o.dn)}</b>${tags(s.o.items)}<span>${picks(s.o).includes(s.id)?"🎉 You were chosen!":"Waiting for the donor…"}</span></div>`).join("")||'<div class="empty">None yet.</div>'}</div>`}
+  else{h+=`<h3>My pledges</h3><div class="grid">${pl.map(p=>`<div class="card cb"><b>For ${esc(p.r.name)}</b><span class="mu">${esc(p.r.school)}, ${esc(p.r.loc)}</span>${tags(p.items)}<div class="note">📦 Wrap it and write: <b>"For ${esc(p.r.name)} – ${esc(p.r.school)}"</b></div></div>`).join("")||'<div class="empty">No pledges yet.</div>'}</div>
+  <h3>My posted items</h3><div class="grid">${o.map(x=>`<div class="card cb">${tags(x.items)}<span class="mu">${x.cond} · ${(x.res||[]).length} video(s) received</span>${picks(x).length?`<div class="note">📦 Wrap it and write the chosen learner's name on the parcel.</div>`:""}</div>`).join("")||'<div class="empty">Nothing posted.</div>'}</div>`}
+  h+=`<div class="note" style="margin-top:24px">🛡️ <b>Your data (POPIA)</b><br>You can withdraw consent and delete what you posted at any time.<div class="row"><button class="btn alt" onclick="privacy()">Privacy &amp; safety</button><button class="btn alt" onclick="delAcc()">Delete my account &amp; data</button></div></div>`;a.innerHTML=h}
+
+// South African schools by province|town (starter list, extend by adding lines)
+const SCH=`Gauteng|Pretoria|Pretoria Boys High School;Pretoria High School for Girls;Pretoria Technical High School;Hoërskool Menlopark;Hoërskool Waterkloof;Hoërskool Garsfontein
+Gauteng|Centurion|Hoërskool Centurion;Hoërskool Eldoraigne;Hoërskool Zwartkop
+Gauteng|Mamelodi|Phelindaba Secondary School;Nellmapius Secondary School;Stanza Bopape Secondary School
+Gauteng|Soweto|Morris Isaacson High School;Orlando High School;Naledi High School;Sekano-Ntoane High School
+Gauteng|Johannesburg|King Edward VII School;Parktown Boys’ High School;Parktown High School for Girls;Jeppe High School for Boys;Roedean School;Hoërskool Florida
+Gauteng|Alexandra|Alexandra High School
+Gauteng|Germiston|Germiston High School
+Gauteng|Benoni|Benoni High School
+Western Cape|Cape Town|Rondebosch Boys’ High School;Westerford High School;Herschel Girls’ School;South African College High School;Wynberg Boys’ High School;Wynberg Girls’ High School
+Western Cape|Khayelitsha|Chris Hani Secondary School;Luhlaza High School
+Western Cape|Stellenbosch|Paul Roos Gymnasium;Rhenish Girls’ High School
+Western Cape|Paarl|Paarl Boys’ High School;Paarl Gimnasium;Paarl Girls’ High School
+Western Cape|George|Hoërskool Outeniqua
+KwaZulu-Natal|Durban|Durban High School;Glenwood High School;Durban Girls’ High School;Northlands Girls’ High School;Westville Boys’ High School
+KwaZulu-Natal|Pietermaritzburg|Maritzburg College;Pietermaritzburg Girls’ High School
+KwaZulu-Natal|Umlazi|Umlazi Comprehensive Technical High School
+Eastern Cape|Gqeberha|Grey High School;Pearson High School;Collegiate Girls’ High School;Victoria Park High School
+Eastern Cape|East London|Selborne College;Clarendon High School for Girls;Hudson Park High School
+Eastern Cape|Makhanda|Kingswood College;St Andrew’s College;Graeme College;Victoria Girls’ High School;Diocesan School for Girls
+Free State|Bloemfontein|Grey College;Eunice High School;Sentraal Hoërskool
+Free State|Welkom|Welkom Gymnasium
+Limpopo|Polokwane|Capricorn High School;Hoërskool Pietersburg
+Limpopo|Tzaneen|Merensky High School;Hoërskool Tzaneen
+Mpumalanga|Mbombela|Hoërskool Nelspruit;Hoërskool Lowveld
+Mpumalanga|eMalahleni|Hoërskool Witbank
+Mpumalanga|Middelburg|Hoërskool Middelburg
+North West|Mahikeng|Mahikeng High School
+North West|Rustenburg|Hoërskool Rustenburg
+North West|Potchefstroom|Potchefstroom Gimnasium;Potchefstroom High School for Boys
+Northern Cape|Kimberley|Kimberley Boys’ High School;Kimberley Girls’ High School;Diamantveld High School
+Northern Cape|Upington|Upington High School`.split("\n").map(l=>{const[p,t,s]=l.split("|");return{p,t,s:s.split(";")}});
+function allLocs(){const m={},known=new Set(SCH.map(x=>x.t));SCH.forEach(x=>(m[x.p]=m[x.p]||[]).push(x.t));
+  [...reqs().map(r=>r.loc),...offs().map(o=>o.loc)].forEach(l=>{l=(l||"").trim();if(l&&!known.has(l)){m["Other areas"]=m["Other areas"]||[];if(!m["Other areas"].includes(l))m["Other areas"].push(l)}});return m}
+const locOpts=(v="")=>Object.entries(allLocs()).map(([p,t])=>`<optgroup label="${esc(p)}">${t.map(x=>`<option ${x==v?"selected":""}>${esc(x)}</option>`).join("")}</optgroup>`).join("");
+function schoolsFor(loc){const s=new Set();SCH.filter(x=>!loc||x.t==loc).forEach(x=>x.s.forEach(y=>s.add(y)));reqs().forEach(r=>{if(!loc||r.loc==loc)s.add(r.school)});offs().forEach(o=>{if(o.school&&(!loc||o.loc==loc))s.add(o.school)});return[...s].filter(Boolean).sort()}
+const schOpts=(loc,v)=>{const l=schoolsFor(loc);return !loc&&l.length>400?'<option disabled>Choose a location first</option>':l.map(x=>`<option ${x==v?"selected":""}>${esc(x)}</option>`).join("")};
+// school list import (CSV: Province, Town/Suburb/Township, School)
+function parseCSV(t){const rows=[];let r=[],c='',q=false;for(let i=0;i<t.length;i++){const ch=t[i];if(q){if(ch=='"'){if(t[i+1]=='"'){c+='"';i++}else q=false}else c+=ch}else if(ch=='"')q=true;else if(ch==','||ch==';'||ch=='\t'){r.push(c);c=''}else if(ch=='\n'||ch=='\r'){if(ch=='\r'&&t[i+1]=='\n')i++;r.push(c);c='';if(r.some(x=>x.trim()))rows.push(r);r=[]}else c+=ch}r.push(c);if(r.some(x=>x.trim()))rows.push(r);return rows}
+function mergeSchools(rows){const m=new Map(SCH.map(e=>[e.p+'|'+e.t,e]));let n=0;rows.forEach(([p,t,s])=>{p=(p||'').trim();t=(t||'').trim();s=(s||'').trim();if(!p||!t||!s||/^province$/i.test(p))return;const k=p+'|'+t;let e=m.get(k);if(!e){e={p,t,s:[]};m.set(k,e);SCH.push(e)}if(!e.s.includes(s)){e.s.push(s);n++}});return n}
+async function loadSchools(){const b=await getVid('__schools');if(b){mergeSchools(parseCSV(await b.text()));render()}}
+function schoolsModal(){modal(`<h3>Import schools list</h3><p class="mu">Upload a CSV with three columns: <b>Province, Town/Suburb/Township, School name</b>. Use the official Department of Basic Education school list to add all schools. It is saved in this browser.</p><input type="file" id="sf" accept=".csv,.txt"><div class="err" id="err"></div><div class="row"><button class="btn alt" onclick="closeM()">Close</button><button class="btn" onclick="importSchools()">Import</button></div>`)}
+async function importSchools(){const f=$('#sf').files[0];if(!f)return $('#err').textContent='Choose a CSV file.';const t=await f.text(),n=mergeSchools(parseCSV(t));if(!n)return $('#err').textContent='No schools found. Check the three columns.';const old=await getVid('__schools');await saveVid('__schools',new Blob([(old?await old.text()+'\n':'')+t]));closeM();render();toast(n+' schools added')}
+// item details
+const WS=['Trousers','Skirt'];
+function syncDet(f){const box=f.querySelector('#dets');if(!box)return;const on=checked(f,'it'),hasG=!!f.elements.gender;[...box.children].forEach(r=>{if(!on.includes(r.dataset.i))r.remove()});
+  on.forEach(i=>{if(box.querySelector(`[data-i="${i}"]`))return;const d=document.createElement('div');d.className='dr';d.dataset.i=i;
+  d.innerHTML=`<b>${i} details</b><div class="g2"><input data-k="size" placeholder="Size (e.g. UK 5, 32, M)" ${hasG?'required':''}><input data-k="colour" placeholder="Colour">${WS.includes(i)?'<input data-k="waist" type="number" placeholder="Waist (cm)">':''}${hasG?'':'<select data-k="gender"><option>Boy</option><option>Girl</option><option>Unisex</option></select>'}</div><label class="pl">📷 Photo of someone wearing it (optional)<input data-k="photo" type="file" accept="image/*"></label>`;box.appendChild(d)})}
+async function collectDet(f){const out={};for(const r of f.querySelectorAll('#dets .dr')){const o={};for(const el of r.querySelectorAll('[data-k]')){if(el.type=='file'){if(el.files[0]){const id=uid();await saveVid(id,el.files[0]);o.photo=id}}else if(el.value.trim())o[el.dataset.k]=el.value.trim()}out[r.dataset.i]=o}return out}
+function syncAll(f){syncDet(f);f.querySelectorAll('.chk label').forEach(l=>{const c=l.querySelector('input');l.style.borderColor=c.checked?'var(--pr)':'';l.style.background=c.checked?'color-mix(in srgb,var(--pr) 12%,transparent)':''})}
+function fullAll(c){const f=c.form;f.querySelectorAll('[name=it]').forEach(i=>i.checked=c.checked&&ITEMS.slice(0,9).includes(i.value));syncAll(f)}
+document.addEventListener('change',e=>{if(e.target.name=='it'&&e.target.form)syncAll(e.target.form)});
+function detHtml(x){const d=x.det||{},top=[x.gender&&(x.gender=='Girl'?'👧 Girl':'👦 Boy'),x.age&&x.age+' yrs',x.height&&x.height+' cm'].filter(Boolean).join(' · ');
+  return `<div class="det">${x.consent?`<div class="tag f" style="align-self:flex-start">🛡️ ${x.by=="parent"?"Parent/guardian consent given":"Adult learner"}${x.vby=="both"?" · parent & child in video":x.vby=="parent"?" · parent in video":""}</div>`:''}${top?`<div class="mu">${esc(top)}</div>`:''}${Object.keys(d).map(i=>{const v=d[i];return `<div class="dl">${v.photo?`<img data-vid="${v.photo}" alt="">`:''}<span><b>${esc(i)}</b> ${[v.size&&'size '+esc(v.size),v.colour&&esc(v.colour),v.waist&&'waist '+esc(v.waist)+' cm',v.gender&&esc(v.gender)].filter(Boolean).join(' · ')}</span></div>`}).join('')}<div style="display:flex;gap:6px;flex-wrap:wrap">${x.vid||x.dn?`<button class="btn sm alt" onclick="shareModal('${x.id}','${x.dn?"o":"r"}')">📤 Share</button>`:""}${x.uid!=me.id&&(x.vid||x.dn)?`<button class="btn sm alt" onclick="reportModal('${x.id}','${x.dn?"o":"r"}')">🚩 Report</button>`:""}</div></div>`}
+const locSchool=opt=>`<label>Location</label><select name="locsel" required onchange="locChg(this,${opt?1:0})"><option value="">Select location…</option>${locOpts()}<option value="__o">Other location…</option></select><input name="locx" placeholder="Type your town / suburb" hidden><label>School</label><select name="schsel" required onchange="schChg(this)"><option value="">Select a location first</option></select><input name="schx" placeholder="Type the school name" hidden>`;
+function locChg(s,opt){const f=s.form,o=s.value=="__o";f.locx.hidden=!o;f.locx.required=o;f.schsel.innerHTML=(opt?'<option value="__a">Any school in this area</option>':'<option value="">Select school…</option>')+(o?"":schOpts(s.value))+'<option value="__o">My school isn’t listed…</option>';schChg(f.schsel)}
+function schChg(s){const f=s.form,o=s.value=="__o";f.schx.hidden=!o;f.schx.required=o}
+function getLS(f){const l=f.locsel.value=="__o"?f.locx.value.trim():f.locsel.value,v=f.schsel.value;return{loc:l,school:v=="__o"?f.schx.value.trim():v=="__a"?"":v}}
+// status helpers
+const missing=r=>{const p=new Set((r.pledges||[]).flatMap(x=>x.items));return r.items.filter(i=>!p.has(i))};
+const rst=r=>!(r.pledges||[]).length?"open":missing(r).length?"part":"done";
+const picks=o=>o.picks||(o.chosen?[o.chosen]:[]);const ost=o=>picks(o).length>=(o.qty||1)?"done":"off";
+const bdg=(x,isOff)=>{const s=isOff?ost(x):rst(x);return `<div class="badge ${s}">${{done:isOff?"✅ SORTED – DONATION MATCHED":"✅ SORTED",part:"◐ PARTLY SORTED",open:"● STILL NEEDED",off:"🎁 AVAILABLE"}[s]}</div>`};
+// activity feed
+let fl={loc:"",school:"",type:"",st:""},rk={};
+const rkey=id=>rk[id]??(rk[id]=Math.random());
+function feedItems(){
+  const R=reqs().filter(r=>!hid(r.id)).map(r=>({t:"r",id:r.id,loc:r.loc,sc:r.school,s:rst(r),r})),O=offs().filter(o=>!hid(o.id)).map(o=>({t:"o",id:o.id,loc:o.loc,sc:(o.school||"")+"|"+(o.res||[]).map(x=>x.school).join("|"),s:ost(o),o}));
+  return [...R,...O].filter(x=>(!fl.loc||x.loc.trim().toLowerCase()==fl.loc.toLowerCase())&&(!fl.school||x.sc.toLowerCase().includes(fl.school.toLowerCase()))&&(!fl.type||x.t==fl.type)&&(!fl.st||(fl.st=="done"?x.s=="done":x.s!="done"))).sort((a,b)=>rkey(a.id)-rkey(b.id))}
+function vFeed(a){
+  const R=reqs(),O=offs(),done=R.filter(r=>rst(r)=="done").length,uniq=l=>[...new Set(l.map(s=>s.trim()).filter(Boolean))].sort();
+  const locs=uniq([...R.map(r=>r.loc),...O.map(o=>o.loc)]),schools=uniq([...R.map(r=>r.school),...O.flatMap(o=>(o.res||[]).map(x=>x.school))]);
+  const opt=(l,v)=>l.map(x=>`<option ${x==v?"selected":""}>${esc(x)}</option>`).join("");
+  a.innerHTML=`<h2>Community activity</h2><p class="mu" style="margin:4px 0 14px">A live mix of learners asking and donors giving. Filter by your area or school.</p>
+  <div class="stats"><div class="stat s1"><b>${done}</b>Learners sorted</div><div class="stat s2"><b>${R.length-done}</b>Still need help</div><div class="stat s3"><b>${O.filter(o=>!o.chosen).length}</b>Donor offers open</div></div>
+  ${wall()}<div class="bar"><select onchange="fl.loc=this.value;fl.school='';render()"><option value="">📍 All locations</option>${locOpts(fl.loc)}</select>
+  <select onchange="fl.school=this.value;feedList()"><option value="">🏫 All schools</option>${schOpts(fl.loc,fl.school)}</select>
+  <select onchange="fl.type=this.value;feedList()"><option value="">Seekers &amp; donors</option><option value="r" ${fl.type=="r"?"selected":""}>Seekers only</option><option value="o" ${fl.type=="o"?"selected":""}>Donors only</option></select>
+  <select onchange="fl.st=this.value;feedList()"><option value="">Any status</option><option value="open" ${fl.st=="open"?"selected":""}>Not sorted yet</option><option value="done" ${fl.st=="done"?"selected":""}>Sorted ✅</option></select>
+  <button class="btn alt" onclick="rk={};feedList()">🔀 Shuffle</button></div><div class="grid" id="list">${feedCards()}</div>`}
+function feedList(){$("#list").innerHTML=feedCards();hydrate()}
+function feedCards(){const l=feedItems();if(!l.length)return `<div class="empty" style="grid-column:1/-1">Nothing matches these filters yet.</div>`;
+  return l.map(x=>{if(x.t=="r"){const r=x.r,m=missing(r),dn=[...new Set((r.pledges||[]).map(p=>p.dn))];
+    return `<div class="card ${x.s=="done"?"done":""}">${bdg(r)}<video controls preload="metadata" data-vid="${r.vid}"></video><div class="cb"><div class="who">${av(r.name)}<div><b>${esc(r.name)}</b><small>${esc(r.school)} · 📍${esc(r.loc)}</small></div></div>${tags(r.items,r.full)}<p style="margin:0">${esc(r.story)}</p>${detHtml(r)}${x.s=="done"?`<div class="note">🎉 Fully sorted thanks to ${dn.map(esc).join(", ")}</div>`:`<div class="note" style="background:color-mix(in srgb,#e5484d 12%,transparent)">Still needed: <b>${m.map(esc).join(", ")}</b></div>`}${me.role=="donor"&&x.s!="done"?`<button class="btn g" style="margin-top:auto" onclick="pledgeModal('${r.id}')">Donate to ${esc(r.name.split(" ")[0])}</button>`:""}</div></div>`}
+    const o=x.o,ch=(o.res||[]).filter(y=>picks(o).includes(y.id));
+    return `<div class="card ${x.s=="done"?"done":""}">${bdg(o,1)}<div class="ph"></div><div class="cb"><div class="who">${av(o.dn)}<div><b>${esc(o.dn)}</b><small>Donor · ${o.school?esc(o.school)+" · ":""}📍${esc(o.loc)}</small></div></div>${tags(o.items)}<div class="mu">${o.cond} · ${o.method=="collect"?"Collect from donor":"Drop-off at school"} · helps up to ${o.qty||1}</div><p style="margin:0">${esc(o.note)}</p>${detHtml(o)}${ch.length?`<div class="note">🎉 Matched with <b>${ch.map(c=>esc(c.name)+" ("+esc(c.school)+")").join(", ")}</b></div>`:`<span class="mu">🎥 ${(o.res||[]).length} motivation video(s) received</span>`}${me.role=="seeker"&&x.s!="done"&&!helped(me.id)?`<button class="btn" style="margin-top:auto" onclick="resModal('${o.id}')">🎥 Send my motivation video</button>`:""}</div></div>`}).join("")}
+// trust, sharing & anti-abuse
+const normPhone=p=>{let d=(p||'').replace(/\D/g,'');if(d.startsWith('27'))d=d.slice(2);else if(d.startsWith('0'))d=d.slice(1);return d.length==9?'27'+d:''};
+const devId=()=>{let d=get('dev');if(!d){d=uid()+uid();set('dev',d)}return d};
+const nk=s=>(s||'').trim().toLowerCase().replace(/\s+/g,' ');
+function dupCheck(f,it){const nm=nk(f.fo&&f.fo.checked?f.name.value.trim().split(' ')[0]:f.name.value),sc=nk(getLS(f).school);
+  if(reqs().filter(r=>r.uid==me.id&&rst(r)!='done').length>=3)return 'You already have 3 open requests. Wait until they are sorted or delete one.';
+  const same=reqs().filter(r=>nk(r.name)==nm&&nk(r.school)==sc&&r.age==f.age.value&&r.gender==f.gender.value);
+  if(same.some(r=>rst(r)!='done'))return 'This learner already has an open request. Please wait until it is sorted, or delete the earlier one.';
+  const got=new Set(same.flatMap(r=>(r.pledges||[]).flatMap(p=>p.items))),ov=it.filter(i=>got.has(i));
+  return ov.length?'This learner already received: '+ov.join(', ')+'. Please remove those items.':''}
+const helped=u=>{const rs=reqs().filter(x=>x.uid==u);if(rs.length&&rs.every(x=>rst(x)=='done'))return 'a sorted request';return offs().some(x=>(x.res||[]).some(y=>y.uid==u&&picks(x).includes(y.id)))?'a donor offer':''};
+const rep=()=>get('reports')||[];
+const hid=id=>{const l=rep().filter(r=>r.t==id);return l.some(r=>r.why=='child')||new Set(l.map(r=>r.by)).size>=3};
+function reportModal(id,t){modal(`<h3>🚩 Report this ${t=='v'?'video':'post'}</h3><p class="mu">Reports are anonymous. A post is hidden for review after 3 reports, or straight away for child-safety concerns.</p><form onsubmit="return saveRep(event,'${id}','${t}')"><label>Reason</label><select name="why" required><option value="">Select…</option><option value="fake">Fake, scam or not a real need</option><option value="dup">Duplicate request</option><option value="child">Child-safety concern</option><option value="content">Inappropriate content or video</option><option value="other">Other</option></select><label>Details (optional)</label><textarea name="note" rows="2"></textarea><div class="err" id="err"></div><div class="row"><button type="button" class="btn alt" onclick="closeM()">Cancel</button><button class="btn">Submit report</button></div></form>`)}
+function saveRep(e,id,t){e.preventDefault();const f=e.target,l=rep();if(l.some(r=>r.t==id&&r.by==me.id)){$('#err').textContent='You already reported this.';return false}l.push({id:uid(),t:id,ty:t,by:me.id,why:f.why.value,note:f.note.value,date:Date.now()});set('reports',l);closeM();render();toast('Report received. Thank you for keeping learners safe.');return false}
+const wa=t=>'https://wa.me/?text='+encodeURIComponent(t);
+const base=()=>location.href.split('#')[0];
+function shareModal(id,t){const r=(t=='r'?reqs():offs()).find(x=>x.id==id);if(!r)return;const link=base()+'#'+t+'-'+id,txt=t=='r'?`A learner at ${r.school} (${r.loc}) needs school uniform. Help sort them out on UniformShare 💙`:`A donor in ${r.loc} is giving away school uniform on UniformShare 💙 Learners can apply for it.`;window._lk=txt+' '+link;
+  modal(`<h3>📤 Share</h3><p class="mu">Spread the word. The message never includes the learner’s name or video.</p><div class="note">${esc(txt)}</div><div class="row"><a class="btn g" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="${wa(txt+' '+link)}">WhatsApp</a><button class="btn alt" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._lk);toast('Link copied')">Copy link</button></div><div class="row"><button class="btn alt" onclick="closeM()">Close</button></div>`)}
+function shareImpact(msg){window._lk=msg+' '+base();modal(`<h3>🎉 Thank you!</h3><p>Your pledge is recorded, and other donors can already see this learner is being helped.</p><p class="mu">Inspire others to give too:</p><div class="row"><a class="btn g" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="${wa(msg+' '+base())}">Share on WhatsApp</a><button class="btn alt" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._lk);toast('Copied')">Copy</button></div><div class="row"><button class="btn alt" onclick="closeM()">Close</button></div>`)}
+function viewReq(id){const r=reqs().find(x=>x.id==id);if(!r||hid(id))return;modal(`<h3>${esc(r.name)}</h3><p class="mu">${esc(r.school)} · ${esc(r.loc)}</p><video controls data-vid="${r.vid}" style="width:100%;border-radius:14px;aspect-ratio:16/10;background:#000"></video><p>${esc(r.story)}</p>${detHtml(r)}${rst(r)=='done'?'<div class="note">🎉 Already sorted. Thank you!</div>':''}<div class="row"><button class="btn alt" onclick="closeM()">Close</button>${me.role=='donor'&&rst(r)!='done'?`<button class="btn g" onclick="pledgeModal('${r.id}')">Donate</button>`:''}</div>`);hydrate()}
+function openHash(){const m=location.hash.match(/^#([ro])-(\w+)$/);if(!m||!me)return;if(m[1]=='r')viewReq(m[2]);else go('offers')}
+const cntDone=()=>reqs().filter(r=>rst(r)=='done').length;
+const sigNow=()=>{try{return localStorage.getItem('reqs')+localStorage.getItem('offs')}catch(e){return ''}};
+function watch(){let sig=sigNow(),done=cntDone();setInterval(()=>{const s=sigNow();if(s!==sig&&!document.querySelector('.modal')){sig=s;const d=cntDone();render();if(d>done&&me&&me.role=='donor')toast('🎉 A learner was just sorted. List updated.');done=d}},3000)}
+function wall(){const m={};reqs().forEach(r=>(r.pledges||[]).forEach(p=>{const e=m[p.dn]=m[p.dn]||{n:0,i:0};e.n++;e.i+=p.items.length}));const l=Object.entries(m).sort((a,b)=>b[1].n-a[1].n||b[1].i-a[1].i).slice(0,5);if(!l.length)return '';const bd=n=>n>=25?'🥇':n>=10?'🥈':n>=3?'🥉':'🌱';
+  return `<div class="card cb" style="margin:12px 0"><b>💙 Kindness wall</b>${l.map(([n,e],i)=>`<div style="display:flex;justify-content:space-between"><span>${i+1}. ${bd(e.n)} ${esc(n)}</span><span class="mu">${e.n} learner(s) · ${e.i} items</span></div>`).join('')}</div>`}
+// bulk giving / adopt a school
+let bk={loc:"",school:"",sel:new Set()};
+const bkList=()=>reqs().filter(r=>bk.school&&r.school==bk.school&&(!bk.loc||r.loc==bk.loc)&&!hid(r.id)&&rst(r)!="done");
+function vBulk(a){const L=bkList(),c=me.kind=="company",sup=[...new Set((get("adopts")||[]).filter(x=>x.school==bk.school).map(x=>x.dn))],n=L.filter(r=>bk.sel.has(r.id)),cnt=n.reduce((s,r)=>s+missing(r).length,0);
+  a.innerHTML=`<h2>${c?"Adopt a school":"Bulk giving"}</h2><p class="mu" style="margin:4px 0 14px">Pick a school, then choose the learners you want to help: watch their videos first, or sponsor everyone who still needs items.</p>
+  <div class="bar"><select onchange="bk.loc=this.value;bk.school='';bk.sel=new Set();render()"><option value="">📍 Choose location</option>${locOpts(bk.loc)}</select><select onchange="bk.school=this.value;bk.sel=new Set();render()"><option value="">🏫 Choose school</option>${schOpts(bk.loc,bk.school)}</select></div>
+  ${bk.school?`${sup.length?`<div class="note">💙 Supported by ${sup.map(esc).join(", ")}</div>`:""}<div class="bar"><b>${L.length} learner(s) still need help</b><button class="btn sm alt" onclick="bkAll(1)">Select all</button><button class="btn sm alt" onclick="bkAll(0)">Clear</button></div>
+  <div class="grid">${L.map(r=>`<div class="card ${bk.sel.has(r.id)?"done":""}"><div class="cb"><label style="display:flex;gap:10px;align-items:center;font-weight:700;margin:0"><input type="checkbox" style="width:auto" ${bk.sel.has(r.id)?"checked":""} onchange="bkTog('${r.id}')">${esc(r.name)}</label>${detHtml(r)}<div class="mu">Still needed: <b>${missing(r).map(esc).join(", ")}</b></div><button class="btn sm alt" onclick="bkWatch('${r.id}')">▶ Watch video</button></div></div>`).join("")||'<div class="empty" style="grid-column:1/-1">No learners at this school need help right now.</div>'}</div>
+  <div class="card cb" style="margin-top:16px;flex-direction:row;align-items:center;justify-content:space-between"><b>${n.length} selected · ${cnt} items</b><button class="btn g" ${n.length?"":"disabled"} onclick="bkModal()">Continue</button></div>`:'<div class="empty">Choose a location and school to see learners.</div>'}`;hydrate()}
+function bkTog(id){bk.sel.has(id)?bk.sel.delete(id):bk.sel.add(id);vBulk($("#app"))}
+function bkAll(on){bk.sel=new Set(on?bkList().map(r=>r.id):[]);vBulk($("#app"))}
+function bkWatch(id){const r=reqs().find(x=>x.id==id);modal(`<h3>${esc(r.name)}</h3><p class="mu">${esc(r.school)} · ${esc(r.loc)}</p><video controls data-vid="${r.vid}" style="width:100%;border-radius:14px;aspect-ratio:16/10;background:#000"></video><p>${esc(r.story)}</p>${detHtml(r)}<div class="row"><button class="btn alt" onclick="closeM()">Close</button><button class="btn g" onclick="bkTog('${r.id}');closeM()">${bk.sel.has(r.id)?"Remove from selection":"Select this learner"}</button></div>`);hydrate()}
+function bkModal(){const n=reqs().filter(r=>bk.sel.has(r.id));modal(`<h3>Confirm bulk donation</h3><p class="mu">${n.length} learner(s) at ${esc(bk.school)}</p><form onsubmit="return bkGo(event)"><label>Condition</label><select name="cond"><option>Brand new</option><option>Second-hand</option><option>Mix of both</option></select><label>Handover</label><select name="m"><option value="school">Deliver all parcels to the school</option><option value="collect">Collected from us</option></select><div class="note">📦 Wrap each learner’s items separately and write their name on the parcel. You’ll get a parcel list next.<br>🛡️ Hand over through the school, with staff or a parent present.</div><div class="row"><button type="button" class="btn alt" onclick="closeM()">Cancel</button><button class="btn g">Confirm pledge</button></div></form>`)}
+function bkGo(e){e.preventDefault();const f=e.target,all=reqs(),dn=me.org||me.name,lines=[];
+  let sk=0;all.filter(r=>bk.sel.has(r.id)).forEach(r=>{const m=missing(r);if(!m.length){sk++;return}(r.pledges=r.pledges||[]).push({did:me.id,dn,items:m,cond:f.cond.value,method:f.m.value,bulk:1});lines.push(`For ${r.name} – ${r.school}: ${m.map(i=>i+((r.det&&r.det[i]&&r.det[i].size)?" ("+r.det[i].size+")":"")).join(", ")}`)});
+  set("reqs",all);const ad=get("adopts")||[];if(!ad.some(x=>x.school==bk.school&&x.dn==dn)){ad.push({school:bk.school,loc:bk.loc,dn,date:Date.now()});set("adopts",ad)}
+  bk.sel=new Set();window._bl=lines.join(String.fromCharCode(10));
+  modal(`<h3>🎉 Thank you!</h3><p>Wrap each parcel and write this on it:</p>${sk?`<p class="mu">${sk} learner(s) were just sorted by someone else and were skipped.</p>`:""}<div class="note" style="font-size:.85rem">${lines.map(esc).join("<br>")}</div><div class="row"><button class="btn alt" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._bl)">Copy list</button><a class="btn alt" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="${wa('I just sponsored learners at their school on UniformShare 💙 Join me!')}">📤 Share</a><button class="btn" onclick="closeM();go('mine')">Done</button></div>`);return false}
+// safety & POPIA
+function safeBlock(){const p=me.kind=="parent";return `<div class="note"><b>🛡️ Learner safety (POPIA)</b><br>${p?"The learner is under 18, so you consent on their behalf as parent or legal guardian. You may appear in the video with your child to motivate the request.":"Only learners aged 18 or older can post for themselves."}<br>Never show ID numbers, your home address or other children in the video.</div><label>Who appears in the video?</label><select name="vby" required>${p?'<option value="parent">Parent/guardian only</option><option value="both">Parent/guardian together with the child</option>':'<option value="self">Me (learner, 18+)</option>'}</select><label style="display:flex;gap:8px;font-weight:500"><input type="checkbox" name="c1" required> <span>${p?"I am the parent or legal guardian of this learner and consent to their details and video being shown to registered donors.":"I confirm I am 18 or older and consent to my details and video being shown to registered donors."}</span></label>${p?'<label style="display:flex;gap:8px;font-weight:500"><input type="checkbox" name="c2" required> <span>I consent to the child appearing in the video with me present, and understand I can withdraw consent and delete it at any time.</span></label>':''}`}
+function privacy(){modal(`<h3>🛡️ Privacy &amp; safety (POPIA)</h3><div style="font-size:.9rem;display:flex;flex-direction:column;gap:8px;margin-top:8px"><p style="margin:0"><b>What we collect:</b> your name, email and role. For requests: the learner’s name (first name only if chosen), age, gender, height, sizes, school, location, and any photos or video you post.</p><p style="margin:0"><b>Why:</b> only to match learners with donors for school uniform. We don’t sell data or use it for marketing.</p><p style="margin:0"><b>Children:</b> under-18s can’t register themselves. A parent or legal guardian registers, gives consent, and may appear in the video with the child. Consent can be withdrawn and posts deleted at any time under My activity.</p><p style="margin:0"><b>Who sees it:</b> only registered, logged-in users. Contact details are never shown on posts. Please never share ID numbers, home addresses or other children’s details.</p><p style="margin:0"><b>Safe handovers:</b> use the school or a public place with a parent/guardian present. Never arrange to meet a child alone.</p><p style="margin:0"><b>Your rights:</b> access, correct and delete your information, and complain to the Information Regulator (inforegulator.org.za).</p><p class="mu" style="margin:0">Information Officer: [add name and email]. This is a starting template. Have it reviewed by a South African privacy professional before launch.</p></div><div class="row"><button class="btn" onclick="closeM()">Close</button></div>`)}
+function delReq(id){modal(`<h3>Withdraw consent?</h3><p>This permanently removes the request and its video from this device.</p><div class="row"><button class="btn alt" onclick="closeM()">Cancel</button><button class="btn" onclick="doDel('${id}')">Delete</button></div>`)}
+function doDel(id){set("reqs",reqs().filter(r=>r.id!=id));closeM();render();toast("Request deleted")}
+function delAcc(){modal(`<h3>Delete account &amp; data?</h3><p>Your account, requests, offers, pledges and videos you sent are permanently removed.</p><div class="row"><button class="btn alt" onclick="closeM()">Cancel</button><button class="btn" onclick="doAcc()">Delete everything</button></div>`)}
+function doAcc(){const i=me.id;set("reqs",reqs().filter(r=>r.uid!=i).map(r=>({...r,pledges:(r.pledges||[]).filter(p=>p.did!=i)})));set("offs",offs().filter(o=>o.uid!=i).map(o=>({...o,res:(o.res||[]).filter(x=>x.uid!=i)})));set("users",users().filter(u=>u.id!=i));closeM();logout();toast("Your data was deleted")}
+// modals
+const modal=h=>{$("#modal").innerHTML=`<div class="modal" onclick="if(event.target==this)closeM()"><div class="box">${h}</div></div>`};
+const closeM=()=>$("#modal").innerHTML="";
+const itemChecks=n=>`<div class="chk">${ITEMS.map(i=>`<label><input type="checkbox" name="${n}" value="${i}" hidden><span>${i}</span></label>`).join("")}</div>`;
+document.addEventListener("click",e=>{const l=e.target.closest(".chk label");if(l){const c=l.querySelector("input");setTimeout(()=>{l.style.borderColor=c.checked?"var(--pr)":"";l.style.background=c.checked?"color-mix(in srgb,var(--pr) 12%,transparent)":""})}});
+const checked=(f,n)=>[...f.querySelectorAll(`[name=${n}]:checked`)].map(x=>x.value);
+
+function authModal(mode,role){
+  const su=mode=="signup";
+  modal(`<h3>${su?"Create your account":"Welcome back"}</h3><form onsubmit="return auth(event,'${mode}')">
+  ${su?`<label>Full name</label><input name="name" required><label>I am a…</label><select name="role"><option value="parent" ${role=="seeker"?"selected":""}>Parent / guardian (requesting for my child)</option><option value="adult">Learner aged 18+ (requesting for myself)</option><option value="donor" ${role=="donor"?"selected":""}>Donor – individual (I want to give)</option><option value="company">Company / organisation donor</option></select><p class="mu" style="font-size:.8rem;margin:4px 0 0">Learners under 18 can’t sign up themselves. A parent or guardian registers and gives consent for them.</p><input name="org" placeholder="Company / organisation name (companies only)" style="margin-top:8px"><label>Mobile number (one account per number)</label><input name="phone" type="tel" placeholder="e.g. 082 123 4567" required><label style="display:flex;gap:8px;font-weight:500"><input type="checkbox" required> <span>I agree to the <a href="#" onclick="privacy();return false">Privacy &amp; safety notice (POPIA)</a></span></label>`:""}
+  <label>Email</label><input name="email" type="email" required><label>Password</label><input name="pw" type="password" minlength="6" required><div class="err" id="err"></div>
+  <div class="row"><button type="button" class="btn alt" onclick="closeM()">Cancel</button><button class="btn">${su?"Sign up":"Log in"}</button></div>
+  <p class="mu" style="text-align:center;font-size:.88rem;cursor:pointer" onclick="authModal('${su?"login":"signup"}')">${su?"Have an account? Log in":"New here? Sign up"}</p></form>`)}
+function auth(e,mode){e.preventDefault();const f=Object.fromEntries(new FormData(e.target));f.email=f.email.trim().toLowerCase();const us=users();
+  if(mode=="signup"){if(us.some(u=>u.email==f.email))return $("#err").textContent="That email is already registered.",false;
+    const ph=normPhone(f.phone);if(!ph)return $("#err").textContent="Enter a valid South African mobile number.",false;if(us.some(u=>u.phone==ph))return $("#err").textContent="That mobile number is already linked to an account. One account per person.",false;const dv=devId();if(us.filter(u=>u.dev==dv).length>=2)return $("#err").textContent="Too many accounts on this device. Please log in to your existing account.",false;
+    const u={id:uid(),phone:ph,dev:dv,name:f.name.trim(),email:f.email,pw:btoa(unescape(encodeURIComponent(f.pw))),role:f.role=="donor"||f.role=="company"?"donor":"seeker",kind:f.role=="parent"?"parent":f.role=="adult"?"learner":f.role=="company"?"company":null,org:f.role=="company"?(f.org||"").trim():"",agreed:Date.now()};us.push(u);set("users",us);me=u}
+  else{const u=us.find(u=>u.email==f.email&&u.pw==btoa(unescape(encodeURIComponent(f.pw))));if(!u)return $("#err").textContent="Wrong email or password.",false;me=u}
+  set("session",me);view="feed";closeM();render();toast("Welcome, "+me.name.split(" ")[0]+"!");return false}
+function logout(){me=null;set("session",null);try{localStorage.removeItem("session")}catch(e){}delete mem.session;render()}
+
+const vidField=`<label>Video (3–5 minutes)</label><input type="file" name="video" accept="video/*" required><div class="mu" style="font-size:.8rem">Tell your story: why you need this and what it means for your school life.</div>`;
+async function checkVideo(f,min,max){const file=f.video.files[0];if(!file)return null;const d=await checkDur(file);
+  if(d<0){$("#err").textContent="Could not read that video file.";return null}
+  if(d<min||d>max){$("#err").textContent=`Your video is ${Math.floor(d/60)}m ${Math.round(d%60)}s. It must be between 3 and 5 minutes.`;return null}return file}
+
+function reqModal(){modal(`<h3>Request a uniform</h3><form onsubmit="return saveReq(event)">
+  ${me.kind=="parent"?'<label>Your relationship to the learner</label><select name="rel"><option>Mother</option><option>Father</option><option>Legal guardian</option><option>Other caregiver</option></select><label>Learner’s name</label><input name="name" required><label style="display:flex;gap:8px;font-weight:500"><input type="checkbox" name="fo" checked> <span>Show first name only (recommended)</span></label>':'<label>Learner’s name</label><input name="name" value="'+esc(me.name)+'" required>'}${locSchool()}
+  <div class="g2"><div><label>Boy or girl</label><select name="gender" required><option value="">Select…</option><option>Boy</option><option>Girl</option></select></div><div><label>Age</label><input name="age" type="number" min="3" max="25" required></div></div><label>Height (cm)</label><input name="height" type="number" min="60" max="220"><label><input type="checkbox" name="full" style="width:auto" onchange="fullAll(this)"> I need a full uniform</label><label>Or select items</label>${itemChecks("it")}<div id="dets"></div>
+  <label>Why do you need it? (short)</label><textarea name="story" rows="2" required></textarea>${safeBlock()}${vidField}<div class="err" id="err"></div>
+  <div class="row"><button type="button" class="btn alt" onclick="closeM()">Cancel</button><button class="btn">Post request</button></div></form>`)}
+async function saveReq(e){e.preventDefault();const f=e.target,it=checked(f,"it"),full=f.full.checked;if(!it.length){$("#err").textContent="Pick at least one item or full uniform.";return false}
+  if(me.kind!="parent"&&+f.age.value<18){$("#err").textContent="Learners under 18 must be registered by a parent or guardian. Please sign up as a Parent / guardian.";return false}
+  const dc=dupCheck(f,it);if(dc){$("#err").textContent=dc;return false}
+  const file=await checkVideo(f,180,300);if(!file)return false;const id=uid();await saveVid(id,file);
+  const r=reqs();r.push({id:uid(),uid:me.id,name:(f.fo&&f.fo.checked?f.name.value.trim().split(" ")[0]:f.name.value),...getLS(f),items:it,full,by:me.kind||"learner",vby:f.vby.value,consent:{who:me.name,rel:f.rel?f.rel.value:"self",at:Date.now()},gender:f.gender.value,age:f.age.value,height:f.height.value,det:await collectDet(f),story:f.story.value,vid:id,date:Date.now(),pledges:[]});set("reqs",r);closeM();render();toast("Request posted 🎉");return false}
+
+function pledgeModal(id){const r=reqs().find(x=>x.id==id);if(!missing(r).length){render();return toast("🎉 This learner has just been sorted by another donor")}modal(`<h3>Donate to ${esc(r.name)}</h3><p class="mu">${esc(r.school)} · ${esc(r.loc)}</p>${detHtml(r)}<form onsubmit="return savePledge(event,'${id}')">
+  <label>What will you give?</label><div class="chk">${missing(r).map(i=>`<label><input type="checkbox" name="it" value="${i}" hidden><span>${i}</span></label>`).join("")}</div>
+  <label>Condition</label><select name="cond"><option>Second-hand</option><option>Bought new</option></select>
+  <label>Handover</label><select name="m"><option value="collect">Seeker collects from me</option><option value="school">I will leave it at the school</option></select>
+  <div class="note">📦 Please wrap the items and write <b>"${esc(r.name)}"</b> clearly on the parcel so it reaches the right learner.</div><div class="note">🛡️ Never contact the learner directly or ask for their home address, ID number or photos. Hand over through the school, or in a public place with a parent/guardian present.</div><div class="err" id="err"></div>
+  <div class="row"><button type="button" class="btn alt" onclick="closeM()">Cancel</button><button class="btn g">Confirm pledge</button></div></form>`)}
+function savePledge(e,id){e.preventDefault();const f=e.target,it=checked(f,"it");if(!it.length){$("#err").textContent="Select at least one item.";return false}
+  const r=reqs(),x=r.find(x=>x.id==id),mm=missing(x);if(it.some(i=>!mm.includes(i))){closeM();render();toast("Some of those items were just pledged by another donor. List updated.");return false}(x.pledges=x.pledges||[]).push({did:me.id,dn:me.org||me.name,items:it,cond:f.cond.value,method:f.m.value});set("reqs",r);closeM();render();shareImpact("I just helped a learner get school uniform on UniformShare 💙 Join me and sort a learner today.");return false}
+
+function offModal(){modal(`<h3>Post items to give away</h3><form onsubmit="return saveOff(event)"><label>Items</label>${itemChecks("it")}<div id="dets"></div>
+  <label>Condition</label><select name="cond"><option>Second-hand</option><option>Brand new</option></select>${locSchool(1)}
+  <label>Handover</label><select name="m"><option value="collect">Collect from me</option><option value="school">I will leave at the learner's school</option></select>
+  <div class="note">🛡️ Hand over through the school or a public place, with a parent/guardian present. Never share a child’s details or photos.</div><label>How many learners can you help?</label><input name="qty" type="number" min="1" value="1" required><label>Note (sizes, school colours…)</label><textarea name="note" rows="2" required></textarea><div class="err" id="err"></div>
+  <div class="row"><button type="button" class="btn alt" onclick="closeM()">Cancel</button><button class="btn">Post</button></div></form>`)}
+async function saveOff(e){e.preventDefault();const f=e.target,it=checked(f,"it");if(!it.length){$("#err").textContent="Select at least one item.";return false}
+  const o=offs();o.push({id:uid(),uid:me.id,dn:me.org||me.name,items:it,qty:+f.qty.value||1,det:await collectDet(f),cond:f.cond.value,...getLS(f),method:f.m.value,note:f.note.value,date:Date.now(),res:[]});set("offs",o);view="offers";closeM();render();toast("Items posted 🎁");return false}
+
+function resModal(id){modal(`<h3>Motivate the donor</h3><form onsubmit="return saveRes(event,'${id}')">${locSchool()}<label>Short message</label><textarea name="msg" rows="2" required></textarea>${safeBlock()}${vidField}<div class="err" id="err"></div>
+  <div class="row"><button type="button" class="btn alt" onclick="closeM()">Cancel</button><button class="btn">Send</button></div></form>`)}
+async function saveRes(e,id){e.preventDefault();const f=e.target,file=await checkVideo(f,180,300);if(!file)return false;const v=uid();await saveVid(v,file);
+  const o=offs(),x=o.find(x=>x.id==id);if((x.res||[]).some(y=>y.uid==me.id)){$("#err").textContent="You already sent a video to this offer.";return false}if(helped(me.id)){$("#err").textContent="Your learner has already received help.";return false}(x.res=x.res||[]).push({id:uid(),uid:me.id,name:me.name,school:getLS(f).school,loc:getLS(f).loc,msg:f.msg.value,vby:f.vby.value,by:me.kind||"learner",vid:v});set("offs",o);closeM();render();toast("Video sent ✔");return false}
+function choose(o,r){const l=offs(),x=l.find(x=>x.id==o);x.picks=picks(x).concat(r);x.chosen=x.picks[0];set("offs",l);render();toast("Learner chosen. Wrap and label the parcel!")}
+render();loadSchools();watch();openHash();
+</script><script>
+/* Class of 2026 Uniform Drive (additive, existing code untouched) */
+const UDL=[{n:"Spark",e:"✨",m:1,c:"#8a94c9"},{n:"Bronze Heart",e:"🥉",m:6,c:"#c27a3a"},{n:"Silver Star",e:"🥈",m:12,c:"#8d99ae"},{n:"Gold Guardian",e:"🥇",m:20,c:"#d99a00"},{n:"Legend",e:"👑",m:35,c:"#7c3aed"}];
+const UDX={en:{a:"Your last bell has rung.",b:"Someone’s is still waiting.",p:"Matric ends. The uniform that carried you through every morning can carry a learner through their first. Pledge it and join the kindness wall.",y:"💙 I’ll pledge my uniform",w:"See the kindness wall",pl:"💙 Pledge my uniform",q:["Your last bell has rung. Someone else’s is still waiting.","That blazer held five years of mornings. Let it hold someone’s first.","In your cupboard it’s a memory. On a learner’s back, it’s a future.","You’re walking out the gates. Leave the door open behind you.","Somewhere a learner is ironing a hand-me-down and hoping nobody notices."]},
+af:{a:"Jou laaste klok het gelui.",b:"Iemand anders s’n wag nog.",p:"Matriek is verby. Die uniform wat jou elke oggend gedra het, kan ’n leerder dra op hul eerste dag. Belowe dit en sluit aan by die vriendelikheidsmuur.",y:"💙 Ek belowe my uniform",w:"Sien die muur",pl:"💙 Belowe my uniform",q:["Jou blazer het vyf jaar se oggende gedra. Laat dit iemand se eerste dra.","In jou kas is dit ’n herinnering. Op ’n leerder se rug is dit ’n toekoms.","Jy stap by die hekke uit. Los die deur oop agter jou.","Êrens stryk ’n leerder ’n oorgeërfde uniform en hoop niemand sien dit nie."]},
+zu:{a:"Insimbi yakho yokugcina isishayile.",b:"Eyomunye isalindile.",p:"I-matric iyaphela. Iyunifomu ekuthwale njalo ekuseni ingathwala umfundi ngosuku lwakhe lokuqala. Thembisa ukuyinikela ujoyine udonga lomusa.",y:"💙 Ngithembisa iyunifomu yami",w:"Bona udonga lomusa",pl:"💙 Thembisa iyunifomu yami",q:["Endlini yakho iyinkumbulo; emhlane womfundi iyikusasa.","Uphuma esangweni lesikole. Shiya umnyango uvulekile emva kwakho."]}};
+const UDM=[100,250,500,1000,2026],UD_END=new Date("2026-12-31T23:59:59"),udDays=()=>Math.max(0,Math.ceil((UD_END-Date.now())/864e5));
+const udLg=()=>get("udlg")||"en",udLite=()=>get("udlite")===1;
+const udLang=()=>`<span class="ud-lg">${["en","af","zu"].map(k=>`<button class="${udLg()==k?"on":""}" onclick="udSetL('${k}')">${k.toUpperCase()}</button>`).join("")}</span>`;
+function udSetL(k){set("udlg",k);udQi=1%UDX[k].q.length;render();if($("#udsp"))udSplash(1)}
+/* Points: bigger, harder-to-get items earn more. Beyond 3 of one item counts half. Full set bonus +6 */
+const UDW={Blazer:5,Trousers:4,Skirt:4,Shoes:4,Shirt:3,Jerseys:3,Pullover:3,Hoodie:3,Tie:1,Socks:1,Other:1};
+const udPts=it=>{it=it||{};let s=0;for(const[k,q]of Object.entries(it))s+=(UDW[k]||1)*(Math.min(q,3)+.5*Math.max(0,q-3));const h=k=>it[k]>0;if(h("Shirt")&&(h("Trousers")||h("Skirt"))&&(h("Blazer")||h("Jerseys")||h("Pullover")||h("Hoodie"))&&h("Shoes"))s+=6;return Math.floor(s)};
+const udL=n=>[...UDL].reverse().find(l=>n>=l.m)||UDL[0];
+const ud=()=>get("drive")||[],udMine=()=>ud().find(x=>x.dev==devId());
+let udAll=0,udQi=1,udQt=null,udSeen=0;window._udq={};window._udp="";
+function udGo(a){const s=$("#udsp");if(s)s.remove();if(a==1)udModal();if(a==0){const e=$("#udsec");e&&e.scrollIntoView({behavior:"smooth"})}}
+function udShare(){const t="Class of 2026: your last bell has rung, but someone’s is still waiting. Pledge your school uniform to the UniformShare Kindness Wall";window._lk=t+" "+base();
+  modal(`<h3>📤 Challenge your class</h3><div class="note">${esc(t)}</div><div class="row"><a class="btn g" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="${wa(t+" "+base())}">WhatsApp</a><button class="btn alt" onclick="navigator.clipboard&&navigator.clipboard.writeText(window._lk);toast('Link copied')">Copy link</button></div><div class="row"><button class="btn alt" onclick="closeM()">Close</button></div>`)}
+function udRef(){const pc=Object.values(_udq).reduce((s,v)=>s+v,0),t=udPts(_udq),l=udL(t),n=UDL.find(x=>x.m>t);ITEMS.forEach(i=>{const e=$("#udq-"+i);if(e)e.textContent=_udq[i]||0});
+  $("#udlv").innerHTML=t?`${l.e} <b>${l.n}</b> · ${pc} piece${pc>1?"s":""} · ⭐ ${t} pts${n?` · ${n.m-t} pts more to reach ${n.e} ${n.n}`:" · top level reached 👑"}`:"Add pieces to see your level 💙";
+  $("#udpv").innerHTML=_udp?`<img class="pic" src="${esc(_udp)}" alt="">`:`<div class="pic grad">🎓</div>`}
+function udStep(i,d){_udq[i]=Math.max(0,Math.min(20,(_udq[i]||0)+d));udRef()}
+function udPick(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement("canvas"),s=Math.min(im.width,im.height);c.width=c.height=200;c.getContext("2d").drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,200,200);window._udp=c.toDataURL("image/jpeg",.8);udRef()};im.onerror=()=>{$("#err").textContent="Could not read that image."};im.src=r.result};r.readAsDataURL(f)}
+/* Demo preview data (sample pledgers, generated avatars) */
+function udSvg(i){const bg=["#c7d2fe","#a7f3d0","#fde68a","#fbcfe8","#bae6fd","#fed7aa"][i%6],sk=["#8d5524","#c68642","#e0ac69","#6f4a2a","#a9744f","#f1c27d"][(i*5+1)%6],hr=["#1b1b1b","#3b2314","#5a3825","#111","#7a4a21"][(i*3)%5],sh=["#1f2a6b","#7a1f2b","#0f5132","#3b3b3b"][i%4];
+  const s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><rect width="120" height="120" fill="${bg}"/><path d="M15 120c0-26 20-38 45-38s45 12 45 38z" fill="${sh}"/><path d="M50 82l10 14 10-14z" fill="#fff"/><rect x="52" y="64" width="16" height="20" rx="6" fill="${sk}"/><ellipse cx="60" cy="48" rx="21" ry="24" fill="${sk}"/>${i%2?`<path d="M38 46c-2-20 12-30 24-28 14 0 24 10 20 30-4-10-12-14-22-14s-18 4-22 12z" fill="${hr}"/>`:`<path d="M36 50c-6-26 12-36 26-33 16 2 26 14 22 36-2-8-4-14-8-16-10 4-26 4-34-2-4 4-6 10-6 15z" fill="${hr}"/>`}<circle cx="52" cy="50" r="2.4" fill="#222"/><circle cx="68" cy="50" r="2.4" fill="#222"/><path d="M52 60q8 7 16 0" stroke="#222" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>`;
+  return "data:image/svg+xml;utf8,"+encodeURIComponent(s)}
+const UDD=[["Thando","Morris Isaacson High School",{Blazer:1,Shirt:3,Trousers:2,Tie:2,Shoes:1,Socks:3}],["Chloe","Westerford High School",{Blazer:1,Shirt:3,Skirt:2,Jerseys:1,Socks:2,Shoes:1}],["Lerato","Orlando High School",{Blazer:1,Shirt:2,Skirt:2,Jerseys:1,Shoes:1}],["Aiden","King Edward VII School",{Blazer:1,Shirt:2,Trousers:1,Tie:1}],["Naledi","Parktown High School for Girls",{Skirt:1,Shirt:2,Pullover:1,Socks:1}],["Sipho","Morris Isaacson High School",{Shirt:2,Trousers:1,Tie:1}],["Zanele","Pretoria High School for Girls",{Blazer:1,Skirt:1,Shirt:1}],["Ruan","Hoërskool Waterkloof",{Shoes:1,Socks:2}],["Kagiso","Orlando High School",{Tie:1,Shirt:1}],["Amahle","Durban Girls’ High School",{Pullover:1}]];
+const UDDEMO=UDD.map(([name,school,items],i)=>({id:"demo"+i,dev:"demo",demo:1,name,school,items,pic:udSvg(i),total:Object.values(items).reduce((s,v)=>s+v,0),date:i,rec:i%3==0?1:0,ho:i%2?"school":"collect"}));
+const udAllList=()=>ud().concat(get("uddemo")===0?[]:UDDEMO);
+const udBanner=()=>get("uddemo")===0?`<div class="mu" style="margin:0 0 10px;font-size:.85rem"><a href="#" onclick="set('uddemo',null);render();return false">Show demo preview</a></div>`:`<div class="note" style="margin:0 0 12px">🧪 <b>Demo preview:</b> these sample pledgers are made up to show how the wall will look. <a href="#" onclick="set('uddemo',0);render();return false">Hide demo</a></div>`;
+const udAv=x=>x.pic&&!udLite()?`<img class="pic" src="${esc(x.pic)}" alt="">`:`<div class="pic grad">${esc((x.name||"?")[0]).toUpperCase()}</div>`;
+const udFind=id=>udAllList().find(x=>x.id==id);
+const udFrame=x=>{const pt=udPts(x.items),l=udL(pt),mine=!x.demo&&x.dev==devId();return `<div class="ud-f" style="--lc:${l.c}"><span class="rb">${l.e} ${l.n}</span>${udAv(x)}<b>${esc(x.name)}</b>${x.school?`<small class="mu">${esc(x.school)}</small>`:""}<div class="ud-p">Pledged <b>${x.total}</b> piece${x.total>1?"s":""} · ⭐ <b>${pt}</b> pts<br><span class="mu">${Object.entries(x.items).map(([k,v])=>v+"× "+esc(k)).join(", ")}</span><br><span class="tag${x.rec?" f":""}">${x.rec?"✅ Handed over":"⏳ Pledged"}</span>${x.ho=="school"?' <span class="tag">🏫 School drop-off</span>':""}</div><div class="ud-act"><button class="btn sm alt" title="Pledge card" onclick="udCard('${x.id}')">📤</button>${mine&&!x.rec?`<button class="btn sm g" onclick="udRecv()">✅ Handed over</button>`:""}${!x.demo&&!mine?`<button class="btn sm alt" title="Report" onclick="udRep('${x.id}')">🚩</button>`:""}</div></div>`};
+function udHtml(){const t=UDX[udLg()],L=udAllList().filter(x=>!hid(x.id)).sort((a,b)=>udPts(b.items)-udPts(a.items)||a.date-b.date),T=L.reduce((s,x)=>s+x.total,0),R=L.filter(x=>x.rec).reduce((s,x)=>s+x.total,0),G=UDM.find(m=>m>T)||Math.ceil((T+1)/1000)*1000,sm={};
+  L.forEach(x=>{const k=(x.school||"").trim();if(k)(sm[k]=sm[k]||{p:0}).p+=udPts(x.items)});const S=Object.entries(sm).sort((a,b)=>b[1].p-a[1].p).slice(0,5),mx=S.length?S[0][1].p:1;
+  const w=L.length?L.slice(0,udAll?999:12).map(udFrame).join(""):[0,1,2].map(()=>`<div class="ud-f ghost"><div class="pic">🎓</div><b>Your name here</b><div class="ud-p mu">Be the first on the wall</div></div>`).join("");
+  return `<section id="udsec" class="ud-sec"><div class="ud-top"><div class="ud-tools">${udLang()}<button class="btn sm alt" onclick="udRemind()">🔔 Remind me</button><button class="btn sm alt" onclick="set('udlite',${udLite()?0:1});render()">📶 Data-light: ${udLite()?"on":"off"}</button></div><span class="tag">🎓 Class of 2026 · Uniform Drive</span><h2>${t.a} ${t.b}</h2><p class="ud-q mu">${t.q[udQi%t.q.length]}</p><div class="ud-bar"><i style="width:${T?Math.max(3,T/G*100):0}%"></i></div><div class="mu">${T} of ${G} pieces pledged (next milestone) · ⏳ closes ${UD_END.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"})}, ${udDays()} days left</div>
+  <div class="ud-cta"><button class="btn" onclick="udModal()">${udMine()?"➕ Add to my pledge":t.pl}</button><button class="btn alt" onclick="udShare()">📤 Challenge my class</button></div></div>
+  <div class="stats"><div class="stat s3"><b>${T}</b>Pieces pledged</div><div class="stat s1"><b>${R}</b>Pieces handed over</div><div class="stat"><b>${L.length}</b>Matriculants on the wall</div><div class="stat s1"><b>${cntDone()}</b>Learners sorted on UniformShare</div></div>
+  <h3>Kindness levels</h3><div class="ud-lv">${UDL.map((l,i)=>`<div style="--lc:${l.c}"><b>${l.e} ${l.n}</b><small class="mu">${i<4?l.m+(UDL[i+1].m-1>l.m?"–"+(UDL[i+1].m-1):""):l.m+"+"} pts</small></div>`).join("")}</div>
+  <details class="mu" style="margin:-8px 0 16px"><summary>⭐ How points work</summary><p style="margin:6px 0">Bigger items earn more: <b>Blazer 5</b> · <b>Trousers, Skirt, Shoes 4</b> · <b>Shirt, Jersey, Pullover, Hoodie 3</b> · <b>Tie, Socks (per pair), Other 1</b>. The first 3 of any item earn full points, extras count half. A <b>full set</b> (shirt, trousers or skirt, blazer or jersey, shoes) earns <b>+6 bonus</b>. Levels are based on points, not piece count.</p></details><h3>🏫 Top schools of 2026</h3>${S.length?S.map(([k,e],i)=>`<div class="ud-sc"><span>${i+1}. ${esc(k)}</span><span class="ud-sb"><i style="width:${e.p/mx*100}%"></i></span><b>${e.p} pts</b></div>`).join(""):'<p class="mu">Add your school when you pledge to put it on the board.</p>'}
+  <h3>💙 Kindness wall</h3>${udBanner()}<div class="ud-wall">${w}</div>${L.length>12?`<button class="btn alt" style="margin-top:14px" onclick="udAll=!udAll;render()">${udAll?"Show fewer":"See everyone ("+L.length+")"}</button>`:""}</section>`}
+function udInject(){const h=$(".hero");if(h&&!$("#udsec"))h.insertAdjacentHTML("afterend",udHtml());else if(me&&view=="feed"&&!$("#udsec")&&$("#app"))$("#app").insertAdjacentHTML("afterbegin",udHtml());
+  if(!udQt)udQt=setInterval(()=>{const q=UDX[udLg()].q;udQi=(udQi+1)%q.length;document.querySelectorAll(".ud-q").forEach(e=>{e.style.opacity=0;setTimeout(()=>{e.textContent=q[udQi];e.style.opacity=1},500)})},5500)}
+function udSplash(force){const t=UDX[udLg()];let s=0;try{s=sessionStorage.getItem("udsp")}catch(e){}if(me||(!force&&(s||udSeen)))return;const o=$("#udsp");if(o)o.remove();udSeen=1;try{sessionStorage.setItem("udsp","1")}catch(e){}
+  document.body.insertAdjacentHTML("beforeend",`<div id="udsp" class="ud-splash"><div class="in">${udLang()}<div class="ud-gown">🎓</div><div><span class="tag" style="background:#ffffff22;color:#fff">Class of 2026</span></div><h1>${t.a}<br>${t.b}</h1><p class="ud-q" style="font-size:1.1rem">${t.q[udQi%t.q.length]}</p><p style="opacity:.85">${t.p}</p><div><button class="btn" style="background:#fff;color:#2b2380" onclick="udGo(1)">${t.y}</button><button class="btn alt" style="color:#fff;border-color:#ffffff66" onclick="udGo(0)">${t.w}</button></div><p><a href="#" style="color:#fff;opacity:.7;font-size:.85rem" onclick="udGo(2);return false">Maybe later</a></p></div></div>`)}
+function udModal(){const p=udMine();window._udq={...(p?p.items:{})};window._udp=p?p.pic:"";
+  modal(`<h3>🎓 Pledge your uniform</h3><p class="mu">Your last gift to the school that raised you.</p><form onsubmit="return udSave(event)"><div style="display:flex;gap:14px;align-items:center;margin-top:10px"><div id="udpv" class="ud-pv"></div><label class="btn sm alt" style="margin:0;cursor:pointer">📷 Add profile photo<input type="file" accept="image/*" hidden onchange="udPick(this)"></label></div><div class="note" style="font-size:.8rem">🛡️ Photo of you only: no ID, no other learners, nothing showing your address. Anyone can report a photo.</div>
+  <label>Name to show</label><input name="dn" required value="${esc(p?p.name:"")}" placeholder="First name is fine"><label>School (optional, puts it on the leaderboard)</label><input name="sc" list="udsch" value="${esc(p?p.school:"")}"><datalist id="udsch">${schoolsFor("").slice(0,400).map(s=>`<option value="${esc(s)}">`).join("")}</datalist>
+  <label>Handover</label><select name="ho"><option value="school" ${p&&p.ho=="collect"?"":"selected"}>Drop it at my own school</option><option value="collect" ${p&&p.ho=="collect"?"selected":""}>A donor or learner collects from me</option></select>
+  <label>What will you give?</label>${ITEMS.map(i=>`<div class="ud-r"><span>${i} <small class="mu">⭐${UDW[i]||1}</small></span><span><button type="button" class="btn sm alt" onclick="udStep('${i}',-1)">−</button><b id="udq-${i}">0</b><button type="button" class="btn sm alt" onclick="udStep('${i}',1)">+</button></span></div>`).join("")}
+  <div class="note" id="udlv"></div><label style="display:flex;gap:8px;font-weight:500"><input type="checkbox" name="c" required style="width:auto"><span>I’m 18 or older, or my parent/guardian agrees to my name and photo appearing on the wall.</span></label><div class="err" id="err"></div>
+  <div class="row"><button type="button" class="btn alt" onclick="closeM()">Cancel</button><button class="btn g">Add me to the wall</button></div></form>`);udRef()}
+function udSave(e){e.preventDefault();const f=e.target,it={};Object.entries(_udq).forEach(([k,v])=>{if(v>0)it[k]=v});const t=Object.values(it).reduce((s,v)=>s+v,0);
+  if(!t){$("#err").textContent="Add at least one piece to pledge.";return false}
+  const l=ud().filter(x=>x.dev!=devId()),o=udMine(),id=o?o.id:uid(),sc=f.sc.value.trim();l.push({id,dev:devId(),name:f.dn.value.trim(),school:sc,pic:_udp||"",items:it,total:t,ho:f.ho.value,rec:o?o.rec:0,date:o?o.date:Date.now()});set("drive",l);closeM();render();
+  const lv=udL(udPts(it));window._lk=`I just pledged ${t} piece${t>1?"s":""} of my school uniform and reached ${lv.n} on the Class of 2026 Kindness Wall. Your last bell has rung, someone’s is still waiting. Pledge yours: `+base();
+  window._sm=`Good day, I’m a Class of 2026 matriculant${sc?" at "+sc:""}. I’d like to donate ${t} piece${t>1?"s":""} of my school uniform through UniformShare to learners who need it. May I drop it at the school office? Please let me know a suitable time. Thank you.`;
+  modal(`<h3>${lv.e} You’re a ${lv.n}!</h3><p>You’re on the Kindness Wall. Next steps:</p><div class="row"><button class="btn" onclick="udCard('${id}')">📤 Get my pledge card</button></div><div class="row"><a class="btn alt" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="${wa(_sm)}">🏫 Message my school office</a></div><div class="row"><button class="btn alt" onclick="closeM();authModal('signup','donor')">Sign up as a donor</button></div><div class="row"><a class="btn g" style="text-align:center;text-decoration:none" target="_blank" rel="noopener" href="${wa(_lk)}">Share on WhatsApp</a><button class="btn alt" onclick="closeM()">Close</button></div>`);return false}
+function udRecv(){modal(`<h3>✅ Mark as handed over</h3><p>Confirm only once your pieces have been given to your school or a learner. A ✅ badge will show on your frame.</p><div class="row"><button class="btn alt" onclick="closeM()">Not yet</button><button class="btn g" onclick="udDone()">Yes, handed over</button></div>`)}
+function udDone(){const l=ud(),o=l.find(x=>x.dev==devId());if(o){o.rec=1;set("drive",l)}closeM();render();toast("Thank you! Marked as handed over 💙")}
+function udRep(id){modal(`<h3>🚩 Report this wall entry</h3><p class="mu">Reports are anonymous. An entry is hidden after 3 reports, or straight away for child-safety concerns.</p><form onsubmit="return udRepSave(event,'${id}')"><label>Reason</label><select name="why" required><option value="">Select…</option><option value="child">Child-safety concern</option><option value="content">Inappropriate photo or text</option><option value="fake">Fake or not a real matriculant</option><option value="other">Other</option></select><div class="row"><button type="button" class="btn alt" onclick="closeM()">Cancel</button><button class="btn">Submit report</button></div></form>`)}
+function udRepSave(e,id){e.preventDefault();const l=rep(),by=me?me.id:devId();if(!l.some(r=>r.t==id&&r.by==by))l.push({id:uid(),t:id,ty:"w",by,why:e.target.why.value,note:"",date:Date.now()});set("reports",l);closeM();render();toast("Report received. Thank you for keeping the wall safe.");return false}
+async function udCard(id){const x=udFind(id);if(!x)return;const l=udL(udPts(x.items)),c=document.createElement("canvas");c.width=c.height=1080;const g=c.getContext("2d"),gr=g.createLinearGradient(0,0,1080,1080);gr.addColorStop(0,"#5b4bff");gr.addColorStop(1,"#00c2a8");g.fillStyle=gr;g.fillRect(0,0,1080,1080);
+  g.fillStyle="#fff";g.strokeStyle=l.c;g.lineWidth=14;g.beginPath();g.roundRect?g.roundRect(90,90,900,900,48):g.rect(90,90,900,900);g.fill();g.stroke();
+  const im=await new Promise(r=>{if(!x.pic)return r(null);const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=x.pic});
+  g.save();g.beginPath();g.arc(540,330,170,0,7);g.clip();if(im)g.drawImage(im,370,160,340,340);else{g.fillStyle=l.c;g.fillRect(370,160,340,340);g.fillStyle="#fff";g.font="bold 170px sans-serif";g.textAlign="center";g.fillText((x.name||"?")[0].toUpperCase(),540,390)}g.restore();
+  g.textAlign="center";g.fillStyle="#161a33";g.font="bold 64px Georgia,serif";g.fillText(x.name,540,590,800);g.fillStyle=l.c;g.font="bold 48px sans-serif";{const n=UDL.indexOf(l)+1;g.strokeStyle=l.c;g.lineWidth=8;g.lineCap="round";g.lineJoin="round";for(let k=0;k<n;k++){const x=540+(k-(n-1)/2)*46;g.beginPath();g.moveTo(x-15,642);g.lineTo(x,626);g.lineTo(x+15,642);g.stroke()}}g.fillText(l.n.toUpperCase(),540,700,800);
+  g.fillStyle="#161a33";g.font="40px sans-serif";g.fillText(`Pledged ${x.total} piece${x.total>1?"s":""} · ${udPts(x.items)} pts`,540,765,800);g.fillStyle="#68708f";g.font="italic 34px Georgia,serif";g.fillText("Your last bell has rung. Someone’s is still waiting.",540,845,820);g.fillStyle="#5b4bff";g.font="bold 36px sans-serif";g.fillText("Class of 2026 · UniformShare",540,915);
+  window._udc=c;const url=c.toDataURL("image/png");
+  modal(`<h3>📤 Your pledge card</h3><img src="${url}" alt="Pledge card" style="width:100%;border-radius:14px"><div class="row"><a class="btn g" style="text-align:center;text-decoration:none" download="uniformshare-pledge.png" href="${url}">⬇ Download</a><button class="btn" onclick="udNative()">Share</button></div><div class="row"><button class="btn alt" onclick="closeM()">Close</button></div>`)}
+function udNative(){const t="Class of 2026: I pledged my school uniform. Pledge yours: "+base();_udc.toBlob(b=>{const f=new File([b],"pledge.png",{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],text:t}).catch(()=>{});else window.open(wa(t),"_blank")})}
+function udRemind(){modal(`<h3>🔔 Remind me to pledge</h3><p class="mu">Pick your last exam day (or any day). We’ll give you a calendar reminder file for that morning.</p><form onsubmit="return udIcs(event)"><label>Date</label><input name="d" type="date" required><div class="row"><button type="button" class="btn alt" onclick="closeM()">Cancel</button><button class="btn">Download reminder</button></div></form>`)}
+function udIcs(e){e.preventDefault();const v=e.target.d.value,n=new Date(v);n.setDate(n.getDate()+1);const s=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//UniformShare//EN","BEGIN:VEVENT","UID:"+uid()+"@uniformshare","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z","DTSTART;VALUE=DATE:"+v.replace(/-/g,""),"DTEND;VALUE=DATE:"+n.toISOString().slice(0,10).replace(/-/g,""),"SUMMARY:Pledge my school uniform (UniformShare)","DESCRIPTION:Your last bell has rung. Someone’s is still waiting. "+base(),"BEGIN:VALARM","TRIGGER:PT9H","ACTION:DISPLAY","DESCRIPTION:Pledge your uniform","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([s],{type:"text/calendar"}));a.download="uniformshare-reminder.ics";a.click();closeM();toast("Reminder file downloaded");return false}
+const _udr=render;render=function(){_udr.apply(this,arguments);document.body.classList.toggle("ud-lite",udLite());udInject()};
+render();udSplash();
+</script>
+<script>
+/* Forms keep working even where the page is embedded and native form submit is blocked (previews, sandboxed frames) */
+document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("form button:not([type=button]):not([type=reset]),form input[type=submit]");if(!b||!b.form||!b.form.getAttribute("onsubmit"))return;e.preventDefault();const f=b.form;if(f.reportValidity&&!f.reportValidity())return;f.onsubmit&&f.onsubmit({preventDefault(){},target:f})},true);
+</script><style>
+.ic{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic .t{fill:currentColor;fill-opacity:.16;stroke:none}.ic .s{fill:currentColor;stroke:none}.ud-lv .ic{width:1.9em;height:1.9em;display:block;margin:0 auto 2px}.ud-f .rb .ic{width:1.5em;height:1.5em;vertical-align:-.45em;margin-right:2px}.ud-f .rb{padding:1px 10px 1px 6px}.ud-p .tag{display:inline-block;white-space:nowrap;margin:2px 1px}
+</style>
+<script>
+/* Custom icon set: swaps every emoji for a hand-built SVG (rank chevrons, buttons, tally marks, bell...) so the page does not look like stock emoji */
+(function(){
+const S=b=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${b}</svg>`,T=d=>`<path class="t" d="${d}"/><path d="${d}"/>`;
+const CH=n=>{let s='<circle class="t" cx="12" cy="12" r="10.5"/><circle cx="12" cy="12" r="10.5"/>';for(let k=0;k<n;k++){const y=13+(k-(n-1)/2)*2.8;s+=`<path d="M8 ${y+1.5}l4-3 4 3"/>`}return S(s)};
+const M={"💙":S('<circle class="t" cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="5.6"/><path d="M10.3 10.3h.01M13.7 10.3h.01M10.3 13.7h.01M13.7 13.7h.01" stroke-width="2.4"/>'),
+"⭐":S('<path d="M6 5v14M10 5v14M14 5v14M18 5v14M3.5 16.5L20.5 7.5"/>'),
+"🎉":S('<path d="M2.5 5c6 4.5 13 4.5 19 0"/>'+T("M6 8.4l2 5.6 2.2-4.8z")+T("M11 9.8l2.2 6.2 2.2-5.6z")+T("M16.2 9.4l2 5.2 1.8-3.8z")),
+"✅":S(T("M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z")+'<path d="M8 12.5l3 3 5-6"/>'),
+"🛡":S(T("M6 11h12a1 1 0 011 1v7a1 1 0 01-1 1H6a1 1 0 01-1-1v-7a1 1 0 011-1z")+'<path d="M8.5 11V8a3.5 3.5 0 017 0v3M12 14.5v2.5"/>'),
+"📤":S('<path d="M4 19c0-6.5 4-10 10.5-10H18"/><path d="M14.5 4.5L19 9l-4.5 4.5"/>'),
+"📍":S('<path d="M12 3v18M8 21h8"/>'+T("M12 5h7l2 2.5-2 2.5h-7z")+'<path d="M12 12.5H5L3 15l2 2.5h7"/>'),
+"📦":S(T("M3.5 8L12 4l8.5 4v8.5L12 20.5l-8.5-4z")+'<path d="M3.5 8L12 12l8.5-4M12 12v8.5"/>'),
+"🚩":S('<path d="M6 21V4"/>'+T("M6 5h11.5L15 9l2.5 4H6z")),
+"🏫":S(T("M4 20V10.5L12 6l8 4.5V20z")+'<path d="M3 20h18M10 20v-5.5h4V20M12 6V2.5h3.5"/>'),
+"🎓":S(T("M6 17c1.6-2 1.6-4.3 1.6-7a4.4 4.4 0 018.8 0c0 2.7 0 5 1.6 7z")+'<path d="M4.5 17h15M10.3 20.2a1.8 1.8 0 003.4 0M12 3v2"/>'),
+"🎥":S(T("M3 6.5h12a1.5 1.5 0 011.5 1.5v8a1.5 1.5 0 01-1.5 1.5H3a1.5 1.5 0 01-1.5-1.5V8A1.5 1.5 0 013 6.5z")+'<path d="M16.5 10.5l5-3v9l-5-3"/>'),
+"🎁":S(T("M4 10h16v10H4z")+'<path d="M3 10h18M12 10v10M12 10c-1.5-4-6-4-5-1 .6 1.7 5 1 5 1zM12 10c1.5-4 6-4 5-1-.6 1.7-5 1-5 1z"/>'),
+"📷":S(T("M3.5 8h3.5l1.5-2.5h7L17 8h3.5v11.5h-17z")+'<circle cx="12" cy="13.5" r="3.4"/>'),
+"🥇":CH(4),"🥈":CH(3),"🥉":CH(2),"👑":CH(5),"✨":CH(1),
+"🌱":S('<path d="M12 21v-8"/>'+T("M12 13c0-4 3-6.5 7.5-6.5 0 4-3 6.5-7.5 6.5z")+T("M12 15.5c0-3-2-5-6.5-5 0 3 2 5 6.5 5z")),
+"⏳":S('<circle class="t" cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.4 2"/>'),
+"🔔":S(T("M5.5 5.5h13a1.5 1.5 0 011.5 1.5v11a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18V7a1.5 1.5 0 011.5-1.5z")+'<path d="M4 10h16M8 3v4M16 3v4"/><path d="M9 14.5h.01M12 14.5h.01M15 14.5h.01" stroke-width="2.4"/>'),
+"👕":S(T("M8.5 4L3 7l2 4 3-1.5V20h8v-10.5L19 11l2-4-5.5-3c-.5 1.5-1.8 2.5-3.5 2.5S9 5.5 8.5 4z")),
+"📥":S(T("M3 13l2.6-7h12.8L21 13v6H3z")+'<path d="M3 13h5.5l1 2.5h5l1-2.5H21"/>'),
+"⏸":S('<path d="M9 6v12M15 6v12" stroke-width="2.6"/>'),
+"🗑":S('<path d="M4.5 7h15M9.5 7V4.5h5V7"/>'+T("M6.5 7l1 13h9l1-13z")+'<path d="M10 11v6M14 11v6"/>'),
+"👧":S('<circle class="t" cx="12" cy="9" r="4"/><circle cx="12" cy="9" r="4"/><path d="M4.5 21c0-4 3-6 7.5-6s7.5 2 7.5 6M7 7.5L5 12M17 7.5L19 12"/>'),
+"👦":S('<circle class="t" cx="12" cy="9" r="4"/><circle cx="12" cy="9" r="4"/><path d="M4.5 21c0-4 3-6 7.5-6s7.5 2 7.5 6M8.2 7.6c1-2.4 5.6-2.4 7.6 0"/>'),
+"◐":S('<circle cx="12" cy="12" r="8"/><path class="s" d="M12 4a8 8 0 010 16z"/>'),"●":S('<circle class="s" cx="12" cy="12" r="6"/>'),
+"🔀":S('<path d="M3.5 7H7c4 0 5 10 9 10h4M3.5 17H7c1.4 0 2.5-1.2 3.5-3M13.5 8.5C14.5 7.5 15.5 7 17 7h3.5M17.5 4l3 3-3 3M17.5 14l3 3-3 3"/>'),
+"🧪":S(T("M3.5 12.5V4.5h8l9 9-8 8z")+'<circle cx="8" cy="9" r="1.2"/>'),
+"📶":S('<path d="M5 19v-4M10 19v-7.5M15 19V7.5M20 19V3.5" stroke-width="2.6"/>'),
+"➕":S('<path d="M12 5v14M5 12h14" stroke-width="2.4"/>'),"⬇":S('<path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/>')};
+M["✔"]=M["✅"];
+const E="[\\u{1F300}-\\u{1FAFF}\\u2705\\u2714\\u2728\\u23F3\\u23F8\\u2B50\\u2795\\u2B07\\u25D0\\u25CF]\\uFE0F?",TS=new RegExp(E,"u"),SP=new RegExp("("+E+")","u"),SK=/^(SCRIPT|STYLE|TEXTAREA|TITLE)$/;
+function conv(root){if(!root||root.nodeType==8)return;const ns=[];if(root.nodeType==3)ns.push(root);else if(root.nodeType==1){const w=document.createTreeWalker(root,4);let n;while(n=w.nextNode())ns.push(n)}
+  ns.forEach(n=>{const p=n.parentNode;if(!p||SK.test(p.nodeName)||!TS.test(n.nodeValue))return;
+    if(p.nodeName=="OPTION"){n.nodeValue=n.nodeValue.split(SP).filter((x,i)=>i%2==0).join("").replace(/^\s+/,"");return}
+    const f=document.createDocumentFragment();n.nodeValue.split(SP).forEach((x,i)=>{if(i%2==0){if(x)f.appendChild(document.createTextNode(x));return}const k=x.replace(/\uFE0F/g,"");if(M[k]){const t=document.createElement("template");t.innerHTML=M[k];f.appendChild(t.content.firstChild)}else f.appendChild(document.createTextNode(x))});p.replaceChild(f,n)})}
+new MutationObserver(ms=>ms.forEach(m=>{m.addedNodes.forEach(conv);if(m.type=="characterData")conv(m.target)})).observe(document.body,{childList:true,subtree:true,characterData:true});
+conv(document.body);
+})();
+</script>
+</body></html>
