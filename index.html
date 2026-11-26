@@ -123,9 +123,9 @@ header.open .burger span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 const ITEMS=["Shoes","Jerseys","Pullover","Tie","Socks","Blazer","Hoodie","Shirt","Trousers","Skirt","Other"];
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const SUPABASE_URL="https://YOUR-PROJECT.supabase.co",SUPABASE_ANON_KEY="YOUR-ANON-KEY";
+const SUPABASE_URL="SUPABASE_URL = 'https://jpevxsxowfrpruetckaw.supabase.co',SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwZXZ4c3hvd2ZycHJ1ZXRja2F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MDg5NTAsImV4cCI6MjEwNTA4NDk1MH0.6AIJsAoWuZQVAaE1Ez2nv70X3ac2QcHts-dCRPCUarA';
 const SB=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{flowType:"pkce",detectSessionInUrl:true,persistSession:true}});
-const mem={};
+ const mem={};
 const C={users:[],reqs:[],offs:[],chats:[],reports:[],adopts:[],drive:[]};
 const TB={reqs:["requests","pledges"],offs:["offers","responses"],chats:["chats"],reports:["reports"],adopts:["adopts"],drive:["drive"]};
 let SN={},Q=Promise.resolve(),HID=new Set(),GU={};
